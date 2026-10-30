@@ -1,58 +1,170 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   LayoutDashboard,
-  Users,
+  Layout,
   Briefcase,
   DollarSign,
+  MessageSquare,
   Settings,
   ArrowLeft,
-  Search,
-  Bell,
-  Sun,
-  Moon,
+  ExternalLink,
+  Sparkles,
+  LogOut,
   ChevronDown,
   Menu,
   X,
-  Sparkles,
-  LogOut,
-  ShieldCheck,
-  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminStore';
 import { OverviewView } from './OverviewView';
 import { LeadsView } from './LeadsView';
-import { PortfolioView } from './PortfolioView';
-import { PricingView } from './PricingView';
-import { SettingsView } from './SettingsView';
+import { PagesSectionsView } from './editors/PagesSectionsView';
+import { PortfolioEditorView } from './editors/PortfolioEditorView';
+import { PricingEditorView } from './editors/PricingEditorView';
+import { SettingsEditorView } from './editors/SettingsEditorView';
+import { UnsavedChangesModal } from './UnsavedChangesModal';
 
 interface DashboardLayoutProps {
   onBackToSite: () => void;
 }
 
-export type AdminTab = 'overview' | 'leads' | 'portfolio' | 'pricing' | 'settings';
+export type AdminTab =
+  | 'overview'
+  | 'pages'
+  | 'portfolio'
+  | 'pricing'
+  | 'messages'
+  | 'settings';
+
+type PendingNavAction =
+  | { type: 'tab'; tab: AdminTab }
+  | { type: 'backToSite' };
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [themeDark, setThemeDark] = useState(false);
-  const { leads, settings } = useAdmin();
+  const { leads, content } = useAdmin();
 
-  const newLeadsCount = leads.filter((l) => l.status === 'New').length;
+  // Dirty state tracking across active editors
+  const [isDirty, setIsDirty] = useState(false);
+  const [isSavingPending, setIsSavingPending] = useState(false);
+  const saveHandlerRef = useRef<(() => Promise<boolean>) | null>(null);
+  const cancelHandlerRef = useRef<(() => void) | null>(null);
 
-  const navItems: { id: AdminTab; label: string; icon: React.ComponentType<{ className?: string }>; badge?: number }[] = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'leads', label: 'Leads & CRM', icon: Users, badge: newLeadsCount },
+  // Navigation guard modal
+  const [pendingNav, setPendingNav] = useState<PendingNavAction | null>(null);
+  const [isUnsavedModalOpen, setIsUnsavedModalOpen] = useState(false);
+
+  const handleDirtyChange = useCallback(
+    (dirty: boolean, saveFn: () => Promise<boolean>, cancelFn: () => void) => {
+      setIsDirty(dirty);
+      saveHandlerRef.current = saveFn;
+      cancelHandlerRef.current = cancelFn;
+    },
+    []
+  );
+
+  const handleNavigateTab = (targetTab: AdminTab) => {
+    if (targetTab === activeTab) {
+      setSidebarOpen(false);
+      return;
+    }
+    if (isDirty) {
+      setPendingNav({ type: 'tab', tab: targetTab });
+      setIsUnsavedModalOpen(true);
+      return;
+    }
+    setIsDirty(false);
+    saveHandlerRef.current = null;
+    cancelHandlerRef.current = null;
+    setActiveTab(targetTab);
+    setSidebarOpen(false);
+  };
+
+  const handleNavigateBack = () => {
+    if (isDirty) {
+      setPendingNav({ type: 'backToSite' });
+      setIsUnsavedModalOpen(true);
+      return;
+    }
+    onBackToSite();
+  };
+
+  const handleModalSaveAndContinue = async () => {
+    setIsSavingPending(true);
+    try {
+      if (saveHandlerRef.current) {
+        const success = await saveHandlerRef.current();
+        if (!success) {
+          setIsUnsavedModalOpen(false);
+          setIsSavingPending(false);
+          return;
+        }
+      }
+      setIsDirty(false);
+      setIsUnsavedModalOpen(false);
+
+      if (pendingNav?.type === 'tab') {
+        setActiveTab(pendingNav.tab);
+      } else if (pendingNav?.type === 'backToSite') {
+        onBackToSite();
+      }
+      setPendingNav(null);
+      setSidebarOpen(false);
+    } finally {
+      setIsSavingPending(false);
+    }
+  };
+
+  const handleModalDiscardAndContinue = () => {
+    if (cancelHandlerRef.current) {
+      cancelHandlerRef.current();
+    }
+    setIsDirty(false);
+    setIsUnsavedModalOpen(false);
+
+    if (pendingNav?.type === 'tab') {
+      setActiveTab(pendingNav.tab);
+    } else if (pendingNav?.type === 'backToSite') {
+      onBackToSite();
+    }
+    setPendingNav(null);
+    setSidebarOpen(false);
+  };
+
+  const handleModalKeepEditing = () => {
+    setIsUnsavedModalOpen(false);
+    setPendingNav(null);
+  };
+
+  const newMessagesCount = leads.filter((l) => l.status === 'New').length;
+
+  const navItems: {
+    id: AdminTab;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    badge?: number;
+  }[] = [
+    { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'pages', label: 'Website Pages', icon: Layout },
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
-    { id: 'pricing', label: 'Services & Pricing', icon: DollarSign },
-    { id: 'settings', label: 'Site Settings & SEO', icon: Settings },
+    { id: 'pricing', label: 'Packages & Pricing', icon: DollarSign },
+    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: newMessagesCount },
+    { id: 'settings', label: 'Website Settings', icon: Settings },
   ];
 
   return (
-    <div className={`min-h-screen flex ${themeDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} font-sans`}>
-      {/* 1. Sidebar (Desktop & Mobile Drawer) */}
+    <div
+      className="admin-root min-h-screen flex bg-slate-50 text-slate-900 font-sans"
+      style={{
+        '--admin-sidebar-width': isSidebarCollapsed ? '4.5rem' : '16rem',
+      } as React.CSSProperties}
+    >
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
@@ -61,38 +173,60 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
         />
       )}
 
+      {/* 1. Simplified Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 transition-transform duration-300 lg:translate-x-0 ${
+        style={{ width: 'var(--admin-sidebar-width, 16rem)' }}
+        className={`fixed top-0 bottom-0 left-0 z-50 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 transition-all duration-300 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div>
-          {/* Sidebar Brand Header */}
-          <div className="p-6 border-b border-slate-800/80 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/30">
+        <div className="flex-1 overflow-y-auto">
+          {/* Brand Header */}
+          <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 shrink-0">
                 <Sparkles className="w-4 h-4 text-white" />
               </span>
-              <div>
-                <span className="text-base font-extrabold text-white font-display block leading-none">
-                  Nexor<span className="text-indigo-400">Dive</span>
-                </span>
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mt-1 block">
-                  Admin Console
-                </span>
-              </div>
+              {!isSidebarCollapsed && (
+                <div className="min-w-0">
+                  <span className="text-sm font-extrabold text-white font-display block leading-none truncate">
+                    {content.global.agencyName}
+                  </span>
+                  <span className="text-[10px] text-indigo-400 font-semibold tracking-wider mt-1 block">
+                    Website Manager
+                  </span>
+                </div>
+              )}
             </div>
 
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Desktop collapse toggle */}
+              <button
+                type="button"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="hidden lg:flex p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              >
+                {isSidebarCollapsed ? (
+                  <ChevronRight className="w-4 h-4" />
+                ) : (
+                  <ChevronLeft className="w-4 h-4" />
+                )}
+              </button>
+
+              {/* Mobile drawer close */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
-          {/* Nav Items */}
-          <nav className="p-4 space-y-1.5">
+          {/* Simple Navigation Menu */}
+          <nav className="p-3 space-y-1.5 mt-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -100,119 +234,94 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
               return (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  onClick={() => handleNavigateTab(item.id)}
+                  title={isSidebarCollapsed ? item.label : undefined}
+                  className={`w-full flex items-center ${
+                    isSidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3.5'
+                  } py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    {!isSidebarCollapsed && <span className="truncate">{item.label}</span>}
                   </div>
-                  {item.badge && item.badge > 0 ? (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white">
+
+                  {!isSidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 shrink-0">
                       {item.badge}
                     </span>
-                  ) : null}
+                  )}
                 </button>
               );
             })}
           </nav>
         </div>
 
-        {/* Sidebar Footer: Back to Live Site */}
-        <div className="p-4 border-t border-slate-800/80 space-y-3">
-          <button
-            onClick={onBackToSite}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-800 hover:text-white transition-all cursor-pointer border border-slate-700/60"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return to Live Site</span>
-          </button>
+        {/* Sidebar Footer with single unobtrusive notice and return button */}
+        <div className="p-3 border-t border-slate-800/80 bg-slate-950/40 space-y-2">
+          {!isSidebarCollapsed && (
+            <div className="text-[11px] text-slate-400 text-center">
+              Demo mode: changes are saved in this browser only.
+            </div>
+          )}
 
-          <div className="px-2 py-1 text-[11px] text-slate-500 font-mono flex items-center justify-between">
-            <span>Version 2.4</span>
-            <span className="text-emerald-400 font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Live
-            </span>
-          </div>
+          <button
+            onClick={handleNavigateBack}
+            title={isSidebarCollapsed ? 'Return to Website' : undefined}
+            className={`w-full flex items-center ${
+              isSidebarCollapsed ? 'justify-center p-2' : 'justify-center gap-2 py-2.5 px-4'
+            } rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-all cursor-pointer`}
+          >
+            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+            {!isSidebarCollapsed && <span>Return to Website</span>}
+          </button>
         </div>
       </aside>
 
-      {/* 2. Main Shell (Header + Content) */}
-      <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
-        {/* Top Header */}
-        <header
-          className={`h-16 px-6 border-b flex items-center justify-between sticky top-0 z-30 transition-colors ${
-            themeDark
-              ? 'bg-slate-900/90 border-slate-800 backdrop-blur-md'
-              : 'bg-white/90 border-slate-200 backdrop-blur-md'
-          }`}
-        >
-          {/* Left: Mobile Toggle & Breadcrumb */}
-          <div className="flex items-center gap-4">
+      {/* 2. Main Wrapper */}
+      <div
+        className="flex-1 flex flex-col min-w-0 transition-all duration-300"
+        style={{ paddingLeft: 'var(--admin-sidebar-offset, 0px)' }}
+      >
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 sm:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
-              aria-label="Open sidebar menu"
+              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-500">
-              <span>Admin Console</span>
-              <span>/</span>
-              <span className={`font-bold capitalize ${themeDark ? 'text-white' : 'text-slate-900'}`}>
-                {activeTab}
-              </span>
-            </div>
+            <span className="text-xs font-semibold text-slate-500 hidden sm:inline">
+              NexorDive Manager Portal
+            </span>
           </div>
 
-          {/* Right: Controls & User Profile */}
           <div className="flex items-center gap-3">
-            {/* Dark / Light Toggle */}
             <button
-              onClick={() => setThemeDark(!themeDark)}
-              className={`p-2 rounded-xl border transition-colors cursor-pointer ${
-                themeDark
-                  ? 'bg-slate-800 border-slate-700 text-amber-400 hover:text-amber-300'
-                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900'
-              }`}
-              title={themeDark ? 'Switch to Light Console' : 'Switch to Dark Console'}
+              onClick={handleNavigateBack}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
             >
-              {themeDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+              <span>View Website</span>
             </button>
 
-            {/* Quick Live Site Link */}
-            <button
-              onClick={onBackToSite}
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
-            >
-              <span>Public Site</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </button>
-
-            {/* User Profile Dropdown */}
+            {/* Profile Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="flex items-center gap-2 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                  F
+                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                  A
                 </div>
                 <div className="text-left hidden sm:block">
-                  <span className={`text-xs font-bold block leading-none ${themeDark ? 'text-white' : 'text-slate-900'}`}>
-                    Farmanullah
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    Owner & Admin
+                  <span className="text-xs font-bold block leading-none text-slate-900">
+                    Website Manager
                   </span>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -220,57 +329,54 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
 
               {userDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl p-2 shadow-2xl z-50 text-xs"
+                  className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl p-2 shadow-xl z-50 text-xs"
                   onClick={() => setUserDropdownOpen(false)}
                 >
-                  <div className="p-3 border-b border-slate-100">
-                    <span className="font-bold text-slate-900 block">Farmanullah</span>
-                    <span className="text-[11px] text-slate-500 font-mono truncate block">
-                      {settings.contactEmail}
-                    </span>
-                  </div>
-                  <div className="py-1">
-                    <button
-                      onClick={() => setActiveTab('settings')}
-                      className="w-full text-left px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                    >
-                      <Settings className="w-4 h-4 text-slate-400" />
-                      <span>Account & SEO Settings</span>
-                    </button>
-                    <button
-                      onClick={onBackToSite}
-                      className="w-full text-left px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                    >
-                      <ExternalLink className="w-4 h-4 text-slate-400" />
-                      <span>View Public Website</span>
-                    </button>
-                  </div>
-                  <div className="pt-1 border-t border-slate-100">
-                    <button
-                      onClick={onBackToSite}
-                      className="w-full text-left px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-semibold"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleNavigateTab('settings')}
+                    className="w-full text-left px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4 text-slate-400" />
+                    <span>Website Settings</span>
+                  </button>
+
+                  <button
+                    onClick={handleNavigateBack}
+                    className="w-full text-left px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-semibold cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Exit Manager</span>
+                  </button>
                 </div>
               )}
             </div>
           </div>
         </header>
 
-        {/* 3. Main Content Area */}
-        <main className="flex-1 p-6 sm:p-8 md:p-10 max-w-7xl w-full mx-auto">
+        {/* 3. Main Workspace */}
+        <main className="flex-1 p-6 sm:p-8 md:p-10 max-w-7xl w-full mx-auto relative min-h-screen">
           {activeTab === 'overview' && (
-            <OverviewView onNavigateTab={(tab) => setActiveTab(tab)} />
+            <OverviewView
+              onNavigateTab={(tab) => handleNavigateTab(tab)}
+              onBackToSite={handleNavigateBack}
+            />
           )}
-          {activeTab === 'leads' && <LeadsView />}
-          {activeTab === 'portfolio' && <PortfolioView />}
-          {activeTab === 'pricing' && <PricingView />}
-          {activeTab === 'settings' && <SettingsView />}
+          {activeTab === 'pages' && <PagesSectionsView onDirtyChange={handleDirtyChange} />}
+          {activeTab === 'portfolio' && <PortfolioEditorView onDirtyChange={handleDirtyChange} />}
+          {activeTab === 'pricing' && <PricingEditorView onDirtyChange={handleDirtyChange} />}
+          {activeTab === 'messages' && <LeadsView />}
+          {activeTab === 'settings' && <SettingsEditorView onDirtyChange={handleDirtyChange} />}
         </main>
       </div>
+
+      {/* Accidental Loss Prevention Dialog */}
+      <UnsavedChangesModal
+        isOpen={isUnsavedModalOpen}
+        onSaveAndContinue={handleModalSaveAndContinue}
+        onDiscardAndContinue={handleModalDiscardAndContinue}
+        onKeepEditing={handleModalKeepEditing}
+        isSaving={isSavingPending}
+      />
     </div>
   );
 };

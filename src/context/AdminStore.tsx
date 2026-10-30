@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CASE_STUDIES } from '../data/agencyData';
 import { CaseStudy } from '../types/agency';
+import { SiteContent } from '../types/content';
+import { getStoredContent, saveStoredContent, resetContentToDefaults } from '../services/contentRepository';
 
 export interface Lead {
   id: string;
@@ -46,23 +48,32 @@ export interface SiteSettings {
   leaderImage: string;
 }
 
-interface AdminContextType {
+export interface AdminContextType {
+  // Published Site Content
+  content: SiteContent;
+  updateContent: (newContent: SiteContent) => { success: boolean; error?: string };
+  updateContentSection: <K extends keyof SiteContent>(section: K, data: SiteContent[K]) => { success: boolean; error?: string };
+  resetAllContent: () => void;
+
+  // Leads & CRM
   leads: Lead[];
   updateLeadStatus: (id: string, status: Lead['status']) => void;
   deleteLead: (id: string) => void;
   addLead: (lead: Omit<Lead, 'id' | 'date'>) => void;
-  
+  clearAllLeads?: () => void;
+
+  // Backward-compatible accessors
   projects: CaseStudy[];
   addProject: (project: Omit<CaseStudy, 'id'>) => void;
   updateProject: (id: string, project: Partial<CaseStudy>) => void;
   deleteProject: (id: string) => void;
-  
+
   pricingPlans: PricingPlanControl[];
   updatePricingPlan: (id: string, data: Partial<PricingPlanControl>) => void;
-  
+
   services: ServiceControl[];
   toggleService: (id: string) => void;
-  
+
   settings: SiteSettings;
   updateSettings: (newSettings: Partial<SiteSettings>) => void;
 }
@@ -206,91 +217,85 @@ const DEFAULT_SERVICES: ServiceControl[] = [
 const AdminContext = createContext<AdminContextType | null>(null);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Master site content published state
+  const [content, setContent] = useState<SiteContent>(() => getStoredContent());
+
+  // Leads CRM state (persisted in localStorage)
   const [leads, setLeads] = useState<Lead[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('nexor_admin_leads');
       if (saved) {
-        try { return JSON.parse(saved); } catch (_) {}
+        try {
+          return JSON.parse(saved);
+        } catch (_) {}
       }
     }
     return DEFAULT_LEADS;
   });
 
-  const [projects, setProjects] = useState<CaseStudy[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nexor_admin_projects');
-      if (saved) {
-        try { return JSON.parse(saved); } catch (_) {}
-      }
-    }
-    return CASE_STUDIES;
-  });
-
-  const [pricingPlans, setPricingPlans] = useState<PricingPlanControl[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nexor_admin_pricing');
-      if (saved) {
-        try { return JSON.parse(saved); } catch (_) {}
-      }
-    }
-    return DEFAULT_PRICING;
-  });
-
-  const [services, setServices] = useState<ServiceControl[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nexor_admin_services');
-      if (saved) {
-        try { return JSON.parse(saved); } catch (_) {}
-      }
-    }
-    return DEFAULT_SERVICES;
-  });
-
-  const [settings, setSettings] = useState<SiteSettings>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nexor_admin_settings');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          return { ...DEFAULT_SETTINGS, ...parsed };
-        } catch (_) {}
-      }
-    }
-    return DEFAULT_SETTINGS;
-  });
-
-  // Sync to local storage
+  // Keep localStorage leads synced
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('nexor_admin_leads', JSON.stringify(leads));
+      try {
+        localStorage.setItem('nexor_admin_leads', JSON.stringify(leads));
+      } catch (_) {}
     }
   }, [leads]);
 
+  // Sync client-side document metadata whenever SEO settings change
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('nexor_admin_projects', JSON.stringify(projects));
+    if (typeof document !== 'undefined') {
+      if (content.seo?.metaTitle) {
+        document.title = content.seo.metaTitle;
+      }
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc && content.seo?.metaDescription) {
+        metaDesc.setAttribute('content', content.seo.metaDescription);
+      }
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle && content.seo?.ogTitle) {
+        ogTitle.setAttribute('content', content.seo.ogTitle);
+      }
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc && content.seo?.metaDescription) {
+        ogDesc.setAttribute('content', content.seo.metaDescription);
+      }
     }
-  }, [projects]);
+  }, [content.seo]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('nexor_admin_pricing', JSON.stringify(pricingPlans));
+  // Update entire content
+  const updateContent = (newContent: SiteContent): { success: boolean; error?: string } => {
+    const result = saveStoredContent(newContent);
+    if (result.success) {
+      setContent(newContent);
     }
-  }, [pricingPlans]);
+    return result;
+  };
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('nexor_admin_services', JSON.stringify(services));
+  // Update a single section of site content
+  const updateContentSection = <K extends keyof SiteContent>(
+    section: K,
+    sectionData: SiteContent[K]
+  ): { success: boolean; error?: string } => {
+    const updated: SiteContent = {
+      ...content,
+      [section]: sectionData,
+      lastUpdated: new Date().toISOString(),
+    };
+    const result = saveStoredContent(updated);
+    if (result.success) {
+      setContent(updated);
     }
-  }, [services]);
+    return result;
+  };
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('nexor_admin_settings', JSON.stringify(settings));
-    }
-  }, [settings]);
+  // Reset content to defaults
+  const resetAllContent = () => {
+    const defaults = resetContentToDefaults();
+    setContent(defaults);
+  };
 
-  // Lead handlers
+  // Leads handlers
   const updateLeadStatus = (id: string, status: Lead['status']) => {
     setLeads((prev) =>
       prev.map((lead) => (lead.id === id ? { ...lead, status } : lead))
@@ -299,6 +304,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteLead = (id: string) => {
     setLeads((prev) => prev.filter((lead) => lead.id !== id));
+  };
+
+  const clearAllLeads = () => {
+    setLeads([]);
   };
 
   const addLead = (lead: Omit<Lead, 'id' | 'date'>) => {
@@ -311,51 +320,165 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setLeads((prev) => [newLead, ...prev]);
   };
 
-  // Project handlers
+  // Backward-compatible portfolio helpers mapped to content.portfolio
+  const projects = (content.portfolio?.projects || []) as CaseStudy[];
+
   const addProject = (projectData: Omit<CaseStudy, 'id'>) => {
-    const newProj: CaseStudy = {
+    const newProj = {
       ...projectData,
       id: `project-${Date.now()}`,
-    };
-    setProjects((prev) => [newProj, ...prev]);
+      featured: true,
+      visible: true,
+      order: (content.portfolio?.projects?.length || 0) + 1,
+    } as any;
+    updateContentSection('portfolio', {
+      ...content.portfolio,
+      projects: [newProj, ...(content.portfolio?.projects || [])],
+    });
   };
 
   const updateProject = (id: string, updatedData: Partial<CaseStudy>) => {
-    setProjects((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updatedData } : p))
+    const updatedProjects = (content.portfolio?.projects || []).map((p) =>
+      p.id === id ? { ...p, ...updatedData } : p
     );
+    updateContentSection('portfolio', {
+      ...content.portfolio,
+      projects: updatedProjects,
+    });
   };
 
   const deleteProject = (id: string) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    const updatedProjects = (content.portfolio?.projects || []).filter((p) => p.id !== id);
+    updateContentSection('portfolio', {
+      ...content.portfolio,
+      projects: updatedProjects,
+    });
   };
 
-  // Pricing handlers
+  // Backward-compatible pricing helpers mapped to content.pricing
+  const pricingPlans: PricingPlanControl[] = (content.pricing?.plans || []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    billing: p.billing,
+    badge: p.badge,
+    popular: p.popular,
+    features: p.features,
+    turnaround: p.turnaround,
+  }));
+
   const updatePricingPlan = (id: string, data: Partial<PricingPlanControl>) => {
-    setPricingPlans((prev) =>
-      prev.map((plan) => (plan.id === id ? { ...plan, ...data } : plan))
+    const updatedPlans = (content.pricing?.plans || []).map((p) =>
+      p.id === id ? { ...p, ...data } : p
     );
+    updateContentSection('pricing', {
+      ...content.pricing,
+      plans: updatedPlans,
+    });
   };
 
-  // Service toggling
+  // Backward-compatible services helpers mapped to content.services
+  const services: ServiceControl[] = (content.services?.cards || []).map((c) => ({
+    id: c.id,
+    title: c.title,
+    category: c.techStack.join(', '),
+    enabled: c.visible,
+  }));
+
   const toggleService = (id: string) => {
-    setServices((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s))
+    const updatedCards = (content.services?.cards || []).map((c) =>
+      c.id === id ? { ...c, visible: !c.visible } : c
     );
+    updateContentSection('services', {
+      ...content.services,
+      cards: updatedCards,
+    });
   };
 
-  // Settings
+  // Backward-compatible settings mapped to content.global, content.seo, and content.mission
+  const settings: SiteSettings = (() => {
+    let savedSettings: Partial<SiteSettings> = {};
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('nexor_admin_settings');
+        if (raw) savedSettings = JSON.parse(raw);
+      } catch (_) {}
+    }
+    return {
+      whatsappNumber: content.global?.whatsappNumber || savedSettings.whatsappNumber || DEFAULT_SETTINGS.whatsappNumber,
+      contactEmail: content.global?.contactEmail || savedSettings.contactEmail || DEFAULT_SETTINGS.contactEmail,
+      metaTitle: content.seo?.metaTitle || savedSettings.metaTitle || DEFAULT_SETTINGS.metaTitle,
+      metaDescription: content.seo?.metaDescription || savedSettings.metaDescription || DEFAULT_SETTINGS.metaDescription,
+      ogImageUrl: content.seo?.ogImageUrl || savedSettings.ogImageUrl || DEFAULT_SETTINGS.ogImageUrl,
+      agencyName: content.global?.agencyName || savedSettings.agencyName || DEFAULT_SETTINGS.agencyName,
+      leaderName: content.global?.leaderName || content.mission?.ceoBadgeName || savedSettings.leaderName || DEFAULT_SETTINGS.leaderName,
+      leaderRole: content.global?.leaderRole || content.mission?.ceoBadgeTitle || savedSettings.leaderRole || DEFAULT_SETTINGS.leaderRole,
+      leaderImage: content.global?.leaderImage || content.mission?.ceoAvatar || savedSettings.leaderImage || DEFAULT_SETTINGS.leaderImage,
+    };
+  })();
+
   const updateSettings = (newSettings: Partial<SiteSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+    const updatedGlobal = {
+      ...content.global,
+      ...(newSettings.agencyName !== undefined ? { agencyName: newSettings.agencyName } : {}),
+      ...(newSettings.whatsappNumber !== undefined ? { whatsappNumber: newSettings.whatsappNumber } : {}),
+      ...(newSettings.contactEmail !== undefined ? { contactEmail: newSettings.contactEmail } : {}),
+      ...(newSettings.leaderName !== undefined ? { leaderName: newSettings.leaderName } : {}),
+      ...(newSettings.leaderRole !== undefined ? { leaderRole: newSettings.leaderRole } : {}),
+      ...(newSettings.leaderImage !== undefined ? { leaderImage: newSettings.leaderImage } : {}),
+    };
+    const updatedSeo = {
+      ...content.seo,
+      ...(newSettings.metaTitle !== undefined ? { metaTitle: newSettings.metaTitle, ogTitle: newSettings.metaTitle } : {}),
+      ...(newSettings.metaDescription !== undefined ? { metaDescription: newSettings.metaDescription } : {}),
+      ...(newSettings.ogImageUrl !== undefined ? { ogImageUrl: newSettings.ogImageUrl } : {}),
+    };
+    const updatedMission = {
+      ...content.mission,
+      ...(newSettings.leaderName !== undefined ? { ceoBadgeName: newSettings.leaderName } : {}),
+      ...(newSettings.leaderRole !== undefined ? { ceoBadgeTitle: newSettings.leaderRole } : {}),
+      ...(newSettings.leaderImage !== undefined ? { ceoAvatar: newSettings.leaderImage } : {}),
+    };
+    const updatedContent: SiteContent = {
+      ...content,
+      global: updatedGlobal,
+      seo: updatedSeo,
+      mission: updatedMission,
+      lastUpdated: new Date().toISOString(),
+    };
+    saveStoredContent(updatedContent);
+    setContent(updatedContent);
+
+    if (typeof window !== 'undefined') {
+      try {
+        const toSave = {
+          agencyName: updatedGlobal.agencyName,
+          whatsappNumber: updatedGlobal.whatsappNumber,
+          contactEmail: updatedGlobal.contactEmail,
+          metaTitle: updatedSeo.metaTitle,
+          metaDescription: updatedSeo.metaDescription,
+          ogImageUrl: updatedSeo.ogImageUrl,
+          leaderName: updatedGlobal.leaderName,
+          leaderRole: updatedGlobal.leaderRole,
+          leaderImage: updatedGlobal.leaderImage,
+        };
+        localStorage.setItem('nexor_admin_settings', JSON.stringify(toSave));
+      } catch (_) {}
+    }
   };
 
   return (
     <AdminContext.Provider
       value={{
+        content,
+        updateContent,
+        updateContentSection,
+        resetAllContent,
         leads,
         updateLeadStatus,
         deleteLead,
         addLead,
+        clearAllLeads,
         projects,
         addProject,
         updateProject,
@@ -379,4 +502,10 @@ export const useAdmin = () => {
     throw new Error('useAdmin must be used within an AdminProvider');
   }
   return context;
+};
+
+// Convenient alias
+export const useContent = () => {
+  const { content, updateContent, updateContentSection, resetAllContent } = useAdmin();
+  return { content, updateContent, updateContentSection, resetAllContent };
 };

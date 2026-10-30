@@ -9,6 +9,7 @@ import {
   MessageCircle,
   ShieldCheck,
 } from 'lucide-react';
+import { useAdmin } from '../context/AdminStore';
 
 interface ContactFormData {
   name: string;
@@ -28,6 +29,10 @@ export const Contact: React.FC<ContactProps> = ({
   initialSummary = '',
   onSuccessSubmit,
 }) => {
+  const { content, addLead } = useAdmin();
+  const contactData = content?.contact;
+  const globalData = content?.global;
+
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -41,6 +46,10 @@ export const Contact: React.FC<ContactProps> = ({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
+
+  const whatsappNum = globalData?.whatsappNumber || '+92 314 600 9810';
+  const rawCleanPhone = whatsappNum.replace(/[^0-9]/g, '');
+  const emailAddr = globalData?.contactEmail || 'hello@nexordive.com';
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -78,6 +87,18 @@ export const Contact: React.FC<ContactProps> = ({
       setSubmittedId(generatedId);
       setIsSubmitted(true);
       setIsSubmitting(false);
+
+      // Auto-save into AdminStore CRM
+      addLead({
+        name: formData.name,
+        whatsapp: formData.whatsapp,
+        email: formData.email,
+        service: formData.service,
+        budget: formData.budget,
+        status: 'New',
+        notes: formData.message || 'Direct inquiry via website contact form.',
+      });
+
       if (onSuccessSubmit) {
         onSuccessSubmit(formData);
       }
@@ -97,6 +118,11 @@ export const Contact: React.FC<ContactProps> = ({
     setErrors({});
   };
 
+  const responseGuaranteeText =
+    contactData?.responseGuarantee || '24-Hour Technical Review Guarantee';
+  const ndaGuaranteeText =
+    contactData?.ndaGuarantee || 'Mutual NDA Protection for all briefs';
+
   return (
     <section id="contact" className="py-24 md:py-32 relative border-t border-slate-200 bg-[#f8fafc]">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
@@ -104,32 +130,34 @@ export const Contact: React.FC<ContactProps> = ({
         <div className="max-w-2xl mb-16">
           <div className="text-xs font-semibold uppercase tracking-wider text-[#0d5363] mb-3 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#0d5363]" />
-            <span>Get In Touch</span>
+            <span>{contactData?.sectionEyebrow || 'Get In Touch'}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-slate-900 tracking-tight text-balance">
-            Let's start your project.
+            {contactData?.sectionTitle || "Let's start your project."}
           </h2>
           <p className="text-slate-600 text-sm sm:text-base mt-4 leading-relaxed">
-            Have an idea for a web platform, mobile app, branding system, or custom IT solutions? Reach out directly or fill in the form below.
+            {contactData?.sectionDescription ||
+              'Have an idea for a web platform, mobile app, branding system, or custom IT solutions? Reach out directly or fill in the form below.'}
           </p>
         </div>
 
         {/* 2-Column Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-start">
-          {/* Left Side: Contact Information (Email, WhatsApp +92 314 600 9810) */}
+          {/* Left Side: Contact Information */}
           <div className="lg:col-span-5 space-y-6">
             <div className="p-8 rounded-2xl bg-white border border-slate-200 space-y-6 shadow-sm">
               <h3 className="text-xl font-bold text-slate-950 font-display">
-                Direct Contact Channels
+                {contactData?.directHeading || 'Direct Contact Channels'}
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Connect with our team directly via WhatsApp for quick scoping chats, or email us your comprehensive RFP.
+                {contactData?.directDescription ||
+                  'Connect with our team directly via WhatsApp for quick scoping chats, or email us your comprehensive RFP.'}
               </p>
 
               <div className="space-y-4 pt-2">
                 {/* WhatsApp */}
                 <a
-                  href="https://wa.me/923146009810?text=Hello%20NexorDive,%20I%20would%20like%20to%20discuss%20a%20new%20project."
+                  href={`https://wa.me/${rawCleanPhone}?text=Hello%20NexorDive,%20I%20would%20like%20to%20discuss%20a%20new%20project.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 rounded-xl bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100/80 hover:border-emerald-200 transition-all group"
@@ -142,7 +170,7 @@ export const Contact: React.FC<ContactProps> = ({
                       WhatsApp Direct Chat
                     </span>
                     <span className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors font-mono">
-                      +92 314 600 9810
+                      {whatsappNum}
                     </span>
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
@@ -150,7 +178,7 @@ export const Contact: React.FC<ContactProps> = ({
 
                 {/* Email */}
                 <a
-                  href="mailto:hello@nexordive.com?subject=Project%20Inquiry%20via%20NexorDive"
+                  href={`mailto:${emailAddr}?subject=Project%20Inquiry%20via%20NexorDive`}
                   className="flex items-center gap-4 p-4 rounded-xl bg-indigo-50/50 hover:bg-indigo-50 border border-indigo-100/80 hover:border-indigo-200 transition-all group"
                 >
                   <div className="w-11 h-11 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -161,7 +189,7 @@ export const Contact: React.FC<ContactProps> = ({
                       Email Inquiries
                     </span>
                     <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate block">
-                      hello@nexordive.com
+                      {emailAddr}
                     </span>
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0" />
@@ -172,11 +200,11 @@ export const Contact: React.FC<ContactProps> = ({
               <div className="pt-6 border-t border-slate-100 space-y-3 text-xs text-slate-600">
                 <div className="flex items-center gap-2.5">
                   <Clock className="w-4 h-4 text-indigo-600 shrink-0" />
-                  <span>24-Hour Technical Review Guarantee</span>
+                  <span>{responseGuaranteeText}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Mutual NDA Protection for all briefs</span>
+                  <span>{ndaGuaranteeText}</span>
                 </div>
               </div>
             </div>
@@ -196,13 +224,14 @@ export const Contact: React.FC<ContactProps> = ({
 
                   <div>
                     <span className="text-xs font-mono uppercase text-indigo-600 tracking-wider block mb-1 font-semibold">
-                      Inquiry Received · {submittedId}
+                      Inquiry Logged · {submittedId}
                     </span>
                     <h3 className="text-2xl font-bold text-slate-950 font-display">
                       Thank you, {formData.name}!
                     </h3>
                     <p className="text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-                      We have received your project details for <span className="text-slate-950 font-semibold">{formData.service}</span>. Our team will contact you on WhatsApp (<span className="text-slate-950 font-mono font-medium">{formData.whatsapp}</span>) or email within 24 hours.
+                      {contactData?.successMessage ||
+                        'We have received your project details. Our team will contact you on WhatsApp or email within 24 hours.'}
                     </p>
                   </div>
 
@@ -219,6 +248,11 @@ export const Contact: React.FC<ContactProps> = ({
                       <span>WhatsApp:</span>
                       <span className="text-emerald-700 font-bold">{formData.whatsapp}</span>
                     </div>
+                  </div>
+
+                  {/* Prototype Notice */}
+                  <div className="p-3 rounded-lg bg-cyan-50 border border-cyan-200 text-[11px] text-cyan-900 max-w-md mx-auto text-left">
+                    <span className="font-bold">Prototype Demo:</span> Saved locally to browser storage. You can view and manage this inquiry in the <strong>Admin Dashboard &gt; Leads &amp; CRM</strong> tab.
                   </div>
 
                   <div className="pt-4 flex items-center justify-center gap-4">
@@ -316,7 +350,7 @@ export const Contact: React.FC<ContactProps> = ({
                         <option value="Digital Marketing">Digital Marketing</option>
                         <option value="Branding">Branding</option>
                         <option value="AI Automation">AI Automation</option>
-                        <option value="Streamer Assets">Streamer Assets & Overlays</option>
+                        <option value="Streamer Assets">Streamer Assets &amp; Overlays</option>
                       </select>
                     </div>
 

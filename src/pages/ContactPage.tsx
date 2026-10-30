@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { Contact } from '../components/Contact';
+import { useAdmin } from '../context/AdminStore';
 
 interface ContactPageProps {
   onNavigateHome: () => void;
@@ -15,6 +16,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
   onSuccessSubmit,
   scrollToForm = false,
 }) => {
+  const { content } = useAdmin();
+  const header = content?.pageHeaders?.contact;
+
   useEffect(() => {
     if (scrollToForm) {
       const scrollTimer = setTimeout(() => {
@@ -35,9 +39,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     <div className="flex-1">
       {/* Page Header Banner */}
       <PageHeader
-        badge="Get In Touch"
-        title="Let's Start Your Next Digital Project"
-        description="Connect directly with our engineering and design leads. We offer 24-hour proposal turnarounds, strict mutual NDAs, and clear milestone blueprints."
+        badge={header?.badge || 'Get In Touch'}
+        title={header?.title || "Let's Start Your Next Digital Project"}
+        description={
+          header?.description ||
+          'Connect directly with our engineering and design leads. We offer 24-hour proposal turnarounds, strict mutual NDAs, and clear milestone blueprints.'
+        }
         currentPage="Contact"
         onNavigateHome={onNavigateHome}
       />

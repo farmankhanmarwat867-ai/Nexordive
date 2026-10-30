@@ -3,31 +3,17 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
+import { useAdmin } from '../context/AdminStore';
+import { BlogCardItem } from '../types/content';
 
 export const BlogSection: React.FC = () => {
-  const blogs = [
-    {
-      id: 1,
-      image: '/assets/khyber/blog1.png',
-      date: 'September 30, 2024',
-      title: 'How To Rank Higher On Google',
-      link: '#',
-    },
-    {
-      id: 2,
-      image: '/assets/khyber/blog2.png',
-      date: 'August 26, 2024',
-      title: 'What Is Best SEO Services In Pakistan...',
-      link: '#',
-    },
-    {
-      id: 3,
-      image: '/assets/khyber/blog3.png',
-      date: 'April 17, 2021',
-      title: 'What Is Digital Marketing Services?',
-      link: '#',
-    },
-  ];
+  const { content } = useAdmin();
+  const blogData = content?.blog;
+
+  const rawBlogs = blogData?.blogs || [];
+  const blogs = rawBlogs
+    .filter((b: BlogCardItem) => b.visible !== false)
+    .sort((a: BlogCardItem, b: BlogCardItem) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
     <section id="blog" className="py-24 lg:py-32 bg-white relative overflow-hidden">
@@ -36,16 +22,16 @@ export const BlogSection: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-16 space-y-2">
           <div className="text-xs font-semibold uppercase tracking-wider text-[#0d5363]">
-            OUR BLOG
+            {blogData?.sectionEyebrow || 'OUR BLOG'}
           </div>
           <h2 className="text-4xl sm:text-5xl font-serif font-bold text-slate-900 tracking-tight">
-            Latest From Blog
+            {blogData?.sectionTitle || 'Latest From Blog'}
           </h2>
         </div>
 
-        {/* 3 Blog Cards */}
+        {/* Blog Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {blogs.map((blog, idx) => (
+          {blogs.map((blog: BlogCardItem, idx: number) => (
             <motion.div
               key={blog.id}
               initial={{ opacity: 0, y: 30 }}
@@ -57,7 +43,7 @@ export const BlogSection: React.FC = () => {
               {/* Image banner */}
               <div className="w-full h-56 overflow-hidden bg-slate-900">
                 <img
-                  src={blog.image}
+                  src={blog.image || '/assets/khyber/blog1.png'}
                   alt={blog.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -75,8 +61,13 @@ export const BlogSection: React.FC = () => {
                 </div>
 
                 <div className="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-[#0d5363]">
-                  <span>Read Article</span>
-                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <a
+                    href={blog.link || '#'}
+                    className="flex items-center justify-between w-full hover:underline"
+                  >
+                    <span>Read Article</span>
+                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
                 </div>
               </div>
             </motion.div>

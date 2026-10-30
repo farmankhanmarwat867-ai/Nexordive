@@ -9,6 +9,16 @@
     --color-teal-primary: #0d5363;
     --color-teal-dark: #093c47;
     --color-teal-light: #166e82;
+
+    /* Admin layout tokens - shared single source of truth */
+    --admin-sidebar-width: 16rem;
+    --admin-sidebar-offset: 0px;
+  }
+
+  @media (min-width: 1024px) {
+    :root, .admin-root {
+      --admin-sidebar-offset: var(--admin-sidebar-width);
+    }
   }
 
   body {

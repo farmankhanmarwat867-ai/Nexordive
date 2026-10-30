@@ -9,10 +9,18 @@ interface AboutSectionProps {
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
-  const { settings } = useAdmin();
-  const leaderName = settings?.leaderName || 'Akleem Orakzai';
-  const leaderRole = settings?.leaderRole || 'CEO';
-  const leaderImage = settings?.leaderImage || '/assets/akleem_orakzai_avatar.png';
+  const { content, settings } = useAdmin();
+  const leaderName = settings?.leaderName || content?.mission?.ceoBadgeName || 'Akleem Orakzai';
+  const leaderRole = settings?.leaderRole || content?.mission?.ceoBadgeTitle || 'CEO';
+  const leaderImage = settings?.leaderImage || content?.mission?.ceoAvatar || '/assets/akleem_orakzai_avatar.png';
+
+  const heading = content?.mission?.heading || 'We love our work and do it passionately';
+  const description =
+    content?.mission?.description ||
+    'NexorDive designs and builds great software, high-performance web platforms, and modern digital experiences. Each project is created with passion, innovation, and dedicated craftsmanship by our engineering team. We work efficiently to keep development costs lean while delivering enterprise-grade quality. We also specialize in SEO, digital marketing, mobile app development, AI systems, and creator digital assets, helping businesses succeed smoothly.';
+  const aboutGraphic = content?.mission?.missionImage || '/assets/about_nexordive_graphic.png';
+  const aboutGraphicAlt =
+    content?.mission?.missionImageAlt || 'About NexorDive - Digital Excellence & Passionate Engineering';
 
   const handleReadMore = () => {
     if (onReadMore) {
@@ -48,12 +56,12 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
 
             {/* Main Headline */}
             <h2 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-serif font-bold text-slate-900 tracking-tight leading-[1.18] mb-6">
-              We love our work and do it passionately
+              {heading}
             </h2>
 
             {/* Description Text tailored for NexorDive */}
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8 max-w-xl font-normal">
-              NexorDive designs and builds great software, high-performance web platforms, and modern digital experiences. Each project is created with passion, innovation, and dedicated craftsmanship by our engineering team. We work efficiently to keep development costs lean while delivering enterprise-grade quality. We also specialize in SEO, digital marketing, mobile app development, AI systems, and creator digital assets, helping businesses succeed smoothly.
+              {description}
             </p>
 
             {/* Read More Button */}
@@ -75,8 +83,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
           >
             <div className="relative w-full max-w-[580px]">
               <img
-                src="/assets/about_nexordive_graphic.png"
-                alt="About NexorDive - Digital Excellence & Passionate Engineering"
+                src={aboutGraphic}
+                alt={aboutGraphicAlt}
                 className="w-full h-auto object-contain select-none"
               />
 
