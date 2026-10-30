@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Hero } from '../components/Hero';
+import { AboutSection } from '../components/AboutSection';
 import { Services } from '../components/Services';
-import { CompanyMission } from '../components/CompanyMission';
 import { Testimonials } from '../components/Testimonials';
 import { BlogSection } from '../components/BlogSection';
 import { PartnersMarquee } from '../components/PartnersMarquee';
@@ -32,15 +32,15 @@ export const HomePage: React.FC<HomePageProps> = ({
         onExploreWork={() => onNavigate('portfolio')}
       />
 
-      {/* 2. Services Section */}
+      {/* 2. About NexorDive Section */}
+      <AboutSection onReadMore={() => onNavigate('services')} />
+
+      {/* 3. Services Section */}
       <Services
         onSelectService={(serviceTitle) => {
           onNavigate('services');
         }}
       />
-
-      {/* 3. Company Mission & Stats */}
-      <CompanyMission />
 
       {/* 4. Client Endorsements */}
       <Testimonials />

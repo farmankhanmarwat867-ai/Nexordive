@@ -216,13 +216,13 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
               All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.
             </span>
           </div>
-          <a
-            href="#estimator"
-            className="text-indigo-600 hover:text-indigo-700 font-semibold whitespace-nowrap inline-flex items-center gap-1 transition-colors"
+          <button
+            onClick={() => handleDiscuss('Custom Scope / Tailored Plan', 'Custom')}
+            className="text-indigo-600 hover:text-indigo-700 font-semibold whitespace-nowrap inline-flex items-center gap-1 transition-colors cursor-pointer"
           >
-            <span>Need Custom Scope Calculator?</span>
+            <span>Need Custom Scope?</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
-          </a>
+          </button>
         </div>
       </div>
     </section>

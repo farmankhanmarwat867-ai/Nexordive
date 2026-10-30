@@ -4,7 +4,6 @@ import React from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { Services } from '../components/Services';
 import { ProcessTimeline } from '../components/ProcessTimeline';
-import { ProjectEstimator } from '../components/ProjectEstimator';
 
 interface ServicesPageProps {
   onNavigateHome: () => void;
@@ -31,11 +30,6 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
         onSelectService={(serviceName) =>
           onOpenContactWithSummary(`Inquiring about core capability: ${serviceName}`)
         }
-      />
-
-      {/* Interactive Scope & Cost Estimator */}
-      <ProjectEstimator
-        onApplyEstimate={(summary) => onOpenContactWithSummary(summary)}
       />
 
       {/* Four-Phase Execution Pipeline */}

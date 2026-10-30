@@ -41,6 +41,9 @@ export interface SiteSettings {
   metaDescription: string;
   ogImageUrl: string;
   agencyName: string;
+  leaderName: string;
+  leaderRole: string;
+  leaderImage: string;
 }
 
 interface AdminContextType {
@@ -119,6 +122,9 @@ const DEFAULT_SETTINGS: SiteSettings = {
     'NexorDive is an elite digital product agency engineering high-performance web applications, scalable software architectures, and streamer assets.',
   ogImageUrl: 'https://nexordive.com/og-image.png',
   agencyName: 'NexorDive',
+  leaderName: 'Akleem Orakzai',
+  leaderRole: 'CEO',
+  leaderImage: '/assets/akleem_orakzai_avatar.png',
 };
 
 const DEFAULT_PRICING: PricingPlanControl[] = [
@@ -244,7 +250,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('nexor_admin_settings');
       if (saved) {
-        try { return JSON.parse(saved); } catch (_) {}
+        try {
+          const parsed = JSON.parse(saved);
+          return { ...DEFAULT_SETTINGS, ...parsed };
+        } catch (_) {}
       }
     }
     return DEFAULT_SETTINGS;
