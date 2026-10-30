@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { CASE_STUDIES } from '../data/agencyData';
+import { CaseStudy } from '../types/agency';
 import { SiteContent } from '../types/content';
 import { getStoredContent, saveStoredContent, resetContentToDefaults } from '../services/contentRepository';
-import { CaseStudy } from '../types/agency';
 
 export interface Lead {
   id: string;
@@ -42,6 +43,9 @@ export interface SiteSettings {
   metaDescription: string;
   ogImageUrl: string;
   agencyName: string;
+  leaderName: string;
+  leaderRole: string;
+  leaderImage: string;
 }
 
 export interface AdminContextType {
@@ -119,6 +123,95 @@ const DEFAULT_LEADS: Lead[] = [
     status: 'Closed',
     notes: 'Completed sprint kickoff for Postgres backend and real-time WebSockets.',
   },
+];
+
+const DEFAULT_SETTINGS: SiteSettings = {
+  whatsappNumber: '+92 314 600 9810',
+  contactEmail: 'farmanullahk111@gmail.com',
+  metaTitle: 'NexorDive — Deep Digital Solutions for Modern Businesses',
+  metaDescription:
+    'NexorDive is an elite digital product agency engineering high-performance web applications, scalable software architectures, and streamer assets.',
+  ogImageUrl: 'https://nexordive.com/og-image.png',
+  agencyName: 'NexorDive',
+  leaderName: 'Akleem Orakzai',
+  leaderRole: 'CEO',
+  leaderImage: '/assets/akleem_orakzai_avatar.png',
+};
+
+const DEFAULT_PRICING: PricingPlanControl[] = [
+  {
+    id: 'starter-website',
+    name: 'Starter Website',
+    price: '$99 – $299',
+    billing: 'One-time investment',
+    badge: 'Launch Fast',
+    popular: false,
+    features: [
+      'Responsive 1–3 Page Next.js Website',
+      'Sub-second Core Web Vitals guarantee',
+      'Mobile-first UX with contact form',
+      'Domain setup, SSL & Cloudflare DNS',
+      'Basic On-Page SEO meta tags',
+    ],
+    turnaround: '3–5 Business Days',
+  },
+  {
+    id: 'pro-digital-kit',
+    name: 'Pro Digital Kit',
+    price: '$300 – $699',
+    billing: 'One-time investment',
+    badge: 'Most Popular',
+    popular: true,
+    features: [
+      'Full Multi-Page Web Platform (Up to 8 Pages)',
+      'Bespoke Figma UI/UX Design System',
+      'Inbound Lead Capture & CRM Email Automation',
+      'Technical SEO & Google Analytics 4',
+      'High-converting landing page setup',
+    ],
+    turnaround: '7–12 Business Days',
+  },
+  {
+    id: 'streamer-starter-pack',
+    name: 'Streamer Starter Pack',
+    price: '$49 – $129',
+    billing: 'One-time investment',
+    badge: 'Creators & Esports',
+    popular: false,
+    features: [
+      'Animated Stream Overlay Suite (Starting, BRB, End)',
+      'Modular Webcam Border & Audio Level HUD',
+      'Custom 60fps Stinger Transition with Sound FX',
+      'Twitch & Kick Chatbox CSS for OBS Studio',
+      'Sub Loyalty Badges (3 Tiers) & 5 Emotes',
+    ],
+    turnaround: '3–6 Business Days',
+  },
+  {
+    id: 'custom-software-mvp',
+    name: 'Custom Software MVP',
+    price: 'Custom Pricing',
+    billing: 'Milestone-based sprints',
+    badge: 'Enterprise & AI',
+    popular: false,
+    features: [
+      'Custom Web & Mobile App (Next.js, React Native)',
+      'Autonomous AI Agent & LLM Integration',
+      'Scalable Postgres Database Architecture',
+      'Stripe Billing & Role-Based Access Control',
+      '100% IP Assignment & Bi-Weekly Sprints',
+    ],
+    turnaround: '4–10 Calendar Weeks',
+  },
+];
+
+const DEFAULT_SERVICES: ServiceControl[] = [
+  { id: 'web-development', title: 'Web Development', category: 'Architecture & Engineering', enabled: true },
+  { id: 'software-development', title: 'Software Development', category: 'Cloud & Infrastructure', enabled: true },
+  { id: 'mobile-app-development', title: 'Mobile App Development', category: 'iOS & Android Native', enabled: true },
+  { id: 'digital-marketing', title: 'Digital Marketing', category: 'Growth & Acquisition', enabled: true },
+  { id: 'branding', title: 'Branding', category: 'Identity & Spatial Design', enabled: true },
+  { id: 'ai-automation', title: 'AI Automation', category: 'Intelligent Systems', enabled: true },
 ];
 
 const AdminContext = createContext<AdminContextType | null>(null);
@@ -237,7 +330,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       featured: true,
       visible: true,
       order: (content.portfolio?.projects?.length || 0) + 1,
-    };
+    } as any;
     updateContentSection('portfolio', {
       ...content.portfolio,
       projects: [newProj, ...(content.portfolio?.projects || [])],
@@ -302,37 +395,76 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
-  // Backward-compatible settings mapped to content.global and content.seo
-  const settings: SiteSettings = {
-    whatsappNumber: content.global?.whatsappNumber || '+92 314 600 9810',
-    contactEmail: content.global?.contactEmail || 'hello@nexordive.com',
-    metaTitle: content.seo?.metaTitle || 'NexorDive Digital Agency',
-    metaDescription: content.seo?.metaDescription || 'NexorDive Digital Agency',
-    ogImageUrl: content.seo?.ogImageUrl || '',
-    agencyName: content.global?.agencyName || 'NexorDive',
-  };
+  // Backward-compatible settings mapped to content.global, content.seo, and content.mission
+  const settings: SiteSettings = (() => {
+    let savedSettings: Partial<SiteSettings> = {};
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('nexor_admin_settings');
+        if (raw) savedSettings = JSON.parse(raw);
+      } catch (_) {}
+    }
+    return {
+      whatsappNumber: content.global?.whatsappNumber || savedSettings.whatsappNumber || DEFAULT_SETTINGS.whatsappNumber,
+      contactEmail: content.global?.contactEmail || savedSettings.contactEmail || DEFAULT_SETTINGS.contactEmail,
+      metaTitle: content.seo?.metaTitle || savedSettings.metaTitle || DEFAULT_SETTINGS.metaTitle,
+      metaDescription: content.seo?.metaDescription || savedSettings.metaDescription || DEFAULT_SETTINGS.metaDescription,
+      ogImageUrl: content.seo?.ogImageUrl || savedSettings.ogImageUrl || DEFAULT_SETTINGS.ogImageUrl,
+      agencyName: content.global?.agencyName || savedSettings.agencyName || DEFAULT_SETTINGS.agencyName,
+      leaderName: content.global?.leaderName || content.mission?.ceoBadgeName || savedSettings.leaderName || DEFAULT_SETTINGS.leaderName,
+      leaderRole: content.global?.leaderRole || content.mission?.ceoBadgeTitle || savedSettings.leaderRole || DEFAULT_SETTINGS.leaderRole,
+      leaderImage: content.global?.leaderImage || content.mission?.ceoAvatar || savedSettings.leaderImage || DEFAULT_SETTINGS.leaderImage,
+    };
+  })();
 
   const updateSettings = (newSettings: Partial<SiteSettings>) => {
     const updatedGlobal = {
       ...content.global,
-      ...(newSettings.agencyName ? { agencyName: newSettings.agencyName } : {}),
-      ...(newSettings.whatsappNumber ? { whatsappNumber: newSettings.whatsappNumber } : {}),
-      ...(newSettings.contactEmail ? { contactEmail: newSettings.contactEmail } : {}),
+      ...(newSettings.agencyName !== undefined ? { agencyName: newSettings.agencyName } : {}),
+      ...(newSettings.whatsappNumber !== undefined ? { whatsappNumber: newSettings.whatsappNumber } : {}),
+      ...(newSettings.contactEmail !== undefined ? { contactEmail: newSettings.contactEmail } : {}),
+      ...(newSettings.leaderName !== undefined ? { leaderName: newSettings.leaderName } : {}),
+      ...(newSettings.leaderRole !== undefined ? { leaderRole: newSettings.leaderRole } : {}),
+      ...(newSettings.leaderImage !== undefined ? { leaderImage: newSettings.leaderImage } : {}),
     };
     const updatedSeo = {
       ...content.seo,
-      ...(newSettings.metaTitle ? { metaTitle: newSettings.metaTitle, ogTitle: newSettings.metaTitle } : {}),
-      ...(newSettings.metaDescription ? { metaDescription: newSettings.metaDescription } : {}),
-      ...(newSettings.ogImageUrl ? { ogImageUrl: newSettings.ogImageUrl } : {}),
+      ...(newSettings.metaTitle !== undefined ? { metaTitle: newSettings.metaTitle, ogTitle: newSettings.metaTitle } : {}),
+      ...(newSettings.metaDescription !== undefined ? { metaDescription: newSettings.metaDescription } : {}),
+      ...(newSettings.ogImageUrl !== undefined ? { ogImageUrl: newSettings.ogImageUrl } : {}),
+    };
+    const updatedMission = {
+      ...content.mission,
+      ...(newSettings.leaderName !== undefined ? { ceoBadgeName: newSettings.leaderName } : {}),
+      ...(newSettings.leaderRole !== undefined ? { ceoBadgeTitle: newSettings.leaderRole } : {}),
+      ...(newSettings.leaderImage !== undefined ? { ceoAvatar: newSettings.leaderImage } : {}),
     };
     const updatedContent: SiteContent = {
       ...content,
       global: updatedGlobal,
       seo: updatedSeo,
+      mission: updatedMission,
       lastUpdated: new Date().toISOString(),
     };
     saveStoredContent(updatedContent);
     setContent(updatedContent);
+
+    if (typeof window !== 'undefined') {
+      try {
+        const toSave = {
+          agencyName: updatedGlobal.agencyName,
+          whatsappNumber: updatedGlobal.whatsappNumber,
+          contactEmail: updatedGlobal.contactEmail,
+          metaTitle: updatedSeo.metaTitle,
+          metaDescription: updatedSeo.metaDescription,
+          ogImageUrl: updatedSeo.ogImageUrl,
+          leaderName: updatedGlobal.leaderName,
+          leaderRole: updatedGlobal.leaderRole,
+          leaderImage: updatedGlobal.leaderImage,
+        };
+        localStorage.setItem('nexor_admin_settings', JSON.stringify(toSave));
+      } catch (_) {}
+    }
   };
 
   return (

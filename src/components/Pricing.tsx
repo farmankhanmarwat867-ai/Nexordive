@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, Sparkles, Shield } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { PricingPlanItem } from '../types/content';
 
@@ -48,90 +48,80 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
           </div>
           <p className="text-slate-600 text-sm sm:text-base max-w-md font-normal leading-relaxed">
             {pricingData?.sectionDescription ||
-              'Transparent pricing without surprise hourly overages. Every package includes direct principal engineer access, strict milestones, and complete IP handover.'}
+              'Zero surprise hourly overages. Every package includes direct engineer communication, weekly demos, full IP assignment, and post-launch bug warranty.'}
           </p>
         </div>
 
-        {/* Dynamic Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">
-          {plans.map((plan: PricingPlanItem, index: number) => (
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {plans.map((plan, index) => (
             <motion.div
               key={plan.id}
-              initial={{ opacity: 0, y: 35 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{
-                duration: 0.55,
-                delay: index * 0.1,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className={`group relative rounded-2xl p-7 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 ${
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className={`rounded-3xl p-8 flex flex-col justify-between relative transition-all duration-300 ${
                 plan.popular
-                  ? 'border-2 border-indigo-500 bg-gradient-to-b from-indigo-50/40 via-white to-white shadow-indigo-500/10'
-                  : 'bg-white border border-slate-200 hover:border-slate-300'
+                  ? 'bg-gradient-to-b from-indigo-50/50 via-white to-white border-2 border-indigo-600 shadow-xl shadow-indigo-500/10 scale-100 lg:-translate-y-2'
+                  : 'bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300'
               }`}
             >
-              {/* Highlight ribbon for popular card */}
               {plan.popular && (
-                <div className="absolute top-0 right-0">
-                  <div className="bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider py-1 px-4 rounded-bl-xl shadow-xs flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" />
-                    <span>{plan.badge || 'Most Popular'}</span>
-                  </div>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-indigo-600 text-white text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-md shadow-indigo-600/30">
+                  <Sparkles className="w-3 h-3" />
+                  <span>{plan.badge || 'Most Popular'}</span>
                 </div>
               )}
 
               <div>
-                {/* Badge if not popular */}
-                {!plan.popular && plan.badge && (
-                  <div className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 mb-3 border border-slate-200/60">
-                    {plan.badge}
-                  </div>
-                )}
+                <div className="flex items-center justify-between mb-4">
+                  <span
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      plan.popular
+                        ? 'bg-indigo-100/70 text-indigo-700'
+                        : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    {plan.badge || 'Package'}
+                  </span>
+                </div>
 
-                {/* Plan Name */}
-                <h3 className="text-xl font-bold text-slate-950 font-display mb-2">
+                <h3 className="text-xl font-bold text-slate-900 font-display mb-2">
                   {plan.name}
                 </h3>
 
-                {/* Price */}
-                <div className="mb-4">
-                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-display tracking-tight">
+                <div className="mb-6">
+                  <div className="text-3xl font-extrabold text-slate-950 font-display tracking-tight">
                     {plan.price}
                   </div>
-                  <div className="text-xs text-slate-500 font-mono mt-0.5">
+                  <div className="text-xs text-slate-500 font-medium mt-1">
                     {plan.billing}
                   </div>
                 </div>
 
-                {/* Description */}
-                <p className="text-xs text-slate-600 leading-relaxed mb-6">
-                  {plan.description}
-                </p>
+                <div className="h-px bg-slate-100 w-full mb-6" />
 
-                {/* Features List */}
-                {plan.features && plan.features.length > 0 && (
-                  <div className="space-y-3 mb-6 pt-4 border-t border-slate-100">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-                      Scope Included
-                    </span>
-                    {plan.features.map((feature: string, i: number) => (
-                      <div key={i} className="flex items-start gap-2.5 text-xs text-slate-700">
-                        <CheckCircle2
-                          className="w-4 h-4 shrink-0 mt-0.5"
-                          style={{ color: plan.accentColor || '#4F46E5' }}
-                        />
-                        <span className="leading-snug">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feature, fIndex) => (
+                    <li
+                      key={fIndex}
+                      className="flex items-start gap-2.5 text-xs text-slate-600 leading-relaxed"
+                    >
+                      <CheckCircle2
+                        className={`w-4 h-4 shrink-0 mt-0.5 ${
+                          plan.popular ? 'text-indigo-600' : 'text-slate-400'
+                        }`}
+                      />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Turnaround & Action CTA */}
-              <div className="pt-6 border-t border-slate-100 mt-2 space-y-4">
+              <div>
                 {plan.turnaround && (
-                  <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="mb-4 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-600 flex items-center justify-between">
                     <span className="text-slate-500">Turnaround:</span>
                     <span className="font-semibold text-slate-900">{plan.turnaround}</span>
                   </div>
@@ -151,6 +141,23 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Reassurance Banner */}
+        <div className="mt-14 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-600">
+          <div className="flex items-center gap-3">
+            <Shield className="w-5 h-5 text-indigo-600 shrink-0" />
+            <span>
+              All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.
+            </span>
+          </div>
+          <button
+            onClick={() => handleDiscuss('Custom Scope / Tailored Plan', 'Custom')}
+            className="text-indigo-600 hover:text-indigo-700 font-semibold whitespace-nowrap inline-flex items-center gap-1 transition-colors cursor-pointer"
+          >
+            <span>Need Custom Scope?</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </section>

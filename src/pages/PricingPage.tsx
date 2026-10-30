@@ -3,7 +3,6 @@
 import React from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { Pricing } from '../components/Pricing';
-import { ProjectEstimator } from '../components/ProjectEstimator';
 import { useAdmin } from '../context/AdminStore';
 
 interface PricingPageProps {
@@ -37,11 +36,6 @@ export const PricingPage: React.FC<PricingPageProps> = ({
         onSelectPackage={(pkg, price) =>
           onOpenContactWithSummary(`Selected Package: ${pkg} (${price})`)
         }
-      />
-
-      {/* Interactive Scope & Cost Estimator */}
-      <ProjectEstimator
-        onApplyEstimate={(summary) => onOpenContactWithSummary(summary)}
       />
     </div>
   );

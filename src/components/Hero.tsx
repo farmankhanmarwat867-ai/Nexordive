@@ -26,8 +26,8 @@ export const Hero: React.FC<HeroProps> = ({
     headingLine4: 'Businesses',
     description:
       'NexorDive builds websites, software systems, digital marketing assets, AI automation and premium streamer graphics for brands and creators who want to grow online.',
-    image: '/assets/khyber/hero_graphic.png',
-    imageAlt: 'NexorDive Cybernetic Hand & Holographic AI HUD',
+    image: '/assets/hero_business_tech.jpg',
+    imageAlt: 'NexorDive Digital & AI Solutions',
     primaryButtonLabel: 'Start a Project',
     primaryButtonAction: 'contact',
     secondaryButtonLabel: 'Explore Streamer Assets',
@@ -187,22 +187,30 @@ export const Hero: React.FC<HeroProps> = ({
             )}
           </motion.div>
 
-          {/* Right Column - Graphic */}
+          {/* Right Column - Future Tech Holographic Visual */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2, ease: 'easeOut' }}
             className="lg:col-span-6 relative flex justify-center lg:justify-end items-center"
           >
-            <div className="relative w-full max-w-[580px] animate-float-slow">
-              <img
-                src={hero.image || '/assets/khyber/hero_graphic.png'}
-                alt={hero.imageAlt || 'NexorDive Cybernetic Hand & Holographic AI HUD'}
-                className="w-full h-auto object-contain select-none drop-shadow-2xl"
-              />
+            <div className="relative w-full max-w-[540px] animate-float-slow">
+              {/* Ambient backlight glow */}
+              <div className="absolute -inset-2 bg-gradient-to-tr from-cyan-400/25 via-sky-500/20 to-indigo-500/25 rounded-3xl blur-2xl opacity-70 pointer-events-none" />
 
-              {/* Glowing cyan pulse behind HUD */}
-              <div className="absolute top-[22%] right-[32%] w-44 h-44 bg-cyan-400/25 rounded-full blur-2xl pointer-events-none animate-pulse-glow" />
+              {/* Styled image container */}
+              <div className="relative rounded-3xl overflow-hidden border border-cyan-400/30 shadow-2xl shadow-[#04161b]/80 bg-[#071d24]">
+                <img
+                  src={hero.image || '/assets/hero_business_tech.jpg'}
+                  alt={hero.imageAlt || 'NexorDive Digital & AI Solutions'}
+                  className="w-full h-auto object-cover select-none"
+                />
+                {/* Subtle sheen overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0d5363]/30 via-transparent to-transparent pointer-events-none" />
+              </div>
+
+              {/* Glowing cyan pulse behind */}
+              <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
             </div>
           </motion.div>
 

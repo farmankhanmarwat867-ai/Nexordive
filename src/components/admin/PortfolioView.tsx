@@ -169,7 +169,7 @@ export const PortfolioView: React.FC = () => {
 
               {/* Tech Stack Pills */}
               <div className="flex flex-wrap gap-1 mb-4">
-                {proj.techStack.slice(0, 3).map((tech) => (
+                {proj.techStack.slice(0, 3).map((tech: string) => (
                   <span
                     key={tech}
                     className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600"

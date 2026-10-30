@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Hero } from '../components/Hero';
+import { AboutSection } from '../components/AboutSection';
 import { Services } from '../components/Services';
-import { CompanyMission } from '../components/CompanyMission';
 import { Testimonials } from '../components/Testimonials';
 import { BlogSection } from '../components/BlogSection';
 import { PartnersMarquee } from '../components/PartnersMarquee';
@@ -25,13 +25,13 @@ export const HomePage: React.FC<HomePageProps> = ({
 }) => {
   const { content } = useAdmin();
   const rawSections = content?.sectionsManager?.landingPageSections || [
-    { id: 'hero', name: 'Hero Section', visible: true, order: 0 },
-    { id: 'services', name: 'Services Grid', visible: true, order: 1 },
-    { id: 'mission', name: 'Company Mission & Stats', visible: true, order: 2 },
-    { id: 'testimonials', name: 'Client Testimonials', visible: true, order: 3 },
-    { id: 'blog', name: 'Latest Blog Cards', visible: true, order: 4 },
-    { id: 'partners', name: 'Partners Marquee', visible: true, order: 5 },
-    { id: 'ctaBanner', name: 'Bottom CTA Banner', visible: true, order: 6 },
+    { id: 'hero', label: 'Hero Section', visible: true, order: 1 },
+    { id: 'about', label: 'About NexorDive', visible: true, order: 2 },
+    { id: 'services', label: 'Services Grid', visible: true, order: 3 },
+    { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 4 },
+    { id: 'blog', label: 'Latest Blog Cards', visible: true, order: 5 },
+    { id: 'partners', label: 'Partners Marquee', visible: true, order: 6 },
+    { id: 'ctaBanner', label: 'Bottom CTA Banner', visible: true, order: 7 },
   ];
 
   const sections = [...rawSections]
@@ -52,6 +52,14 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onExploreWork={() => onNavigate('portfolio')}
               />
             );
+          case 'about':
+          case 'mission':
+            return (
+              <AboutSection
+                key="about"
+                onReadMore={() => onNavigate('services')}
+              />
+            );
           case 'services':
             return (
               <Services
@@ -59,8 +67,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onSelectService={() => onNavigate('services')}
               />
             );
-          case 'mission':
-            return <CompanyMission key="mission" />;
           case 'testimonials':
             return <Testimonials key="testimonials" />;
           case 'blog':

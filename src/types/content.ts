@@ -29,6 +29,9 @@ export interface GlobalContent {
   whatsappNumber: string;
   whatsappMessage: string;
   contactEmail: string;
+  leaderName?: string;
+  leaderRole?: string;
+  leaderImage?: string;
   footerTagline: string;
   copyrightText: string;
   officeLocations: { city: string; timezone: string; label: string }[];
