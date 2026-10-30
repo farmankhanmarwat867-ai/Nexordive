@@ -33,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   // Exact navigation links matching user's image
   const navLinks = [
     { id: 'home', label: 'Home' },
+    { id: 'about', label: 'About' },
     { id: 'services', label: 'Services' },
     { id: 'streamer-assets', label: 'Streamer Assets' },
     { id: 'pricing', label: 'Pricing' },

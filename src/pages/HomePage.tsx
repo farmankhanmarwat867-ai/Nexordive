@@ -5,7 +5,6 @@ import { Hero } from '../components/Hero';
 import { AboutSection } from '../components/AboutSection';
 import { Services } from '../components/Services';
 import { Testimonials } from '../components/Testimonials';
-import { BlogSection } from '../components/BlogSection';
 import { PartnersMarquee } from '../components/PartnersMarquee';
 import { ArrowRight, PhoneCall } from 'lucide-react';
 
@@ -33,7 +32,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       />
 
       {/* 2. About NexorDive Section */}
-      <AboutSection onReadMore={() => onNavigate('services')} />
+      <AboutSection onReadMore={() => onNavigate('about')} />
 
       {/* 3. Services Section */}
       <Services
@@ -45,10 +44,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 4. Client Endorsements */}
       <Testimonials />
 
-      {/* 5. Latest From Blog */}
-      <BlogSection />
-
-      {/* 6. Client Partners Banner */}
+      {/* 5. Client Partners Banner */}
       <PartnersMarquee />
 
       {/* 7. Conversion Banner to Contact Page */}

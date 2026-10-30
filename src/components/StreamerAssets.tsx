@@ -107,7 +107,7 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
   };
 
   return (
-    <section id="streamer-assets" className="py-24 md:py-32 relative border-t border-slate-200/80 bg-[#F8FAFC]">
+    <section id="streamer-assets" className="py-24 md:py-32 relative bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">

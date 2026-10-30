@@ -14,6 +14,7 @@ import { Footer } from './components/Footer';
 import { ContactModal } from './components/ContactModal';
 import { AdminLoginModal } from './components/admin/AdminLoginModal';
 import { HomePage } from './pages/HomePage';
+import { AboutPage } from './pages/AboutPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { StreamerAssetsPage } from './pages/StreamerAssetsPage';
 import { PricingPage } from './pages/PricingPage';
@@ -21,13 +22,13 @@ import { PortfolioPage } from './pages/PortfolioPage';
 import { ContactPage } from './pages/ContactPage';
 import { ArrowUp } from 'lucide-react';
 
-export type AppPage = 'home' | 'services' | 'streamer-assets' | 'pricing' | 'portfolio' | 'contact';
+export type AppPage = 'home' | 'about' | 'services' | 'streamer-assets' | 'pricing' | 'portfolio' | 'contact';
 
 function MainAppContent() {
   const [currentPage, setCurrentPage] = useState<AppPage>(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      if (['services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
+      if (['about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
         return hash as AppPage;
       }
     }
@@ -86,7 +87,7 @@ function MainAppContent() {
       }
       setIsAdminView(false);
 
-      if (['services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
+      if (['about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
         setCurrentPage(hash as AppPage);
       } else {
         setCurrentPage('home');
@@ -111,7 +112,7 @@ function MainAppContent() {
   const handleNavigate = (page: string) => {
     setIsAdminView(false);
     setShouldScrollToContactForm(false);
-    const validPage = (['home', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(page)
+    const validPage = (['home', 'about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(page)
       ? page
       : 'home') as AppPage;
 
@@ -240,6 +241,16 @@ function MainAppContent() {
           >
             {currentPage === 'home' && (
               <HomePage
+                onNavigate={handleNavigate}
+                onOpenContact={handleOpenGeneralContact}
+                onOpenContactWithSummary={handleOpenContactWithSummary}
+                onStartProject={handleStartProject}
+              />
+            )}
+
+            {currentPage === 'about' && (
+              <AboutPage
+                onNavigateHome={() => handleNavigate('home')}
                 onNavigate={handleNavigate}
                 onOpenContact={handleOpenGeneralContact}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
