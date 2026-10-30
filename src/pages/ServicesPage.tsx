@@ -5,6 +5,7 @@ import { PageHeader } from '../components/PageHeader';
 import { Services } from '../components/Services';
 import { ProcessTimeline } from '../components/ProcessTimeline';
 import { ProjectEstimator } from '../components/ProjectEstimator';
+import { useAdmin } from '../context/AdminStore';
 
 interface ServicesPageProps {
   onNavigateHome: () => void;
@@ -15,13 +16,19 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   onNavigateHome,
   onOpenContactWithSummary,
 }) => {
+  const { content } = useAdmin();
+  const header = content?.pageHeaders?.services;
+
   return (
     <div className="flex-1">
       {/* Page Header Banner */}
       <PageHeader
-        badge="Full-Spectrum Capabilities"
-        title="Services Tailored for Modern Market Leaders"
-        description="From zero-to-one product engineering and custom cloud architectures to AI automation and high-voltage creator assets, we deliver end-to-end digital excellence."
+        badge={header?.badge || 'Full-Spectrum Capabilities'}
+        title={header?.title || 'Services Tailored for Modern Market Leaders'}
+        description={
+          header?.description ||
+          'From zero-to-one product engineering and custom cloud architectures to AI automation and high-voltage creator assets, we deliver end-to-end digital excellence.'
+        }
         currentPage="Services"
         onNavigateHome={onNavigateHome}
       />

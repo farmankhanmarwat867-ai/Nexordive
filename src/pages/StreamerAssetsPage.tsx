@@ -3,6 +3,7 @@
 import React from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { StreamerAssets } from '../components/StreamerAssets';
+import { useAdmin } from '../context/AdminStore';
 
 interface StreamerAssetsPageProps {
   onNavigateHome: () => void;
@@ -13,13 +14,19 @@ export const StreamerAssetsPage: React.FC<StreamerAssetsPageProps> = ({
   onNavigateHome,
   onOpenContactWithSummary,
 }) => {
+  const { content } = useAdmin();
+  const header = content?.pageHeaders?.streamerAssets;
+
   return (
     <div className="flex-1">
       {/* Page Header Banner */}
       <PageHeader
-        badge="Creators & Esports Hub"
-        title="Broadcast-Ready Creator & Streamer Graphics"
-        description="Elevate your livestream into an unforgettable visual spectacle. We engineer custom animated overlays, 60fps WebM stingers, interactive alerts, and visual identities across Twitch, Kick, YouTube, and VTubing."
+        badge={header?.badge || 'Creators & Esports Hub'}
+        title={header?.title || 'Broadcast-Ready Creator & Streamer Graphics'}
+        description={
+          header?.description ||
+          'Elevate your livestream into an unforgettable visual spectacle. We engineer custom animated overlays, 60fps WebM stingers, interactive alerts, and visual identities across Twitch, Kick, YouTube, and VTubing.'
+        }
         currentPage="Streamer Assets"
         onNavigateHome={onNavigateHome}
       />

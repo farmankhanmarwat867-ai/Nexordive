@@ -2,88 +2,22 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, CheckCircle2, Sparkles, Shield } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { useAdmin } from '../context/AdminStore';
+import { PricingPlanItem } from '../types/content';
 
 interface PricingProps {
   onSelectPackage?: (packageName: string, priceRange: string) => void;
 }
 
 export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
-  // 4 modern pricing cards as requested
-  const plans = [
-    {
-      id: 'starter-website',
-      name: 'Starter Website',
-      price: '$99 – $299',
-      billing: 'One-time investment',
-      badge: 'Launch Fast',
-      popular: false,
-      description: 'A clean, high-performance web presence designed to establish instant credibility and capture initial customer interest.',
-      features: [
-        'Responsive 1–3 Page Next.js / Tailwind Website',
-        'Sub-second Core Web Vitals performance guarantee',
-        'Mobile-first UX with animated contact / booking form',
-        'Domain setup, SSL certificate & Cloudflare edge DNS',
-        'Basic On-Page SEO meta tags & social share cards',
-      ],
-      turnaround: '3–5 Business Days',
-      accentColor: '#4F46E5', // Indigo
-    },
-    {
-      id: 'pro-digital-kit',
-      name: 'Pro Digital Kit',
-      price: '$300 – $699',
-      billing: 'One-time investment',
-      badge: 'Most Popular',
-      popular: true,
-      description: 'Comprehensive digital foundation with multi-page architecture, conversion copywriting, and programmatic growth funnels.',
-      features: [
-        'Full Multi-Page Web Platform (Up to 8 Pages)',
-        'Bespoke Figma UI/UX Design System with Tokens',
-        'Inbound Lead Capture & CRM Email Automation',
-        'Technical SEO Architecture & Google Analytics 4',
-        'High-converting landing page A/B testing setup',
-      ],
-      turnaround: '7–12 Business Days',
-      accentColor: '#7C3AED', // Violet
-    },
-    {
-      id: 'streamer-starter-pack',
-      name: 'Streamer Starter Pack',
-      price: '$49 – $129',
-      billing: 'One-time investment',
-      badge: 'Creators & Esports',
-      popular: false,
-      description: 'Streamlined broadcast overhaul for Twitch, Kick, and YouTube creators seeking sharp animated visuals and branded alerts.',
-      features: [
-        'Full Animated Stream Overlay Suite (Starting, BRB, End)',
-        'Modular Webcam Border & Dynamic Audio Level HUD',
-        'Custom 60fps Stinger Transition with Sound FX',
-        'Twitch & Kick Chatbox CSS for OBS Studio / Streamlabs',
-        'Sub Loyalty Badges (3 Tiers) & 5 Kinetic Emotes',
-      ],
-      turnaround: '3–6 Business Days',
-      accentColor: '#DB2777', // Pink
-    },
-    {
-      id: 'custom-software-mvp',
-      name: 'Custom Software MVP',
-      price: 'Custom Pricing',
-      billing: 'Milestone-based sprints',
-      badge: 'Enterprise & AI',
-      popular: false,
-      description: 'Full-stack SaaS application, custom autonomous AI agents, or cross-platform mobile apps built for scale and venture funding.',
-      features: [
-        'Custom Web & Mobile App (Next.js, React Native, Node)',
-        'Autonomous AI Agent & LLM Workflow Integration',
-        'Scalable Postgres / Supabase Database Architecture',
-        'Stripe Billing, User Authentication & Role-Based Access',
-        '100% IP Assignment & Bi-Weekly Deployable Sprints',
-      ],
-      turnaround: '4–10 Calendar Weeks',
-      accentColor: '#059669', // Emerald
-    },
-  ];
+  const { content } = useAdmin();
+  const pricingData = content?.pricing;
+
+  const rawPlans = pricingData?.plans || [];
+  const plans = rawPlans
+    .filter((p: PricingPlanItem) => p.visible !== false)
+    .sort((a: PricingPlanItem, b: PricingPlanItem) => (a.order ?? 0) - (b.order ?? 0));
 
   const handleDiscuss = (planName: string, price: string) => {
     if (onSelectPackage) {
@@ -92,6 +26,8 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
       const contactSection = document.querySelector('#contact');
       if (contactSection) {
         contactSection.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.hash = '#contact';
       }
     }
   };
@@ -104,20 +40,21 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
           <div className="max-w-2xl">
             <div className="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-3 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
-              <span>Transparent Investment</span>
+              <span>{pricingData?.sectionEyebrow || 'Transparent Investment'}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 font-display tracking-tight text-balance">
-              Predictable packages, world-class execution.
+              {pricingData?.sectionTitle || 'Predictable packages, world-class execution.'}
             </h2>
           </div>
           <p className="text-slate-600 text-sm sm:text-base max-w-md font-normal leading-relaxed">
-            Transparent pricing without surprise hourly overages. Every package includes direct principal engineer access, strict milestones, and complete IP handover.
+            {pricingData?.sectionDescription ||
+              'Transparent pricing without surprise hourly overages. Every package includes direct principal engineer access, strict milestones, and complete IP handover.'}
           </p>
         </div>
 
-        {/* 4 Modern Pricing Cards Grid: 1 col mobile, 2 col tablet, 4 col desktop */}
+        {/* Dynamic Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">
-          {plans.map((plan, index) => (
+          {plans.map((plan: PricingPlanItem, index: number) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 35 }}
@@ -139,31 +76,32 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
                 <div className="absolute top-0 right-0">
                   <div className="bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider py-1 px-4 rounded-bl-xl shadow-xs flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
-                    <span>{plan.badge}</span>
+                    <span>{plan.badge || 'Most Popular'}</span>
                   </div>
                 </div>
               )}
 
-              {/* Top Card Content */}
               <div>
-                {!plan.popular && (
-                  <div className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-4">
+                {/* Badge if not popular */}
+                {!plan.popular && plan.badge && (
+                  <div className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 mb-3 border border-slate-200/60">
                     {plan.badge}
                   </div>
                 )}
 
-                <h3 className="text-xl font-bold text-slate-950 font-display mb-1 group-hover:text-indigo-600 transition-colors">
+                {/* Plan Name */}
+                <h3 className="text-xl font-bold text-slate-950 font-display mb-2">
                   {plan.name}
                 </h3>
 
-                {/* Price Display */}
-                <div className="mt-4 mb-4 pb-4 border-b border-slate-100">
-                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-display tabular-nums tracking-tight">
+                {/* Price */}
+                <div className="mb-4">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-display tracking-tight">
                     {plan.price}
                   </div>
-                  <span className="text-xs text-slate-500 mt-1 block">
+                  <div className="text-xs text-slate-500 font-mono mt-0.5">
                     {plan.billing}
-                  </span>
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -171,58 +109,48 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
                   {plan.description}
                 </p>
 
-                {/* 4-5 Features */}
-                <div className="space-y-3 mb-8">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-                    What's Included:
-                  </span>
-                  {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-2 text-xs text-slate-700 leading-snug">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
+                {/* Features List */}
+                {plan.features && plan.features.length > 0 && (
+                  <div className="space-y-3 mb-6 pt-4 border-t border-slate-100">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                      Scope Included
+                    </span>
+                    {plan.features.map((feature: string, i: number) => (
+                      <div key={i} className="flex items-start gap-2.5 text-xs text-slate-700">
+                        <CheckCircle2
+                          className="w-4 h-4 shrink-0 mt-0.5"
+                          style={{ color: plan.accentColor || '#4F46E5' }}
+                        />
+                        <span className="leading-snug">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Bottom Card Footer: Turnaround & CTA Button */}
-              <div className="pt-5 border-t border-slate-100">
-                <div className="flex items-center justify-between text-[11px] text-slate-500 mb-4 font-mono">
-                  <span>Turnaround:</span>
-                  <span className="text-slate-900 font-semibold">{plan.turnaround}</span>
-                </div>
+              {/* Turnaround & Action CTA */}
+              <div className="pt-6 border-t border-slate-100 mt-2 space-y-4">
+                {plan.turnaround && (
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-500">Turnaround:</span>
+                    <span className="font-semibold text-slate-900">{plan.turnaround}</span>
+                  </div>
+                )}
 
                 <button
                   onClick={() => handleDiscuss(plan.name, plan.price)}
-                  className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
+                  className={`w-full py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                     plan.popular
-                      ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25 active:scale-98'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 active:scale-98'
+                      ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20 hover:shadow-indigo-600/30'
+                      : 'bg-slate-900 text-white hover:bg-slate-800'
                   }`}
                 >
-                  <span>Discuss Package</span>
+                  <span>{plan.buttonText || 'Discuss Package'}</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Reassurance Banner */}
-        <div className="mt-14 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-600">
-          <div className="flex items-center gap-3">
-            <Shield className="w-5 h-5 text-indigo-600 shrink-0" />
-            <span>
-              All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.
-            </span>
-          </div>
-          <a
-            href="#estimator"
-            className="text-indigo-600 hover:text-indigo-700 font-semibold whitespace-nowrap inline-flex items-center gap-1 transition-colors"
-          >
-            <span>Need Custom Scope Calculator?</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </a>
         </div>
       </div>
     </section>

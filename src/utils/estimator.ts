@@ -1,31 +1,38 @@
 import { EstimatorOptions, EstimatorQuote, LeadFormData, FormValidationResult } from '../types/agency';
+import { EstimatorRateConfig } from '../types/content';
 
 /**
  * Calculates deterministic budget ranges and delivery timelines for agency inquiries.
+ * Supports configurable business rates while keeping calculation formulas securely in code.
  */
-export function calculateProjectEstimate(options: EstimatorOptions): EstimatorQuote {
-  // Base cost per project type
-  const baseRates: Record<EstimatorOptions['projectType'], { min: number; max: number; minWeeks: number; maxWeeks: number }> = {
+export function calculateProjectEstimate(
+  options: EstimatorOptions,
+  customRates?: EstimatorRateConfig
+): EstimatorQuote {
+  // Default base rates
+  const defaultBaseRates: Record<EstimatorOptions['projectType'], { min: number; max: number; minWeeks: number; maxWeeks: number }> = {
     mvp: { min: 28000, max: 45000, minWeeks: 6, maxWeeks: 10 },
     saas: { min: 55000, max: 95000, minWeeks: 10, maxWeeks: 16 },
     redesign: { min: 38000, max: 68000, minWeeks: 8, maxWeeks: 12 },
     ai: { min: 48000, max: 88000, minWeeks: 8, maxWeeks: 14 },
   };
 
-  const base = baseRates[options.projectType] || baseRates.mvp;
+  const rates = customRates?.baseRates || defaultBaseRates;
+  const base = rates[options.projectType] || defaultBaseRates.mvp;
   let minCost = base.min;
   let maxCost = base.max;
   let minWeeks = base.minWeeks;
   let maxWeeks = base.maxWeeks;
 
   // Platform multipliers
-  const platformCostMap: Record<string, number> = {
-    web: 0, // included by default
+  const defaultPlatformMap: Record<string, number> = {
+    web: 0,
     mobile: 18000,
     backend: 15000,
     'ai-agent': 22000,
     'design-system': 12000,
   };
+  const platformCostMap = customRates?.platformMultipliers || defaultPlatformMap;
 
   options.platforms.forEach((p) => {
     if (p !== 'web' && platformCostMap[p]) {
@@ -38,26 +45,27 @@ export function calculateProjectEstimate(options: EstimatorOptions): EstimatorQu
 
   // Fidelity multiplier
   if (options.fidelity === 'bespoke') {
-    minCost *= 1.2;
-    maxCost *= 1.25;
-    minWeeks += 1;
-    maxWeeks += 2;
+    const costMult = customRates?.fidelityMultipliers?.bespoke?.cost ?? 1.2;
+    minCost *= costMult;
+    maxCost *= costMult + 0.05;
+    minWeeks += customRates?.fidelityMultipliers?.bespoke?.weeks ?? 1;
+    maxWeeks += (customRates?.fidelityMultipliers?.bespoke?.weeks ?? 1) + 1;
   } else if (options.fidelity === 'award') {
-    minCost *= 1.45;
-    maxCost *= 1.55;
-    minWeeks += 2;
-    maxWeeks += 3;
+    const costMult = customRates?.fidelityMultipliers?.award?.cost ?? 1.45;
+    minCost *= costMult;
+    maxCost *= costMult + 0.1;
+    minWeeks += customRates?.fidelityMultipliers?.award?.weeks ?? 2;
+    maxWeeks += (customRates?.fidelityMultipliers?.award?.weeks ?? 2) + 1;
   }
 
   // Timeline adjustment
   if (options.timeline === 'fast') {
-    // Sprint surcharge (+25%) but compresses calendar weeks
-    minCost *= 1.25;
-    maxCost *= 1.25;
+    const surcharge = customRates?.timelineMultipliers?.fast?.cost ?? 1.25;
+    minCost *= surcharge;
+    maxCost *= surcharge;
     minWeeks = Math.max(4, Math.round(minWeeks * 0.75));
     maxWeeks = Math.max(6, Math.round(maxWeeks * 0.8));
   } else if (options.timeline === 'extended') {
-    // Relaxed pacing
     minWeeks = Math.round(minWeeks * 1.2);
     maxWeeks = Math.round(maxWeeks * 1.25);
   }
