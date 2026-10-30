@@ -68,8 +68,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
         </button>
 
         {/* Brand Logo & Heading */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center tracking-widest text-[#0d5363] font-extrabold text-xl font-mono select-none mb-3">
+        <div className="text-center mb-5">
+          <div className="flex items-center justify-center tracking-widest text-[#0d5363] font-extrabold text-xl font-mono select-none mb-2">
             <span className="text-[#0d5363] font-bold">&lt;</span>
             <span className="tracking-widest">NEXOR</span>
             <span className="mx-1 text-slate-400 font-normal">|</span>
@@ -78,8 +78,11 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           </div>
 
           <h2 className="text-2xl font-bold font-serif text-slate-900">
-            Login
+            Manager Login
           </h2>
+          <span className="text-xs text-slate-500 block mt-1">
+            Demo mode: enter any email and password to log in.
+          </span>
         </div>
 
         {/* Error Alert */}
@@ -90,57 +93,44 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           </div>
         )}
 
-        {/* Login Form: ONLY Email & Password */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
+          {/* Email Input */}
           <div>
-            <label
-              htmlFor="login-email"
-              className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5"
-            >
-              Email
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              Email Address
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Mail className="w-4 h-4" />
-              </div>
               <input
-                id="login-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                required
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-[#0d5363] focus:ring-2 focus:ring-[#0d5363]/20 bg-slate-50/50 text-slate-900 text-sm placeholder:text-slate-400 outline-none transition-all"
+                placeholder="manager@nexordive.com"
+                autoComplete="email"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
               />
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
-          {/* Password */}
+          {/* Password Input */}
           <div>
-            <label
-              htmlFor="login-password"
-              className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5"
-            >
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
               Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Lock className="w-4 h-4" />
-              </div>
               <input
-                id="login-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                required
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:border-[#0d5363] focus:ring-2 focus:ring-[#0d5363]/20 bg-slate-50/50 text-slate-900 text-sm placeholder:text-slate-400 outline-none transition-all"
+                autoComplete="current-password"
+                className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
               />
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -148,13 +138,13 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             </div>
           </div>
 
-          {/* Button: JUST "Login" */}
+          {/* Submit CTA */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full mt-2 py-3 px-5 rounded-xl bg-[#0d5363] hover:bg-[#0a424f] text-white font-bold text-sm tracking-wider uppercase shadow-lg shadow-[#0d5363]/25 transition-all flex items-center justify-center cursor-pointer active:scale-[0.98] disabled:opacity-75"
+            className="w-full py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-indigo-600 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-60"
           >
-            {isLoading ? '...' : 'Login'}
+            {isLoading ? <span>Signing in...</span> : <span>Sign In as Manager</span>}
           </button>
         </form>
       </div>

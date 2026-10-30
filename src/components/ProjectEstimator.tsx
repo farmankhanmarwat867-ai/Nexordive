@@ -4,25 +4,32 @@ import React, { useState, useMemo } from 'react';
 import { ArrowUpRight, Calculator, Check, Clock, DollarSign, Layers, Shield, Sparkles, Users } from 'lucide-react';
 import { EstimatorOptions } from '../types/agency';
 import { calculateProjectEstimate } from '../utils/estimator';
+import { useAdmin } from '../context/AdminStore';
 
 interface ProjectEstimatorProps {
   onApplyEstimate?: (summary: string) => void;
 }
 
 export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstimate }) => {
+  const { content } = useAdmin();
+  const customRates = content?.pricing?.estimatorRates;
+
   const [projectType, setProjectType] = useState<EstimatorOptions['projectType']>('mvp');
   const [platforms, setPlatforms] = useState<string[]>(['web', 'backend']);
   const [fidelity, setFidelity] = useState<EstimatorOptions['fidelity']>('bespoke');
   const [timeline, setTimeline] = useState<EstimatorOptions['timeline']>('standard');
 
   const estimate = useMemo(() => {
-    return calculateProjectEstimate({
-      projectType,
-      platforms,
-      fidelity,
-      timeline,
-    });
-  }, [projectType, platforms, fidelity, timeline]);
+    return calculateProjectEstimate(
+      {
+        projectType,
+        platforms,
+        fidelity,
+        timeline,
+      },
+      customRates
+    );
+  }, [projectType, platforms, fidelity, timeline, customRates]);
 
   const togglePlatform = (platformId: string) => {
     if (platformId === 'web') return; // Web is minimum baseline
@@ -41,6 +48,8 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
       const contactSection = document.querySelector('#contact');
       if (contactSection) {
         contactSection.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.hash = '#contact';
       }
     }
   };

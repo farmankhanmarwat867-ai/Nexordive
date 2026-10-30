@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { PhoneCall, ArrowRight } from 'lucide-react';
+import { useAdmin } from '../context/AdminStore';
 
 interface HeroProps {
   onOpenContact?: () => void;
@@ -13,29 +13,69 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({
   onOpenContact,
+  onExploreWork,
   onExploreStreamerAssets,
   onStartProject,
 }) => {
-  const handleStartProject = () => {
-    if (onStartProject) {
-      onStartProject();
-    } else if (onOpenContact) {
-      onOpenContact();
+  const { content } = useAdmin();
+  const hero = content?.hero || {
+    badge: '',
+    headingLine1: 'Deep Digital',
+    headingLine2: 'Solutions for',
+    headingLine3: 'Modern',
+    headingLine4: 'Businesses',
+    description:
+      'NexorDive builds websites, software systems, digital marketing assets, AI automation and premium streamer graphics for brands and creators who want to grow online.',
+    image: '/assets/hero_business_tech.jpg',
+    imageAlt: 'NexorDive Digital & AI Solutions',
+    primaryButtonLabel: 'Start a Project',
+    primaryButtonAction: 'contact',
+    secondaryButtonLabel: 'Explore Streamer Assets',
+    secondaryButtonAction: 'streamer-assets',
+    statCards: [
+      { id: 'stat-1', value: '7+', label: 'Service Areas' },
+      { id: 'stat-2', value: 'Global', label: 'Client Ready' },
+      { id: 'stat-3', value: 'Mobile', label: 'First Design' },
+    ],
+  };
+
+  const handlePrimaryClick = () => {
+    const action = hero.primaryButtonAction || 'contact';
+    if (action === 'contact') {
+      if (onStartProject) onStartProject();
+      else if (onOpenContact) onOpenContact();
+      else window.location.hash = '#contact';
+    } else if (action === 'streamer-assets') {
+      if (onExploreStreamerAssets) onExploreStreamerAssets();
+      else window.location.hash = '#streamer-assets';
+    } else if (action === 'portfolio') {
+      if (onExploreWork) onExploreWork();
+      else window.location.hash = '#portfolio';
     } else {
-      window.location.hash = '#contact';
+      window.location.hash = `#${action}`;
     }
   };
 
-  const handleExploreStreamer = () => {
-    if (onExploreStreamerAssets) {
-      onExploreStreamerAssets();
-    } else {
-      const streamerSection = document.querySelector('#streamer-assets');
-      if (streamerSection) {
-        streamerSection.scrollIntoView({ behavior: 'smooth' });
+  const handleSecondaryClick = () => {
+    const action = hero.secondaryButtonAction || 'streamer-assets';
+    if (action === 'streamer-assets') {
+      if (onExploreStreamerAssets) onExploreStreamerAssets();
+      else {
+        const streamerSection = document.querySelector('#streamer-assets');
+        if (streamerSection) streamerSection.scrollIntoView({ behavior: 'smooth' });
+        else window.location.hash = '#streamer-assets';
       }
+    } else if (action === 'portfolio') {
+      if (onExploreWork) onExploreWork();
+      else window.location.hash = '#portfolio';
+    } else if (action === 'contact') {
+      handlePrimaryClick();
+    } else {
+      window.location.hash = `#${action}`;
     }
   };
+
+  const statCards = hero.statCards || [];
 
   return (
     <section
@@ -52,75 +92,99 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="max-w-7xl mx-auto px-6 sm:px-8 w-full relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Left Text Column - Matching User's Image */}
+          {/* Left Text Column */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="lg:col-span-6 flex flex-col items-start text-left space-y-6 pt-4 lg:pt-0"
           >
-            {/* Main Heading - Clean Bold Sans-Serif font matching image */}
+            {/* Optional Badge */}
+            {hero.badge && (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-400/15 border border-cyan-400/30 text-cyan-200 text-xs font-semibold tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span>{hero.badge}</span>
+              </div>
+            )}
+
+            {/* Main Heading */}
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white font-sans tracking-tight leading-[1.08]">
-              Deep Digital <br />
-              Solutions for <br />
-              Modern <br />
-              Businesses
+              {hero.headingLine1 || 'Deep Digital'}
+              {hero.headingLine2 && (
+                <>
+                  <br />
+                  {hero.headingLine2}
+                </>
+              )}
+              {hero.headingLine3 && (
+                <>
+                  <br />
+                  {hero.headingLine3}
+                </>
+              )}
+              {hero.headingLine4 && (
+                <>
+                  <br />
+                  {hero.headingLine4}
+                </>
+              )}
             </h1>
 
-            {/* Sub-text matching image */}
+            {/* Sub-text */}
             <p className="text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-xl">
-              NexorDive builds websites, software systems, digital marketing assets, AI automation and premium streamer graphics for brands and creators who want to grow online.
+              {hero.description}
             </p>
 
-            {/* Action Buttons: Gradient Start a Project & Dark Explore Streamer Assets */}
+            {/* Action Buttons: Gradient Start a Project & Dark Secondary */}
             <div className="pt-2 flex flex-wrap items-center gap-3.5 w-full">
               {/* Primary Gradient Pill Button */}
-              <button
-                onClick={handleStartProject}
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-[#4ee1d6] via-[#38bdf8] to-[#818cf8] hover:opacity-95 active:scale-95 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-500/20 transition-all cursor-pointer group"
-              >
-                <span>Start a Project</span>
-                <span className="text-sm font-bold group-hover:translate-x-0.5 transition-transform">→</span>
-              </button>
+              {hero.primaryButtonLabel && (
+                <button
+                  onClick={handlePrimaryClick}
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-[#4ee1d6] via-[#38bdf8] to-[#818cf8] hover:opacity-95 active:scale-95 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-500/20 transition-all cursor-pointer group"
+                >
+                  <span>{hero.primaryButtonLabel}</span>
+                  <span className="text-sm font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                </button>
+              )}
 
               {/* Secondary Dark Pill Button */}
-              <button
-                onClick={handleExploreStreamer}
-                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#122b3e]/80 hover:bg-[#16354d] text-white font-bold text-xs sm:text-sm tracking-wide border border-[#234b6b] active:scale-95 transition-all cursor-pointer shadow-md"
+              {hero.secondaryButtonLabel && (
+                <button
+                  onClick={handleSecondaryClick}
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#122b3e]/80 hover:bg-[#16354d] text-white font-bold text-xs sm:text-sm tracking-wide border border-[#234b6b] active:scale-95 transition-all cursor-pointer shadow-md"
+                >
+                  <span>{hero.secondaryButtonLabel}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Stat / Feature Cards directly underneath */}
+            {statCards.length > 0 && (
+              <div
+                className={`pt-3 grid gap-3 w-full max-w-xl ${
+                  statCards.length === 1
+                    ? 'grid-cols-1'
+                    : statCards.length === 2
+                    ? 'grid-cols-2'
+                    : 'grid-cols-3'
+                }`}
               >
-                <span>Explore Streamer Assets</span>
-              </button>
-            </div>
-
-            {/* 3 Stat / Feature Cards directly underneath matching image */}
-            <div className="pt-3 grid grid-cols-3 gap-3 w-full max-w-xl">
-              <div className="p-4 rounded-2xl bg-[#0f2438]/70 border border-[#1e405e]/70 backdrop-blur-sm">
-                <div className="text-base sm:text-lg font-bold text-white font-sans">
-                  7+
-                </div>
-                <div className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">
-                  Service Areas
-                </div>
+                {statCards.map((stat) => (
+                  <div
+                    key={stat.id}
+                    className="p-4 rounded-2xl bg-[#0f2438]/70 border border-[#1e405e]/70 backdrop-blur-sm"
+                  >
+                    <div className="text-base sm:text-lg font-bold text-white font-sans">
+                      {stat.value}
+                    </div>
+                    <div className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
               </div>
-
-              <div className="p-4 rounded-2xl bg-[#0f2438]/70 border border-[#1e405e]/70 backdrop-blur-sm">
-                <div className="text-base sm:text-lg font-bold text-white font-sans">
-                  Global
-                </div>
-                <div className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">
-                  Client Ready
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-[#0f2438]/70 border border-[#1e405e]/70 backdrop-blur-sm">
-                <div className="text-base sm:text-lg font-bold text-white font-sans">
-                  Mobile
-                </div>
-                <div className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">
-                  First Design
-                </div>
-              </div>
-            </div>
+            )}
           </motion.div>
 
           {/* Right Column - Future Tech Holographic Visual */}
@@ -137,8 +201,8 @@ export const Hero: React.FC<HeroProps> = ({
               {/* Styled image container */}
               <div className="relative rounded-3xl overflow-hidden border border-cyan-400/30 shadow-2xl shadow-[#04161b]/80 bg-[#071d24]">
                 <img
-                  src="/assets/hero_business_tech.jpg"
-                  alt="NexorDive Digital & AI Solutions"
+                  src={hero.image || '/assets/hero_business_tech.jpg'}
+                  alt={hero.imageAlt || 'NexorDive Digital & AI Solutions'}
                   className="w-full h-auto object-cover select-none"
                 />
                 {/* Subtle sheen overlay */}
