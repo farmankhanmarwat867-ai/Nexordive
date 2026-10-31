@@ -5,7 +5,7 @@ import { Hero } from '../components/Hero';
 import { AboutSection } from '../components/AboutSection';
 import { Services } from '../components/Services';
 import { Testimonials } from '../components/Testimonials';
-import { BlogSection } from '../components/BlogSection';
+
 import { PartnersMarquee } from '../components/PartnersMarquee';
 import { ArrowRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
@@ -30,13 +30,13 @@ export const HomePage: React.FC<HomePageProps> = ({
     { id: 'about', label: 'About NexorDive', visible: true, order: 2 },
     { id: 'services', label: 'Services Grid', visible: true, order: 3 },
     { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 4 },
-    { id: 'blog', label: 'Latest Blog Cards', visible: true, order: 5 },
+
     { id: 'partners', label: 'Partners Marquee', visible: true, order: 6 },
     { id: 'ctaBanner', label: 'Bottom CTA Banner', visible: true, order: 7 },
   ];
 
   const sections = [...rawSections]
-    .filter((s) => s.visible !== false)
+    .filter((s) => s.id !== 'blog' && s.visible !== false)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
@@ -74,8 +74,8 @@ export const HomePage: React.FC<HomePageProps> = ({
             );
           case 'testimonials':
             return <Testimonials key="testimonials" />;
-          case 'blog':
-            return <BlogSection key="blog" />;
+
+
           case 'partners':
             return <PartnersMarquee key="partners" />;
           case 'ctaBanner': {

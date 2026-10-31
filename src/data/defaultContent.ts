@@ -776,7 +776,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       { id: 'mission', label: 'About NexorDive & Mission', visible: true, order: 2 },
       { id: 'services', label: 'Services Grid', visible: true, order: 3 },
       { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 4 },
-      { id: 'blog', label: 'Latest From Blog', visible: true, order: 5 },
+      { id: 'blog', label: 'Latest From Blog', visible: false, order: 5 },
       { id: 'partners', label: 'Partners Banner', visible: true, order: 6 },
       { id: 'ctaBanner', label: 'Bottom Conversion Banner', visible: true, order: 7 },
     ],
