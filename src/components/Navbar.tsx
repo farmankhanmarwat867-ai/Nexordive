@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAdmin } from '../context/AdminStore';
 
 interface NavbarProps {
   currentPage?: string;
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdmin,
   onStartProject,
 }) => {
+  const { content } = useAdmin();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -30,16 +32,35 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Exact navigation links matching user's image
-  const navLinks = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'services', label: 'Services' },
-    { id: 'streamer-assets', label: 'Streamer Assets' },
-    { id: 'pricing', label: 'Pricing' },
-    { id: 'portfolio', label: 'Portfolio' },
-    { id: 'contact', label: 'Contact' },
-  ];
+  // Connect to CMS navLinks with strict fallback: preserve empty arrays, deleted links, and custom order
+  const rawLinks = content?.global?.navLinks;
+  const navLinks = Array.isArray(rawLinks)
+    ? [...rawLinks]
+        .filter((link) => link.visible !== false)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((link) => ({
+          id: link.destination || link.id,
+          label: link.label,
+        }))
+    : [
+        { id: 'home', label: 'Home' },
+        { id: 'about', label: 'About' },
+        { id: 'services', label: 'Services' },
+        { id: 'streamer-assets', label: 'Streamer Assets' },
+        { id: 'pricing', label: 'Pricing' },
+        { id: 'portfolio', label: 'Portfolio' },
+        { id: 'contact', label: 'Contact' },
+      ];
+
+  // Dynamic social links & logo: intentionally empty URLs are NOT replaced by generic fallback URLs
+  const facebookItem = content?.global?.socialLinks?.find((s) => s.platform === 'facebook');
+  const linkedinItem = content?.global?.socialLinks?.find((s) => s.platform === 'linkedin');
+  const facebookUrl = facebookItem !== undefined ? (facebookItem.url || '') : 'https://facebook.com';
+  const linkedinUrl = linkedinItem !== undefined ? (linkedinItem.url || '') : 'https://linkedin.com';
+  const showFacebook = facebookItem ? (facebookItem.visible !== false && facebookUrl.trim() !== '') : true;
+  const showLinkedin = linkedinItem ? (linkedinItem.visible !== false && linkedinUrl.trim() !== '') : true;
+  const logoPrefix = content?.global?.logoPrefix || 'NEXOR';
+  const logoSuffix = content?.global?.logoSuffix || 'DIVE';
 
   const handleLinkClick = (pageId: string) => {
     setMobileMenuOpen(false);
@@ -90,9 +111,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <div className="flex items-center tracking-widest text-white font-extrabold text-lg sm:text-2xl font-mono select-none">
               <span className="text-cyan-300 font-bold">&lt;</span>
-              <span className="tracking-widest">NEXOR</span>
+              <span className="tracking-widest">{logoPrefix}</span>
               <span className="mx-1 text-cyan-400 font-normal">|</span>
-              <span className="tracking-widest">DIVE</span>
+              <span className="tracking-widest">{logoSuffix}</span>
               <span className="text-cyan-300 font-bold">&gt;</span>
             </div>
           </a>
@@ -125,30 +146,34 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Action Icons (Facebook + LinkedIn buttons matching video) */}
           <div className="flex items-center gap-3 shrink-0">
             {/* Facebook Icon Button */}
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#0d5363] font-bold text-sm shadow-md transition-all hover:scale-105"
-            >
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.667 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z"/>
-              </svg>
-            </a>
+            {showFacebook && (
+              <a
+                href={facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#0d5363] font-bold text-sm shadow-md transition-all hover:scale-105"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.667 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z" />
+                </svg>
+              </a>
+            )}
 
             {/* LinkedIn Icon Button */}
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#0d5363] font-bold text-sm shadow-md transition-all hover:scale-105"
-            >
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
-              </svg>
-            </a>
+            {showLinkedin && (
+              <a
+                href={linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#0d5363] font-bold text-sm shadow-md transition-all hover:scale-105"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
+                </svg>
+              </a>
+            )}
 
             {/* Login Button */}
             {onOpenAdmin && (

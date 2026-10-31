@@ -3,8 +3,176 @@
  * Exactly matches all hardcoded text, images, and structure from existing public components.
  */
 
-import { SiteContent } from '../types/content';
+import { SiteContent, AboutPageContent } from '../types/content';
 import { CASE_STUDIES, AGENCY_METRICS, PROCESS_PHASES, PARTNERS } from './agencyData';
+
+export const DEFAULT_ABOUT_PAGE_CONTENT: AboutPageContent = {
+  intro: {
+    eyebrow: 'Our Digital Agency',
+    heading: 'Choose NexorDive',
+    paragraph1:
+      'NexorDive is a leading software engineering studio and digital product house dedicated to delivering innovative, enterprise-grade technology solutions. Specializing in custom software development, web and mobile application engineering, AI automation, and strategic IT consulting, we focus on delivering tangible results that drive sustained business success.',
+    paragraph2:
+      "With a team of experienced professionals, NexorDive blends creative craft, technical mastery, and a customer-centric approach to deliver tailored solutions that meet the unique needs of each client. Whether you're an ambitious startup or a global enterprise, we empower your business through cutting-edge software and seamless user experiences.",
+    buttonLabel: 'Book a Call',
+    buttonAction: 'start-project',
+    techTreeImage: '/assets/about/tech_tree_card.png',
+    techTreeImageAlt: 'NexorDive Full-Spectrum Technology Tree',
+  },
+  consultation: {
+    heading: 'Start Project With Us ?',
+    description:
+      'At NexorDive, we bring your ideas to life with precision and innovation. Our team of skilled professionals is dedicated to turning your vision into a powerful digital reality. With our motto, "We code your digital vision," we work hand-in-hand with you to ensure every project is a seamless blend of creativity, technology, and strategy. Whether you\'re building from the ground up or enhancing your digital presence, let\'s create something extraordinary together!',
+    buttonLabel: 'Free Consultation',
+    buttonAction: 'start-project',
+    backgroundImage: '/assets/about/laptop_consultation_bg.jpg',
+    backgroundImageAlt: 'NexorDive Project Consultation & Software Engineering',
+  },
+  teamSection: {
+    eyebrow: 'Our Team',
+    title: 'Meet Our Expert Team',
+    description:
+      'Meet the software architects, mobile engineers, AI specialists, and designers building the next generation of digital products at NexorDive.',
+  },
+  teamMembers: [
+    {
+      id: 'ceo',
+      name: 'Akleem Orakzai',
+      role: 'CEO',
+      image: '/assets/akleem_orakzai_avatar.png',
+      bio: 'Visionary leadership driving technical rigor, strategic client partnerships, and company growth.',
+      linkedin: 'https://linkedin.com',
+      isLeader: true,
+      visible: true,
+      order: 1,
+    },
+    {
+      id: 'farman',
+      name: 'Farman Ullah',
+      role: 'Principal Solutions Architect',
+      image: '/assets/about/team/member_1_architect.jpg',
+      bio: 'Distributed cloud systems, microservices architectures, and enterprise database scaling.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 2,
+    },
+    {
+      id: 'hamza',
+      name: 'Hamza Khan',
+      role: 'Lead Full-Stack Engineer',
+      image: '/assets/about/team/member_3_lead_dev.jpg',
+      bio: 'Next.js 15+, real-time WebSockets, high-concurrency Node.js & Go API platforms.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 3,
+    },
+    {
+      id: 'younas',
+      name: 'Younas Ali',
+      role: 'Senior Flutter & Mobile Developer',
+      image: '/assets/about/team/member_5_flutter.jpg',
+      bio: 'Native performance iOS & Android cross-platform ecosystems with fluid UI motion.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 4,
+    },
+    {
+      id: 'zaryab',
+      name: 'Zaryab Khan',
+      role: 'Applied AI & ML Systems Engineer',
+      image: '/assets/about/team/member_6_ai.jpg',
+      bio: 'Autonomous multi-agent routing, RAG vector pipelines, and custom LLM integrations.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 5,
+    },
+    {
+      id: 'shahafahad',
+      name: 'Shahafahad',
+      role: 'Local SEO & Growth Marketing',
+      image: '/assets/about/team/member_8_seo.jpg',
+      bio: 'Organic search domination, conversion funnels, and data-backed digital acquisition.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 6,
+    },
+    {
+      id: 'bilal',
+      name: 'Bilal Ahmed',
+      role: 'UI/UX & Motion Interaction Designer',
+      image: '/assets/about/team/member_4_fullstack.jpg',
+      bio: 'Tokenized Figma design systems, micro-interactions, and high-fidelity user journeys.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 7,
+    },
+    {
+      id: 'asad',
+      name: 'Asad Malik',
+      role: 'Cloud & DevOps Infrastructure Lead',
+      image: '/assets/about/team/member_7_uiux.jpg',
+      bio: 'Automated CI/CD pipelines, Docker containerization, Kubernetes, and AWS edge security.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 8,
+    },
+    {
+      id: 'tariq',
+      name: 'Tariq Mehmood',
+      role: 'Senior Backend & Systems Engineer',
+      image: '/assets/about/team/member_9_devops.jpg',
+      bio: 'PostgreSQL optimization, Redis caching, event streaming, and API gateway design.',
+      linkedin: 'https://linkedin.com',
+      visible: true,
+      order: 9,
+    },
+  ],
+  pillarsSection: {
+    eyebrow: 'Our Foundation',
+    title: 'NexorDive Core Principles',
+    description: 'The architectural standards and service guarantees built into every product we ship.',
+  },
+  corePillars: [
+    {
+      id: 'pillar-1',
+      title: '100% IP & Clean Code',
+      description: 'Full intellectual property assignment and sanitized Git repository handover upon completion.',
+      iconName: 'Code2',
+      visible: true,
+      order: 1,
+    },
+    {
+      id: 'pillar-2',
+      title: 'Sub-second Speed',
+      description: 'Engineered for maximum Core Web Vitals, sub-second load times, and fluid 60fps animations.',
+      iconName: 'Zap',
+      visible: true,
+      order: 2,
+    },
+    {
+      id: 'pillar-3',
+      title: 'Autonomous AI Systems',
+      description: 'Tailored LLM agent workflows, customer routing automations, and intelligent data pipelines.',
+      iconName: 'Sparkles',
+      visible: true,
+      order: 3,
+    },
+    {
+      id: 'pillar-4',
+      title: 'Post-Launch Warranty',
+      description: 'Comprehensive 30 to 90-day post-launch bug fixing and dedicated technical support.',
+      iconName: 'ShieldCheck',
+      visible: true,
+      order: 4,
+    },
+  ],
+  sectionsVisibility: {
+    intro: true,
+    consultation: true,
+    team: true,
+    pillars: true,
+  },
+};
 
 export const DEFAULT_SITE_CONTENT: SiteContent = {
   schemaVersion: 1,
@@ -16,11 +184,12 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     logoSuffix: 'DIVE',
     navLinks: [
       { id: 'home', label: 'Home', destination: 'home', visible: true, order: 1 },
-      { id: 'services', label: 'Services', destination: 'services', visible: true, order: 2 },
-      { id: 'streamer-assets', label: 'Streamer Assets', destination: 'streamer-assets', visible: true, order: 3 },
-      { id: 'pricing', label: 'Pricing', destination: 'pricing', visible: true, order: 4 },
-      { id: 'portfolio', label: 'Portfolio', destination: 'portfolio', visible: true, order: 5 },
-      { id: 'contact', label: 'Contact', destination: 'contact', visible: true, order: 6 },
+      { id: 'about', label: 'About', destination: 'about', visible: true, order: 2 },
+      { id: 'services', label: 'Services', destination: 'services', visible: true, order: 3 },
+      { id: 'streamer-assets', label: 'Streamer Assets', destination: 'streamer-assets', visible: true, order: 4 },
+      { id: 'pricing', label: 'Pricing', destination: 'pricing', visible: true, order: 5 },
+      { id: 'portfolio', label: 'Portfolio', destination: 'portfolio', visible: true, order: 6 },
+      { id: 'contact', label: 'Contact', destination: 'contact', visible: true, order: 7 },
     ],
     headerCtaLabel: 'Start a Project',
     headerCtaDestination: 'contact',
@@ -538,6 +707,16 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       visible: true,
       order: idx + 1,
     })),
+    platforms: [
+      { id: 'plat-linkedin', name: 'LinkedIn', platformKey: 'linkedin', url: 'https://linkedin.com', visible: true, order: 1 },
+      { id: 'plat-facebook', name: 'Facebook', platformKey: 'facebook', url: 'https://facebook.com', visible: true, order: 2 },
+      { id: 'plat-twitter', name: 'Twitter', platformKey: 'twitter', url: 'https://twitter.com', visible: true, order: 3 },
+      { id: 'plat-x', name: 'X Platform', platformKey: 'x', url: 'https://x.com', visible: true, order: 4 },
+      { id: 'plat-instagram', name: 'Instagram', platformKey: 'instagram', url: 'https://instagram.com', visible: true, order: 5 },
+      { id: 'plat-youtube', name: 'YouTube', platformKey: 'youtube', url: 'https://youtube.com', visible: true, order: 6 },
+      { id: 'plat-github', name: 'GitHub', platformKey: 'github', url: 'https://github.com', visible: true, order: 7 },
+      { id: 'plat-discord', name: 'Discord', platformKey: 'discord', url: 'https://discord.com', visible: true, order: 8 },
+    ],
   },
   ctaBanner: {
     eyebrow: 'Ready to Scale Your Brand?',
@@ -551,14 +730,17 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
 
   contact: {
     sectionEyebrow: 'Get In Touch',
+    modalEyebrow: 'Quick Scoping & Inquiry',
     sectionTitle: "Let's start your project.",
-    sectionDescription: 'Have an idea for a web platform, mobile app, branding system, or custom IT solutions? Reach out directly or fill in the form below.',
-    directHeading: 'Direct Contact Channels',
-    directDescription: 'Connect with our team directly via WhatsApp for quick scoping chats, or email us your comprehensive RFP.',
+    sectionDescription: 'Have an idea for high-performance software, modern web platforms, mobile apps, or custom AI automation? Connect directly below for guaranteed 24-hour turnaround.',
+    directHeading: 'Direct Communication',
+    directDescription: 'Prefer an immediate conversation? Reach out directly via WhatsApp for quick scoping, or email us your comprehensive RFP.',
     responseGuarantee: '24-Hour Technical Review Guarantee',
-    ndaGuarantee: 'Mutual NDA Protection for all briefs',
+    ndaGuarantee: 'Strict NDA & IP Protection Included',
     successMessage: 'Thank you for reaching out! Your inquiry has been registered locally in this prototype. Our engineering squad will review your scope and follow up within 24 hours.',
   },
+
+  aboutPage: DEFAULT_ABOUT_PAGE_CONTENT,
 
   pageHeaders: {
     services: {

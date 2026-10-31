@@ -59,7 +59,7 @@ export interface AdminContextType {
   leads: Lead[];
   updateLeadStatus: (id: string, status: Lead['status']) => void;
   deleteLead: (id: string) => void;
-  addLead: (lead: Omit<Lead, 'id' | 'date'>) => void;
+  addLead: (lead: Omit<Lead, 'id' | 'date'>) => { success: boolean; id?: string; error?: string };
   clearAllLeads?: () => void;
 
   // Backward-compatible accessors
@@ -267,9 +267,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Update entire content
   const updateContent = (newContent: SiteContent): { success: boolean; error?: string } => {
-    contentRef.current = newContent;
     const result = saveStoredContent(newContent);
     if (result.success) {
+      contentRef.current = newContent;
       setContent(newContent);
     }
     return result;
@@ -281,24 +281,63 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     sectionData: SiteContent[K]
   ): { success: boolean; error?: string } => {
     const baseContent = contentRef.current;
+    let extraGlobal: Partial<typeof baseContent.global> = {};
+    let extraMission: Partial<typeof baseContent.mission> = {};
+    let extraAboutPage: any = undefined;
+
+    if (section === 'mission') {
+      const m = sectionData as any;
+      extraGlobal = {
+        ...baseContent.global,
+        ...(m?.ceoBadgeName ? { leaderName: m.ceoBadgeName } : {}),
+        ...(m?.ceoBadgeTitle ? { leaderRole: m.ceoBadgeTitle } : {}),
+        ...(m?.ceoAvatar ? { leaderImage: m.ceoAvatar } : {}),
+      };
+      if (baseContent.aboutPage) {
+        extraAboutPage = {
+          ...baseContent.aboutPage,
+          teamMembers: (baseContent.aboutPage.teamMembers || []).map((mem) =>
+            mem.isLeader || mem.id === 'ceo'
+              ? {
+                  ...mem,
+                  ...(m?.ceoBadgeName ? { name: m.ceoBadgeName } : {}),
+                  ...(m?.ceoBadgeTitle ? { role: m.ceoBadgeTitle } : {}),
+                  ...(m?.ceoAvatar ? { image: m.ceoAvatar } : {}),
+                }
+              : mem
+          ),
+        };
+      }
+    } else if (section === 'aboutPage') {
+      const ap = sectionData as any;
+      const ceo = (ap?.teamMembers || []).find((mem: any) => mem.isLeader || mem.id === 'ceo');
+      if (ceo) {
+        extraGlobal = {
+          ...baseContent.global,
+          ...(ceo.name ? { leaderName: ceo.name } : {}),
+          ...(ceo.role ? { leaderRole: ceo.role } : {}),
+          ...(ceo.image ? { leaderImage: ceo.image } : {}),
+        };
+        extraMission = {
+          ...baseContent.mission,
+          ...(ceo.name ? { ceoBadgeName: ceo.name } : {}),
+          ...(ceo.role ? { ceoBadgeTitle: ceo.role } : {}),
+          ...(ceo.image ? { ceoAvatar: ceo.image } : {}),
+        };
+      }
+    }
+
     const updated: SiteContent = {
       ...baseContent,
       [section]: sectionData,
-      ...(section === 'mission'
-        ? {
-            global: {
-              ...baseContent.global,
-              leaderName: (sectionData as any)?.ceoBadgeName || baseContent.global?.leaderName,
-              leaderRole: (sectionData as any)?.ceoBadgeTitle || baseContent.global?.leaderRole,
-              leaderImage: (sectionData as any)?.ceoAvatar || baseContent.global?.leaderImage,
-            },
-          }
-        : {}),
+      ...(Object.keys(extraGlobal).length > 0 ? { global: extraGlobal as any } : {}),
+      ...(Object.keys(extraMission).length > 0 ? { mission: extraMission as any } : {}),
+      ...(extraAboutPage ? { aboutPage: extraAboutPage } : {}),
       lastUpdated: new Date().toISOString(),
     };
-    contentRef.current = updated;
     const result = saveStoredContent(updated);
     if (result.success) {
+      contentRef.current = updated;
       setContent(updated);
     }
     return result;
@@ -326,14 +365,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setLeads([]);
   };
 
-  const addLead = (lead: Omit<Lead, 'id' | 'date'>) => {
-    const newLead: Lead = {
-      ...lead,
-      id: `NXD-${Math.floor(100000 + Math.random() * 900000)}`,
-      date: new Date().toISOString().split('T')[0],
-      status: 'New',
-    };
-    setLeads((prev) => [newLead, ...prev]);
+  const addLead = (lead: Omit<Lead, 'id' | 'date'>): { success: boolean; id?: string; error?: string } => {
+    try {
+      const newLead: Lead = {
+        ...lead,
+        id: `NXD-${Math.floor(100000 + Math.random() * 900000)}`,
+        date: new Date().toISOString().split('T')[0],
+        status: 'New',
+      };
+      const updated = [newLead, ...leads];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('nexor_admin_leads', JSON.stringify(updated));
+      }
+      setLeads(updated);
+      return { success: true, id: newLead.id };
+    } catch (err: any) {
+      console.error('Failed to persist lead:', err);
+      return { success: false, error: err?.message || 'Storage error: unable to save inquiry.' };
+    }
   };
 
   // Backward-compatible portfolio helpers mapped to content.portfolio
@@ -427,9 +476,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       metaDescription: content.seo?.metaDescription || savedSettings.metaDescription || DEFAULT_SETTINGS.metaDescription,
       ogImageUrl: content.seo?.ogImageUrl || savedSettings.ogImageUrl || DEFAULT_SETTINGS.ogImageUrl,
       agencyName: content.global?.agencyName || savedSettings.agencyName || DEFAULT_SETTINGS.agencyName,
-      leaderName: content.mission?.ceoBadgeName || content.global?.leaderName || savedSettings.leaderName || DEFAULT_SETTINGS.leaderName,
-      leaderRole: content.mission?.ceoBadgeTitle || content.global?.leaderRole || savedSettings.leaderRole || DEFAULT_SETTINGS.leaderRole,
-      leaderImage: content.mission?.ceoAvatar || content.global?.leaderImage || savedSettings.leaderImage || DEFAULT_SETTINGS.leaderImage,
+      leaderName: content.aboutPage?.teamMembers?.find(m => m.isLeader || m.id === 'ceo')?.name || content.mission?.ceoBadgeName || content.global?.leaderName || savedSettings.leaderName || DEFAULT_SETTINGS.leaderName,
+      leaderRole: content.aboutPage?.teamMembers?.find(m => m.isLeader || m.id === 'ceo')?.role || content.mission?.ceoBadgeTitle || content.global?.leaderRole || savedSettings.leaderRole || DEFAULT_SETTINGS.leaderRole,
+      leaderImage: content.aboutPage?.teamMembers?.find(m => m.isLeader || m.id === 'ceo')?.image || content.mission?.ceoAvatar || content.global?.leaderImage || savedSettings.leaderImage || DEFAULT_SETTINGS.leaderImage,
     };
   })();
 
@@ -455,31 +504,51 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ...(newSettings.leaderRole !== undefined ? { ceoBadgeTitle: newSettings.leaderRole } : {}),
       ...(newSettings.leaderImage !== undefined ? { ceoAvatar: newSettings.leaderImage } : {}),
     };
+    const updatedAboutPage = content.aboutPage
+      ? {
+          ...content.aboutPage,
+          teamMembers: (content.aboutPage.teamMembers || []).map((m) =>
+            m.isLeader || m.id === 'ceo'
+              ? {
+                  ...m,
+                  ...(newSettings.leaderName !== undefined ? { name: newSettings.leaderName } : {}),
+                  ...(newSettings.leaderRole !== undefined ? { role: newSettings.leaderRole } : {}),
+                  ...(newSettings.leaderImage !== undefined ? { image: newSettings.leaderImage } : {}),
+                }
+              : m
+          ),
+        }
+      : undefined;
+
     const updatedContent: SiteContent = {
       ...content,
       global: updatedGlobal,
       seo: updatedSeo,
       mission: updatedMission,
+      ...(updatedAboutPage ? { aboutPage: updatedAboutPage } : {}),
       lastUpdated: new Date().toISOString(),
     };
-    saveStoredContent(updatedContent);
-    setContent(updatedContent);
+    const result = saveStoredContent(updatedContent);
+    if (result.success) {
+      contentRef.current = updatedContent;
+      setContent(updatedContent);
 
-    if (typeof window !== 'undefined') {
-      try {
-        const toSave = {
-          agencyName: updatedGlobal.agencyName,
-          whatsappNumber: updatedGlobal.whatsappNumber,
-          contactEmail: updatedGlobal.contactEmail,
-          metaTitle: updatedSeo.metaTitle,
-          metaDescription: updatedSeo.metaDescription,
-          ogImageUrl: updatedSeo.ogImageUrl,
-          leaderName: updatedGlobal.leaderName,
-          leaderRole: updatedGlobal.leaderRole,
-          leaderImage: updatedGlobal.leaderImage,
-        };
-        localStorage.setItem('nexor_admin_settings', JSON.stringify(toSave));
-      } catch (_) {}
+      if (typeof window !== 'undefined') {
+        try {
+          const toSave = {
+            agencyName: updatedGlobal.agencyName,
+            whatsappNumber: updatedGlobal.whatsappNumber,
+            contactEmail: updatedGlobal.contactEmail,
+            metaTitle: updatedSeo.metaTitle,
+            metaDescription: updatedSeo.metaDescription,
+            ogImageUrl: updatedSeo.ogImageUrl,
+            leaderName: updatedGlobal.leaderName,
+            leaderRole: updatedGlobal.leaderRole,
+            leaderImage: updatedGlobal.leaderImage,
+          };
+          localStorage.setItem('nexor_admin_settings', JSON.stringify(toSave));
+        } catch (_) {}
+      }
     }
   };
 
