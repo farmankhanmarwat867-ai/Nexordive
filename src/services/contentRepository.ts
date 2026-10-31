@@ -145,9 +145,16 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
     sectionsManager: {
       ...defaults.sectionsManager,
       ...(saved.sectionsManager || {}),
-      landingPageSections: Array.isArray(saved.sectionsManager?.landingPageSections)
-        ? saved.sectionsManager.landingPageSections
-        : defaults.sectionsManager.landingPageSections,
+      landingPageSections: (() => {
+        if (!Array.isArray(saved.sectionsManager?.landingPageSections)) {
+          return defaults.sectionsManager.landingPageSections;
+        }
+        const savedList = saved.sectionsManager.landingPageSections;
+        const missingDefaults = defaults.sectionsManager.landingPageSections.filter(
+          (d) => !savedList.some((s) => s.id === d.id)
+        );
+        return [...savedList, ...missingDefaults];
+      })(),
     },
     seo: { ...defaults.seo, ...(saved.seo || {}) },
   };

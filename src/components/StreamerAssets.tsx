@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, CheckCircle2, Radio, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle2, Radio, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { DynamicIcon } from './common/DynamicIcon';
 import { StreamerStartingCard, StreamerSuite } from '../types/content';
@@ -10,9 +10,11 @@ import { executeAction } from '../utils/actionHandler';
 
 interface StreamerAssetsProps {
   onInquirePackage?: (packageName: string) => void;
+  onViewAll?: () => void;
+  showSuites?: boolean;
 }
 
-export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage }) => {
+export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage, onViewAll, showSuites = true }) => {
   const { content } = useAdmin();
   const streamerData = content?.streamer;
 
@@ -48,14 +50,28 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
               <Radio className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
               <span>{streamerData?.sectionEyebrow || 'Dedicated to Gamers & Creators'}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 font-display tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight text-balance">
               {streamerData?.sectionTitle || 'Streamer Assets Hub'}
             </h2>
           </div>
-          <p className="text-slate-600 text-sm sm:text-base max-w-md font-normal leading-relaxed">
-            {streamerData?.sectionDescription ||
-              'Elevate your broadcast into an unforgettable visual spectacle. We craft broadcast-grade overlays, animated stingers, interactive alerts, and custom branding for top-tier creators across Twitch, Kick, YouTube, and VTubing.'}
-          </p>
+          <div className="max-w-md">
+            <p className="text-slate-600 text-sm sm:text-base font-normal leading-relaxed">
+              {streamerData?.sectionDescription ||
+                'Elevate your broadcast into an unforgettable visual spectacle. We craft broadcast-grade overlays, animated stingers, interactive alerts, and custom branding for top-tier creators across Twitch, Kick, YouTube, and VTubing.'}
+            </p>
+            {onViewAll && (
+              <div className="mt-3 flex justify-start md:justify-end">
+                <button
+                  type="button"
+                  onClick={onViewAll}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#004d6a] hover:text-[#006f94] transition-colors group cursor-pointer"
+                >
+                  <span>View All Assets</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Starting Price Cards Grid */}
@@ -130,8 +146,22 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
           ))}
         </div>
 
+        {/* View All CTA Button */}
+        {onViewAll && (
+          <div className="flex justify-center -mt-6 mb-16">
+            <button
+              type="button"
+              onClick={onViewAll}
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-[#004d6a] hover:bg-[#003d54] text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-cyan-400/20 group"
+            >
+              <span>View All Streamer Assets</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        )}
+
         {/* Broadcast Turnkey Suites Section */}
-        {suites.length > 0 && (
+        {showSuites && suites.length > 0 && (
           <div>
             <div className="mb-8">
               <span className="text-xs font-mono uppercase tracking-wider text-indigo-600 font-semibold block mb-1">
