@@ -2,18 +2,20 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import { Contact } from './Contact';
+import { Contact, ContactFormData } from './Contact';
 
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialSummary?: string;
+  onSuccessSubmit?: (data: ContactFormData) => Promise<{ success: boolean; id?: string; error?: string } | void> | { success: boolean; id?: string; error?: string } | void;
 }
 
 export const ContactModal: React.FC<ContactModalProps> = ({
   isOpen,
   onClose,
   initialSummary = '',
+  onSuccessSubmit,
 }) => {
   if (!isOpen) return null;
 
@@ -39,9 +41,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
         <Contact
           isModal={true}
           initialSummary={initialSummary}
-          onSuccessSubmit={() => {
-            // Leave submitted state visible inside modal
-          }}
+          onSuccessSubmit={onSuccessSubmit}
         />
       </div>
     </div>

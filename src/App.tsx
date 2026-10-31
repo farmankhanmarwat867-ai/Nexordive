@@ -78,6 +78,7 @@ function MainAppContent() {
       if (hash === 'admin') {
         const isAuth = sessionStorage.getItem('nexordive_admin_auth') === 'true';
         if (isAuth) {
+          setIsAdminAuthenticated(true);
           setIsAdminView(true);
         } else {
           setIsAdminView(false);
@@ -162,7 +163,7 @@ function MainAppContent() {
 
   // Lead capture handler for CRM
   const handleLeadFormSuccess = (formData: any) => {
-    addLead({
+    return addLead({
       name: formData.name,
       whatsapp: formData.whatsapp,
       email: formData.email,
@@ -320,6 +321,7 @@ function MainAppContent() {
         isOpen={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
         initialSummary={modalSummary}
+        onSuccessSubmit={handleLeadFormSuccess}
       />
 
       {/* Admin Login Modal (Form with ONLY Email & Password) */}

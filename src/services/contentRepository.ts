@@ -37,10 +37,22 @@ export const PRESET_PROJECT_ASSETS = [
  * are safely populated from default content without dropping user edits.
  */
 function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): SiteContent {
+  // Preserve explicitly saved navigation arrays as authoritative (including empty arrays,
+  // deleted links, custom ordering, hidden links, and labels). Only fall back to defaults if navLinks is undefined.
+  const mergedNavLinks = Array.isArray(saved.global?.navLinks)
+    ? saved.global.navLinks
+    : defaults.global.navLinks;
+
+  const defaultAbout = defaults.aboutPage;
+
   return {
     schemaVersion: 1,
     lastUpdated: saved.lastUpdated || defaults.lastUpdated,
-    global: { ...defaults.global, ...(saved.global || {}) },
+    global: {
+      ...defaults.global,
+      ...(saved.global || {}),
+      navLinks: mergedNavLinks,
+    },
     hero: { ...defaults.hero, ...(saved.hero || {}) },
     services: {
       ...defaults.services,
@@ -98,12 +110,31 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
       ...defaults.partners,
       ...(saved.partners || {}),
       partners: Array.isArray(saved.partners?.partners) ? saved.partners.partners : defaults.partners.partners,
+      platforms: Array.isArray(saved.partners?.platforms) ? saved.partners.platforms : (defaults.partners.platforms || []),
     },
     ctaBanner: {
       ...defaults.ctaBanner,
       ...(saved.ctaBanner || {}),
     },
     contact: { ...defaults.contact, ...(saved.contact || {}) },
+    aboutPage: defaultAbout
+      ? {
+          intro: { ...defaultAbout.intro, ...(saved.aboutPage?.intro || {}) },
+          consultation: { ...defaultAbout.consultation, ...(saved.aboutPage?.consultation || {}) },
+          teamSection: { ...defaultAbout.teamSection, ...(saved.aboutPage?.teamSection || {}) },
+          teamMembers: Array.isArray(saved.aboutPage?.teamMembers)
+            ? saved.aboutPage.teamMembers
+            : defaultAbout.teamMembers,
+          pillarsSection: { ...defaultAbout.pillarsSection, ...(saved.aboutPage?.pillarsSection || {}) },
+          corePillars: Array.isArray(saved.aboutPage?.corePillars)
+            ? saved.aboutPage.corePillars
+            : defaultAbout.corePillars,
+          sectionsVisibility: {
+            ...defaultAbout.sectionsVisibility,
+            ...(saved.aboutPage?.sectionsVisibility || {}),
+          },
+        }
+      : undefined,
     pageHeaders: {
       services: { ...defaults.pageHeaders.services, ...(saved.pageHeaders?.services || {}) },
       streamerAssets: { ...defaults.pageHeaders.streamerAssets, ...(saved.pageHeaders?.streamerAssets || {}) },

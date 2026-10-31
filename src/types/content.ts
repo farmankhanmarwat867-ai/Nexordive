@@ -290,11 +290,31 @@ export interface PartnerLogoItem {
   order: number;
 }
 
+export type MarqueePlatformKey =
+  | 'linkedin'
+  | 'facebook'
+  | 'twitter'
+  | 'x'
+  | 'instagram'
+  | 'youtube'
+  | 'github'
+  | 'discord';
+
+export interface MarqueePlatformItem {
+  id: string;
+  name: string;
+  platformKey: MarqueePlatformKey;
+  url?: string;
+  visible: boolean;
+  order: number;
+}
+
 export interface PartnersContent {
   mode: 'banner' | 'grid';
   bannerImage: string;
   bannerAlt: string;
   partners: PartnerLogoItem[];
+  platforms?: MarqueePlatformItem[];
 }
 
 export interface CtaBannerContent {
@@ -309,6 +329,7 @@ export interface CtaBannerContent {
 
 export interface ContactContent {
   sectionEyebrow: string;
+  modalEyebrow?: string;
   sectionTitle: string;
   sectionDescription: string;
   directHeading: string;
@@ -316,6 +337,71 @@ export interface ContactContent {
   responseGuarantee: string;
   ndaGuarantee: string;
   successMessage: string;
+}
+
+export interface AboutPageIntro {
+  eyebrow: string;
+  heading: string;
+  paragraph1: string;
+  paragraph2: string;
+  buttonLabel: string;
+  buttonAction: string;
+  techTreeImage: string;
+  techTreeImageAlt: string;
+}
+
+export interface AboutPageConsultation {
+  heading: string;
+  description: string;
+  buttonLabel: string;
+  buttonAction: string;
+  backgroundImage: string;
+  backgroundImageAlt: string;
+}
+
+export interface AboutTeamMember {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  imageAlt?: string;
+  bio: string;
+  linkedin?: string;
+  isLeader?: boolean;
+  visible: boolean;
+  order: number;
+}
+
+export interface AboutCorePillar {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+  visible: boolean;
+  order: number;
+}
+
+export interface AboutPageContent {
+  intro: AboutPageIntro;
+  consultation: AboutPageConsultation;
+  teamSection: {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
+  teamMembers: AboutTeamMember[];
+  pillarsSection: {
+    eyebrow?: string;
+    title?: string;
+    description?: string;
+  };
+  corePillars: AboutCorePillar[];
+  sectionsVisibility: {
+    intro: boolean;
+    consultation: boolean;
+    team: boolean;
+    pillars: boolean;
+  };
 }
 
 export interface PageHeaderItem {
@@ -367,6 +453,7 @@ export interface SiteContent {
   partners: PartnersContent;
   ctaBanner: CtaBannerContent;
   contact: ContactContent;
+  aboutPage?: AboutPageContent;
   pageHeaders: PageHeadersContent;
   sectionsManager: SectionsManagerContent;
   seo: SeoSettings;

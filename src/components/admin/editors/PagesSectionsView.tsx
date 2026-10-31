@@ -12,6 +12,7 @@ import {
   Layout,
   Sparkles,
   User,
+  Users,
   Layers,
   FileText,
   Code2,
@@ -47,12 +48,19 @@ import {
   PartnersContent,
   ContactContent,
   CtaBannerContent,
+  AboutPageContent,
+  AboutTeamMember,
+  AboutCorePillar,
+  MarqueePlatformItem,
+  MarqueePlatformKey,
 } from '../../../types/content';
+import { DEFAULT_ABOUT_PAGE_CONTENT } from '../../../data/defaultContent';
 
 export type PageSectionId =
   | 'home-layout'
   | 'hero'
   | 'about'
+  | 'about-page'
   | 'services'
   | 'process'
   | 'testimonials'
@@ -90,14 +98,35 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   const [processDraft, setProcessDraft] = useState<ProcessContent>(() => structuredClone(content.process));
   const [testimonialsDraft, setTestimonialsDraft] = useState<TestimonialsContent>(() => structuredClone(content.testimonials));
   const [blogDraft, setBlogDraft] = useState<BlogContent>(() => structuredClone(content.blog));
-  const [partnersDraft, setPartnersDraft] = useState<PartnersContent>(() => structuredClone(content.partners));
+  const [partnersDraft, setPartnersDraft] = useState<PartnersContent>(() => {
+    const clone = structuredClone(content.partners);
+    if (!Array.isArray(clone.platforms) || clone.platforms.length === 0) {
+      clone.platforms = [
+        { id: 'plat-linkedin', name: 'LinkedIn', platformKey: 'linkedin', url: 'https://linkedin.com', visible: true, order: 1 },
+        { id: 'plat-facebook', name: 'Facebook', platformKey: 'facebook', url: 'https://facebook.com', visible: true, order: 2 },
+        { id: 'plat-twitter', name: 'Twitter', platformKey: 'twitter', url: 'https://twitter.com', visible: true, order: 3 },
+        { id: 'plat-x', name: 'X Platform', platformKey: 'x', url: 'https://x.com', visible: true, order: 4 },
+        { id: 'plat-instagram', name: 'Instagram', platformKey: 'instagram', url: 'https://instagram.com', visible: true, order: 5 },
+        { id: 'plat-youtube', name: 'YouTube', platformKey: 'youtube', url: 'https://youtube.com', visible: true, order: 6 },
+        { id: 'plat-github', name: 'GitHub', platformKey: 'github', url: 'https://github.com', visible: true, order: 7 },
+        { id: 'plat-discord', name: 'Discord', platformKey: 'discord', url: 'https://discord.com', visible: true, order: 8 },
+      ];
+    }
+    return clone;
+  });
   const [contactDraft, setContactDraft] = useState<ContactContent>(() => structuredClone(content.contact));
   const [headersDraft, setHeadersDraft] = useState<PageHeadersContent>(() => structuredClone(content.pageHeaders));
+  const [aboutPageDraft, setAboutPageDraft] = useState<AboutPageContent>(() =>
+    structuredClone(content.aboutPage || DEFAULT_ABOUT_PAGE_CONTENT)
+  );
 
   // Modal / focused edit item states
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
   const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
+  const [editingTeamMemberId, setEditingTeamMemberId] = useState<string | null>(null);
+  const [editingPillarId, setEditingPillarId] = useState<string | null>(null);
+  const [editingPlatformId, setEditingPlatformId] = useState<string | null>(null);
 
   // Calculate dirty state for the active section
   const isDirty = useMemo(() => {
@@ -110,6 +139,8 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         return JSON.stringify(ctaBannerDraft) !== JSON.stringify(content.ctaBanner);
       case 'about':
         return JSON.stringify(missionDraft) !== JSON.stringify(content.mission);
+      case 'about-page':
+        return JSON.stringify(aboutPageDraft) !== JSON.stringify(content.aboutPage || DEFAULT_ABOUT_PAGE_CONTENT);
       case 'services':
         return JSON.stringify(servicesDraft) !== JSON.stringify(content.services);
       case 'process':
@@ -132,6 +163,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
     sectionsDraft,
     heroDraft,
     missionDraft,
+    aboutPageDraft,
     servicesDraft,
     processDraft,
     testimonialsDraft,
@@ -159,12 +191,13 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
     'home-layout': 'Home Layout & Sections',
     'cta-banner': 'Bottom CTA Banner',
     hero: 'Hero Section',
-    about: 'About & Mission',
+    about: 'About & Mission (Home)',
+    'about-page': 'Dedicated About Page',
     services: 'Services Grid',
     process: 'Process Methodology',
     testimonials: 'Client Testimonials',
     blog: 'Blog Cards',
-    partners: 'Partners Banner',
+    partners: 'Platforms Marquee',
     contact: 'Contact Section Copy',
     'page-headers': 'Page Banners',
   };
@@ -182,6 +215,10 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
     } else if (activeSection === 'about') {
       if (!missionDraft.heading.trim()) {
         return { valid: false, error: 'Mission statement heading is required.' };
+      }
+    } else if (activeSection === 'about-page') {
+      if (!aboutPageDraft.intro.heading.trim()) {
+        return { valid: false, error: 'About Intro heading is required.' };
       }
     } else if (activeSection === 'services') {
       for (const card of servicesDraft.cards) {
@@ -221,6 +258,9 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
           break;
         case 'about':
           result = updateContentSection('mission', missionDraft);
+          break;
+        case 'about-page':
+          result = updateContentSection('aboutPage', aboutPageDraft);
           break;
         case 'services':
           result = updateContentSection('services', servicesDraft);
@@ -276,6 +316,11 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
       case 'about':
         setMissionDraft(structuredClone(content.mission));
         break;
+      case 'about-page':
+        setAboutPageDraft(structuredClone(content.aboutPage || DEFAULT_ABOUT_PAGE_CONTENT));
+        setEditingTeamMemberId(null);
+        setEditingPillarId(null);
+        break;
       case 'services':
         setServicesDraft(structuredClone(content.services));
         setEditingServiceId(null);
@@ -293,6 +338,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         break;
       case 'partners':
         setPartnersDraft(structuredClone(content.partners));
+        setEditingPlatformId(null);
         break;
       case 'contact':
         setContactDraft(structuredClone(content.contact));
@@ -353,14 +399,14 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
     { id: 'home-layout', label: 'Home Layout', icon: Layout },
     { id: 'hero', label: 'Hero Section', icon: Sparkles },
     { id: 'about', label: 'About & Mission', icon: User },
+    { id: 'about-page', label: 'About Page', icon: Users },
     { id: 'services', label: 'Services', icon: Code2 },
     { id: 'process', label: 'Process Steps', icon: Clock },
     { id: 'testimonials', label: 'Testimonials', icon: Star },
     { id: 'blog', label: 'Blog Cards', icon: BookOpen },
-    { id: 'partners', label: 'Partners Banner', icon: Award },
+    { id: 'partners', label: 'Platforms Marquee', icon: Award },
     { id: 'cta-banner', label: 'Bottom CTA Banner', icon: Zap },
     { id: 'contact', label: 'Contact Text', icon: Mail },
-    { id: 'page-headers', label: 'Page Banners', icon: FileText },
   ];
 
   return (
@@ -878,6 +924,699 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3B. DEDICATED ABOUT PAGE */}
+      {activeSection === 'about-page' && (
+        <div className="space-y-6">
+          {/* Section Visibility */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 font-display">
+                About Page Section Visibility
+              </h2>
+              <p className="text-xs text-slate-500">
+                Choose which sections are displayed on the public About page (/about).
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              {[
+                { key: 'intro', label: 'Intro Section' },
+                { key: 'consultation', label: 'Consultation Banner' },
+                { key: 'team', label: 'Team Members Grid' },
+                { key: 'pillars', label: 'Core Pillars' },
+              ].map((item) => {
+                const isVis = aboutPageDraft.sectionsVisibility[item.key as keyof typeof aboutPageDraft.sectionsVisibility] !== false;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => {
+                      setAboutPageDraft({
+                        ...aboutPageDraft,
+                        sectionsVisibility: {
+                          ...aboutPageDraft.sectionsVisibility,
+                          [item.key]: !isVis,
+                        },
+                      });
+                    }}
+                    className={`flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                      isVis
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {isVis ? <Eye className="w-4 h-4 text-emerald-600" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Intro Section */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <h2 className="text-base font-bold text-slate-900 font-display">
+              1. Intro Section ("Choose NexorDive")
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Pre-heading Badge / Eyebrow
+                </label>
+                <input
+                  type="text"
+                  value={aboutPageDraft.intro.eyebrow}
+                  onChange={(e) =>
+                    setAboutPageDraft({
+                      ...aboutPageDraft,
+                      intro: { ...aboutPageDraft.intro, eyebrow: e.target.value },
+                    })
+                  }
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Main Heading *
+                </label>
+                <input
+                  type="text"
+                  value={aboutPageDraft.intro.heading}
+                  onChange={(e) =>
+                    setAboutPageDraft({
+                      ...aboutPageDraft,
+                      intro: { ...aboutPageDraft.intro, heading: e.target.value },
+                    })
+                  }
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Paragraph 1
+              </label>
+              <textarea
+                rows={3}
+                value={aboutPageDraft.intro.paragraph1}
+                onChange={(e) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    intro: { ...aboutPageDraft.intro, paragraph1: e.target.value },
+                  })
+                }
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Paragraph 2
+              </label>
+              <textarea
+                rows={3}
+                value={aboutPageDraft.intro.paragraph2}
+                onChange={(e) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    intro: { ...aboutPageDraft.intro, paragraph2: e.target.value },
+                  })
+                }
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Button Label
+                </label>
+                <input
+                  type="text"
+                  value={aboutPageDraft.intro.buttonLabel}
+                  onChange={(e) =>
+                    setAboutPageDraft({
+                      ...aboutPageDraft,
+                      intro: { ...aboutPageDraft.intro, buttonLabel: e.target.value },
+                    })
+                  }
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <ActionSelector
+                label="Button Destination / Action"
+                value={aboutPageDraft.intro.buttonAction || 'start-project'}
+                onChange={(action) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    intro: { ...aboutPageDraft.intro, buttonAction: action },
+                  })
+                }
+              />
+            </div>
+
+            <div className="pt-2">
+              <ImageFieldEditor
+                label="Technology Tree Diagram Card"
+                imageSrc={aboutPageDraft.intro.techTreeImage}
+                imageAlt={aboutPageDraft.intro.techTreeImageAlt}
+                onChange={(src, alt) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    intro: {
+                      ...aboutPageDraft.intro,
+                      techTreeImage: src,
+                      techTreeImageAlt: alt || '',
+                    },
+                  })
+                }
+                helperText="Circuit/tree technology architecture visual card shown on the right side."
+              />
+            </div>
+          </div>
+
+          {/* Consultation Banner Section */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <h2 className="text-base font-bold text-slate-900 font-display">
+              2. Consultation Banner ("Start Project With Us ?")
+            </h2>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Banner Heading
+              </label>
+              <input
+                type="text"
+                value={aboutPageDraft.consultation.heading}
+                onChange={(e) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    consultation: { ...aboutPageDraft.consultation, heading: e.target.value },
+                  })
+                }
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Banner Description
+              </label>
+              <textarea
+                rows={3}
+                value={aboutPageDraft.consultation.description}
+                onChange={(e) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    consultation: { ...aboutPageDraft.consultation, description: e.target.value },
+                  })
+                }
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  CTA Button Label
+                </label>
+                <input
+                  type="text"
+                  value={aboutPageDraft.consultation.buttonLabel}
+                  onChange={(e) =>
+                    setAboutPageDraft({
+                      ...aboutPageDraft,
+                      consultation: { ...aboutPageDraft.consultation, buttonLabel: e.target.value },
+                    })
+                  }
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <ActionSelector
+                label="CTA Button Action"
+                value={aboutPageDraft.consultation.buttonAction || 'start-project'}
+                onChange={(action) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    consultation: { ...aboutPageDraft.consultation, buttonAction: action },
+                  })
+                }
+              />
+            </div>
+
+            <div className="pt-2">
+              <ImageFieldEditor
+                label="Full-Width Background Photo"
+                imageSrc={aboutPageDraft.consultation.backgroundImage}
+                imageAlt={aboutPageDraft.consultation.backgroundImageAlt}
+                onChange={(src, alt) =>
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    consultation: {
+                      ...aboutPageDraft.consultation,
+                      backgroundImage: src,
+                      backgroundImageAlt: alt || '',
+                    },
+                  })
+                }
+                helperText="Atmospheric background image behind the dark consultation card."
+              />
+            </div>
+          </div>
+
+          {/* Team Members Grid Section */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 font-display">
+                  3. Team Members ({aboutPageDraft.teamMembers.length})
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Manage engineering leads, architects, and founders shown on the About page.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const newMember: AboutTeamMember = {
+                    id: `member-${Date.now()}`,
+                    name: 'New Engineer',
+                    role: 'Full-Stack Engineer',
+                    image: '/assets/about/team/member_1_architect.jpg',
+                    bio: 'Skilled product engineer building high-performance modern web platforms.',
+                    linkedin: 'https://linkedin.com',
+                    visible: true,
+                    order: aboutPageDraft.teamMembers.length + 1,
+                  };
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    teamMembers: [...aboutPageDraft.teamMembers, newMember],
+                  });
+                  setEditingTeamMemberId(newMember.id);
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Member</span>
+              </button>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              {aboutPageDraft.teamMembers.map((member, idx) => {
+                const isEditing = editingTeamMemberId === member.id;
+                const isCeo = member.isLeader || member.id === 'ceo';
+                return (
+                  <div
+                    key={member.id}
+                    className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-300 shrink-0">
+                          <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-900">{member.name}</span>
+                            {isCeo && (
+                              <span className="px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 text-[10px] font-bold">
+                                CEO / Founder
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-slate-500">{member.role}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => {
+                            const next = [...aboutPageDraft.teamMembers];
+                            const [m] = next.splice(idx, 1);
+                            next.splice(idx - 1, 0, m);
+                            setAboutPageDraft({
+                              ...aboutPageDraft,
+                              teamMembers: next.map((item, i) => ({ ...item, order: i + 1 })),
+                            });
+                          }}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          title="Move Up"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === aboutPageDraft.teamMembers.length - 1}
+                          onClick={() => {
+                            const next = [...aboutPageDraft.teamMembers];
+                            const [m] = next.splice(idx, 1);
+                            next.splice(idx + 1, 0, m);
+                            setAboutPageDraft({
+                              ...aboutPageDraft,
+                              teamMembers: next.map((item, i) => ({ ...item, order: i + 1 })),
+                            });
+                          }}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          title="Move Down"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = aboutPageDraft.teamMembers.map((m) =>
+                              m.id === member.id ? { ...m, visible: !m.visible } : m
+                            );
+                            setAboutPageDraft({ ...aboutPageDraft, teamMembers: updated });
+                          }}
+                          className={`p-1.5 rounded-lg cursor-pointer ${
+                            member.visible ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-200'
+                          }`}
+                          title={member.visible ? 'Visible' : 'Hidden'}
+                        >
+                          {member.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingTeamMemberId(isEditing ? null : member.id)}
+                          className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 cursor-pointer"
+                          title="Edit Details"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        {!isCeo && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = aboutPageDraft.teamMembers.filter((m) => m.id !== member.id);
+                              setAboutPageDraft({ ...aboutPageDraft, teamMembers: updated });
+                            }}
+                            className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 cursor-pointer"
+                            title="Delete Member"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Expandable Form */}
+                    {isEditing && (
+                      <div className="pt-3 border-t border-slate-200 space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">Full Name</label>
+                            <input
+                              type="text"
+                              value={member.name}
+                              onChange={(e) => {
+                                const updated = aboutPageDraft.teamMembers.map((m) =>
+                                  m.id === member.id ? { ...m, name: e.target.value } : m
+                                );
+                                setAboutPageDraft({ ...aboutPageDraft, teamMembers: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">Role / Job Title</label>
+                            <input
+                              type="text"
+                              value={member.role}
+                              onChange={(e) => {
+                                const updated = aboutPageDraft.teamMembers.map((m) =>
+                                  m.id === member.id ? { ...m, role: e.target.value } : m
+                                );
+                                setAboutPageDraft({ ...aboutPageDraft, teamMembers: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">Short Bio</label>
+                          <textarea
+                            rows={2}
+                            value={member.bio}
+                            onChange={(e) => {
+                              const updated = aboutPageDraft.teamMembers.map((m) =>
+                                m.id === member.id ? { ...m, bio: e.target.value } : m
+                              );
+                              setAboutPageDraft({ ...aboutPageDraft, teamMembers: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">LinkedIn Profile URL</label>
+                          <input
+                            type="text"
+                            value={member.linkedin || ''}
+                            onChange={(e) => {
+                              const updated = aboutPageDraft.teamMembers.map((m) =>
+                                m.id === member.id ? { ...m, linkedin: e.target.value } : m
+                              );
+                              setAboutPageDraft({ ...aboutPageDraft, teamMembers: updated });
+                            }}
+                            placeholder="https://linkedin.com/in/username"
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                          />
+                        </div>
+
+                        <ImageFieldEditor
+                          label="Member Portrait Photo"
+                          imageSrc={member.image}
+                          onChange={(src) => {
+                            const updated = aboutPageDraft.teamMembers.map((m) =>
+                              m.id === member.id ? { ...m, image: src } : m
+                            );
+                            setAboutPageDraft({ ...aboutPageDraft, teamMembers: updated });
+                          }}
+                          helperText={
+                            isCeo
+                              ? 'Saving will synchronize CEO details with Home Mission and Site Settings.'
+                              : 'Recommended ratio 4:5 (e.g. 800x1000px).'
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Core Pillars Section */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 font-display">
+                  4. Core Pillars ({aboutPageDraft.corePillars.length})
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Manage the 4 key engineering values & warranties displayed at the bottom of the About page.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const newPillar: AboutCorePillar = {
+                    id: `pillar-${Date.now()}`,
+                    title: 'New Pillar',
+                    description: 'Enterprise guarantee and technical rigor description.',
+                    iconName: 'ShieldCheck',
+                    visible: true,
+                    order: aboutPageDraft.corePillars.length + 1,
+                  };
+                  setAboutPageDraft({
+                    ...aboutPageDraft,
+                    corePillars: [...aboutPageDraft.corePillars, newPillar],
+                  });
+                  setEditingPillarId(newPillar.id);
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Pillar</span>
+              </button>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              {aboutPageDraft.corePillars.map((pillar, idx) => {
+                const isEditing = editingPillarId === pillar.id;
+                return (
+                  <div
+                    key={pillar.id}
+                    className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <div className="w-8 h-8 rounded-lg bg-cyan-100 text-[#004d6a] flex items-center justify-center shrink-0">
+                          <DynamicIcon name={pillar.iconName} className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block">{pillar.title}</span>
+                          <span className="text-[11px] text-slate-500 line-clamp-1">{pillar.description}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => {
+                            const next = [...aboutPageDraft.corePillars];
+                            const [p] = next.splice(idx, 1);
+                            next.splice(idx - 1, 0, p);
+                            setAboutPageDraft({
+                              ...aboutPageDraft,
+                              corePillars: next.map((item, i) => ({ ...item, order: i + 1 })),
+                            });
+                          }}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          title="Move Up"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === aboutPageDraft.corePillars.length - 1}
+                          onClick={() => {
+                            const next = [...aboutPageDraft.corePillars];
+                            const [p] = next.splice(idx, 1);
+                            next.splice(idx + 1, 0, p);
+                            setAboutPageDraft({
+                              ...aboutPageDraft,
+                              corePillars: next.map((item, i) => ({ ...item, order: i + 1 })),
+                            });
+                          }}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          title="Move Down"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = aboutPageDraft.corePillars.map((p) =>
+                              p.id === pillar.id ? { ...p, visible: !p.visible } : p
+                            );
+                            setAboutPageDraft({ ...aboutPageDraft, corePillars: updated });
+                          }}
+                          className={`p-1.5 rounded-lg cursor-pointer ${
+                            pillar.visible ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-200'
+                          }`}
+                          title={pillar.visible ? 'Visible' : 'Hidden'}
+                        >
+                          {pillar.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingPillarId(isEditing ? null : pillar.id)}
+                          className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 cursor-pointer"
+                          title="Edit Details"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = aboutPageDraft.corePillars.filter((p) => p.id !== pillar.id);
+                            setAboutPageDraft({ ...aboutPageDraft, corePillars: updated });
+                          }}
+                          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 cursor-pointer"
+                          title="Delete Pillar"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Expandable Form */}
+                    {isEditing && (
+                      <div className="pt-3 border-t border-slate-200 space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">Title</label>
+                            <input
+                              type="text"
+                              value={pillar.title}
+                              onChange={(e) => {
+                                const updated = aboutPageDraft.corePillars.map((p) =>
+                                  p.id === pillar.id ? { ...p, title: e.target.value } : p
+                                );
+                                setAboutPageDraft({ ...aboutPageDraft, corePillars: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">Icon Name</label>
+                            <select
+                              value={pillar.iconName}
+                              onChange={(e) => {
+                                const updated = aboutPageDraft.corePillars.map((p) =>
+                                  p.id === pillar.id ? { ...p, iconName: e.target.value } : p
+                                );
+                                setAboutPageDraft({ ...aboutPageDraft, corePillars: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                            >
+                              <option value="Code2">Code2 (Clean Code)</option>
+                              <option value="Zap">Zap (Speed)</option>
+                              <option value="Sparkles">Sparkles (AI Systems)</option>
+                              <option value="ShieldCheck">ShieldCheck (Warranty)</option>
+                              <option value="Cpu">Cpu (Computing)</option>
+                              <option value="Rocket">Rocket (Launch)</option>
+                              <option value="Diamond">Diamond (Quality)</option>
+                              <option value="Award">Award (Excellence)</option>
+                              <option value="Globe">Globe (Global Scale)</option>
+                              <option value="Users">Users (Team)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">Description</label>
+                          <textarea
+                            rows={2}
+                            value={pillar.description}
+                            onChange={(e) => {
+                              const updated = aboutPageDraft.corePillars.map((p) =>
+                                p.id === pillar.id ? { ...p, description: e.target.value } : p
+                              );
+                              setAboutPageDraft({ ...aboutPageDraft, corePillars: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -1633,25 +2372,210 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         </div>
       )}
 
-      {/* 8. PARTNERS BANNER */}
+      {/* 8. PARTNERS MARQUEE PLATFORMS */}
       {activeSection === 'partners' && (
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <div>
-            <h2 className="text-base font-bold text-slate-900 font-display">
-              Client Partners Banner
-            </h2>
-            <p className="text-xs text-slate-500">
-              The partner corporate logos marquee banner displayed on the homepage and portfolio page.
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 font-display">
+                Platforms Marquee Track ({(partnersDraft.platforms || []).length})
+              </h2>
+              <p className="text-xs text-slate-500">
+                Manage the platform badges and destinations displayed in the infinite animated marquee banner.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const currentPlatforms = partnersDraft.platforms || [];
+                const newPlatform: MarqueePlatformItem = {
+                  id: `plat-${Date.now()}`,
+                  name: 'LinkedIn',
+                  platformKey: 'linkedin',
+                  url: 'https://linkedin.com',
+                  visible: true,
+                  order: currentPlatforms.length + 1,
+                };
+                setPartnersDraft({
+                  ...partnersDraft,
+                  platforms: [...currentPlatforms, newPlatform],
+                });
+                setEditingPlatformId(newPlatform.id);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-xs cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Platform</span>
+            </button>
           </div>
 
-          <ImageFieldEditor
-            label="Partner Logos Graphic Banner"
-            imageSrc={partnersDraft.bannerImage}
-            imageAlt={partnersDraft.bannerAlt}
-            onChange={(src, alt) => setPartnersDraft({ ...partnersDraft, bannerImage: src, bannerAlt: alt || '' })}
-            helperText="The horizontal composite image containing client brand logos (SRSP, Said Enterprise, Four Brothers, PMC, MedCare)."
-          />
+          <div className="space-y-3 pt-2">
+            {(partnersDraft.platforms || []).map((platform, idx) => {
+              const isEditing = editingPlatformId === platform.id;
+              return (
+                <div
+                  key={platform.id}
+                  className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100/60 transition-colors space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                        {idx + 1}
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-900">{platform.name}</span>
+                          <span className="px-2 py-0.5 rounded-md bg-cyan-100 text-[#004d6a] text-[10px] font-bold uppercase">
+                            {platform.platformKey}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-500 font-mono line-clamp-1">{platform.url || 'No link'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        onClick={() => {
+                          const next = [...(partnersDraft.platforms || [])];
+                          const [p] = next.splice(idx, 1);
+                          next.splice(idx - 1, 0, p);
+                          setPartnersDraft({
+                            ...partnersDraft,
+                            platforms: next.map((item, i) => ({ ...item, order: i + 1 })),
+                          });
+                        }}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        title="Move Up"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={idx === (partnersDraft.platforms || []).length - 1}
+                        onClick={() => {
+                          const next = [...(partnersDraft.platforms || [])];
+                          const [p] = next.splice(idx, 1);
+                          next.splice(idx + 1, 0, p);
+                          setPartnersDraft({
+                            ...partnersDraft,
+                            platforms: next.map((item, i) => ({ ...item, order: i + 1 })),
+                          });
+                        }}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        title="Move Down"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (partnersDraft.platforms || []).map((p) =>
+                            p.id === platform.id ? { ...p, visible: !p.visible } : p
+                          );
+                          setPartnersDraft({ ...partnersDraft, platforms: updated });
+                        }}
+                        className={`p-1.5 rounded-lg cursor-pointer ${
+                          platform.visible ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-200'
+                        }`}
+                        title={platform.visible ? 'Visible in marquee' : 'Hidden from marquee'}
+                      >
+                        {platform.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingPlatformId(isEditing ? null : platform.id)}
+                        className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 cursor-pointer"
+                        title="Edit Details"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (partnersDraft.platforms || []).filter((p) => p.id !== platform.id);
+                          setPartnersDraft({ ...partnersDraft, platforms: updated });
+                        }}
+                        className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 cursor-pointer"
+                        title="Delete Platform"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {isEditing && (
+                    <div className="pt-3 border-t border-slate-200 space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Platform Brand / Icon
+                          </label>
+                          <select
+                            value={platform.platformKey}
+                            onChange={(e) => {
+                              const key = e.target.value as MarqueePlatformKey;
+                              const updated = (partnersDraft.platforms || []).map((p) =>
+                                p.id === platform.id ? { ...p, platformKey: key } : p
+                              );
+                              setPartnersDraft({ ...partnersDraft, platforms: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                          >
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="twitter">Twitter</option>
+                            <option value="x">X Platform</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="github">GitHub</option>
+                            <option value="discord">Discord</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Display Label
+                          </label>
+                          <input
+                            type="text"
+                            value={platform.name}
+                            onChange={(e) => {
+                              const updated = (partnersDraft.platforms || []).map((p) =>
+                                p.id === platform.id ? { ...p, name: e.target.value } : p
+                              );
+                              setPartnersDraft({ ...partnersDraft, platforms: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Platform URL / Profile Destination
+                        </label>
+                        <input
+                          type="text"
+                          value={platform.url || ''}
+                          onChange={(e) => {
+                            const updated = (partnersDraft.platforms || []).map((p) =>
+                              p.id === platform.id ? { ...p, url: e.target.value } : p
+                            );
+                            setPartnersDraft({ ...partnersDraft, platforms: updated });
+                          }}
+                          placeholder="https://..."
+                          className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -1681,12 +2605,39 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Modal Eyebrow (Quick Scoping)
+              </label>
+              <input
+                type="text"
+                value={contactDraft.modalEyebrow || ''}
+                onChange={(e) => setContactDraft({ ...contactDraft, modalEyebrow: e.target.value })}
+                placeholder="Quick Scoping & Inquiry"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Main Heading *
               </label>
               <input
                 type="text"
                 value={contactDraft.sectionTitle}
                 onChange={(e) => setContactDraft({ ...contactDraft, sectionTitle: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Direct Channels Heading
+              </label>
+              <input
+                type="text"
+                value={contactDraft.directHeading || ''}
+                onChange={(e) => setContactDraft({ ...contactDraft, directHeading: e.target.value })}
+                placeholder="Direct Communication"
                 className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
               />
             </div>
@@ -1700,6 +2651,19 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               rows={2}
               value={contactDraft.sectionDescription}
               onChange={(e) => setContactDraft({ ...contactDraft, sectionDescription: e.target.value })}
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Direct Channels Description
+            </label>
+            <textarea
+              rows={2}
+              value={contactDraft.directDescription || ''}
+              onChange={(e) => setContactDraft({ ...contactDraft, directDescription: e.target.value })}
+              placeholder="Prefer an immediate conversation? Reach out directly via WhatsApp for quick scoping, or email us your comprehensive RFP."
               className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
             />
           </div>
@@ -1727,6 +2691,18 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
                 className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Submission Success Message
+            </label>
+            <textarea
+              rows={2}
+              value={contactDraft.successMessage}
+              onChange={(e) => setContactDraft({ ...contactDraft, successMessage: e.target.value })}
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+            />
           </div>
         </div>
       )}

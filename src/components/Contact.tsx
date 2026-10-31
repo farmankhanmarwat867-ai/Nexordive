@@ -17,7 +17,10 @@ import {
   FileText,
   ChevronDown,
   Lock,
+  AlertCircle,
 } from 'lucide-react';
+import { useAdmin } from '../context/AdminStore';
+import { normalizeWhatsAppNumber, validateEmail } from '../utils/inquiryReplies';
 
 export interface ContactFormData {
   name: string;
@@ -30,7 +33,7 @@ export interface ContactFormData {
 
 export interface ContactProps {
   initialSummary?: string;
-  onSuccessSubmit?: (data: ContactFormData) => void;
+  onSuccessSubmit?: (data: ContactFormData) => Promise<{ success: boolean; id?: string; error?: string } | void> | { success: boolean; id?: string; error?: string } | void;
   className?: string;
   isModal?: boolean;
 }
@@ -41,6 +44,8 @@ export const Contact: React.FC<ContactProps> = ({
   className = '',
   isModal = false,
 }) => {
+  const { content, addLead } = useAdmin();
+
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -57,9 +62,55 @@ export const Contact: React.FC<ContactProps> = ({
   }, [initialSummary]);
 
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
+
+  // CMS dynamic copy
+  const contactContent = content?.contact;
+  const globalContent = content?.global;
+
+  const eyebrow = isModal
+    ? (contactContent?.modalEyebrow || 'Quick Scoping & Inquiry')
+    : (contactContent?.sectionEyebrow || 'Get In Touch');
+
+  const heading = contactContent?.sectionTitle || "Let's start your project.";
+  const description =
+    contactContent?.sectionDescription ||
+    'Have an idea for high-performance software, modern web platforms, mobile apps, or custom AI automation? Connect directly below for guaranteed 24-hour turnaround.';
+
+  const directHeading = contactContent?.directHeading || 'Direct Communication';
+  const directDescription =
+    contactContent?.directDescription ||
+    'Prefer an immediate conversation? Reach out directly via WhatsApp for quick scoping, or email us your comprehensive RFP.';
+
+  // Canonical phone & email with strict validation to prevent broken links
+  const displayPhone =
+    globalContent?.whatsappNumber !== undefined && globalContent.whatsappNumber !== ''
+      ? globalContent.whatsappNumber
+      : '+92 314 600 9810';
+  const waAgencyResult = normalizeWhatsAppNumber(displayPhone);
+  const whatsappUrl =
+    waAgencyResult.valid && waAgencyResult.normalized
+      ? `https://wa.me/${waAgencyResult.normalized}?text=Hello%20NexorDive,%20I%20would%20like%20to%20discuss%20a%20new%20project.`
+      : undefined;
+
+  const displayEmail =
+    globalContent?.contactEmail !== undefined && globalContent.contactEmail !== ''
+      ? globalContent.contactEmail
+      : 'hello@nexordive.com';
+  const emailAgencyResult = validateEmail(displayEmail);
+  const emailUrl =
+    emailAgencyResult.valid && emailAgencyResult.sanitizedEmail
+      ? `mailto:${emailAgencyResult.sanitizedEmail}?subject=Project%20Inquiry%20via%20NexorDive`
+      : undefined;
+
+  const responseGuarantee = contactContent?.responseGuarantee || '24-Hour Technical Review Guarantee';
+  const ndaGuarantee = contactContent?.ndaGuarantee || 'Strict NDA & IP Protection Included';
+  const successMessage =
+    contactContent?.successMessage ||
+    'Thank you for reaching out! Your inquiry has been registered locally in this prototype. Our engineering squad will review your scope and follow up within 24 hours.';
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -69,21 +120,32 @@ export const Contact: React.FC<ContactProps> = ({
     if (errors[name as keyof ContactFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
+    if (submitError) {
+      setSubmitError(null);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
     const newErrors: Partial<Record<keyof ContactFormData, string>> = {};
 
     if (!formData.name.trim()) {
       newErrors.name = 'Full name is required';
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
-      newErrors.email = 'Valid work email is required';
+
+    const emailCheck = validateEmail(formData.email);
+    if (!emailCheck.valid) {
+      newErrors.email = emailCheck.error || 'Valid work email is required';
     }
+
     if (!formData.whatsapp.trim()) {
       newErrors.whatsapp = 'WhatsApp number is required';
+    } else {
+      const waCheck = normalizeWhatsAppNumber(formData.whatsapp);
+      if (!waCheck.valid) {
+        newErrors.whatsapp = waCheck.error || 'Valid international WhatsApp number with country code is required';
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -92,19 +154,51 @@ export const Contact: React.FC<ContactProps> = ({
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const generatedId = `NXD-${Math.floor(100000 + Math.random() * 900000)}`;
-      setSubmittedId(generatedId);
-      setIsSubmitted(true);
-      setIsSubmitting(false);
+
+    try {
       if (onSuccessSubmit) {
-        onSuccessSubmit(formData);
+        const result = await onSuccessSubmit(formData);
+        if (result && typeof result === 'object' && result.success === false) {
+          setSubmitError(result.error || 'Failed to submit inquiry. Please check your storage settings and try again.');
+          setIsSubmitting(false);
+          return;
+        }
+        const assignedId =
+          result && typeof result === 'object' && result.id
+            ? result.id
+            : `NXD-${Math.floor(100000 + Math.random() * 900000)}`;
+        setSubmittedId(assignedId);
+        setIsSubmitted(true);
+      } else {
+        // Fallback: save directly via AdminStore
+        const result = addLead({
+          name: formData.name,
+          whatsapp: formData.whatsapp,
+          email: formData.email,
+          service: formData.service,
+          budget: formData.budget,
+          status: 'New',
+          notes: formData.message || 'Direct lead captured from website contact form.',
+        });
+        if (result && !result.success) {
+          setSubmitError(result.error || 'Failed to persist inquiry locally. Please try again.');
+          setIsSubmitting(false);
+          return;
+        }
+        setSubmittedId(result?.id || `NXD-${Math.floor(100000 + Math.random() * 900000)}`);
+        setIsSubmitted(true);
       }
-    }, 450);
+    } catch (err: any) {
+      console.error('Submission error:', err);
+      setSubmitError(err?.message || 'An unexpected error occurred while submitting. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setIsSubmitted(false);
+    setSubmitError(null);
     setFormData({
       name: '',
       email: '',
@@ -116,19 +210,19 @@ export const Contact: React.FC<ContactProps> = ({
     setErrors({});
   };
 
-  const content = (
+  const contentElement = (
     <div className="w-full">
       {/* Section Header */}
       <div className={`max-w-2xl ${isModal ? 'mb-8' : 'mb-14'}`}>
         <div className="text-xs font-semibold uppercase tracking-wider text-[#0d5363] mb-2 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#0d5363]" />
-          <span>{isModal ? 'Quick Scoping & Inquiry' : 'Get In Touch'}</span>
+          <span>{eyebrow}</span>
         </div>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-slate-900 tracking-tight text-balance">
-          Let's start your project.
+          {heading}
         </h2>
         <p className="text-slate-600 text-sm sm:text-base mt-3 leading-relaxed font-normal">
-          Have an idea for high-performance software, modern web platforms, mobile apps, or custom AI automation? Connect directly below for guaranteed 24-hour turnaround.
+          {description}
         </p>
       </div>
 
@@ -142,20 +236,22 @@ export const Contact: React.FC<ContactProps> = ({
                 Direct Channels
               </span>
               <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-950">
-                Direct Communication
+                {directHeading}
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-2">
-                Prefer an immediate conversation? Reach out directly via WhatsApp for quick scoping, or email us your comprehensive RFP.
+                {directDescription}
               </p>
             </div>
 
             <div className="space-y-3.5 pt-1">
               {/* WhatsApp */}
               <a
-                href="https://wa.me/923146009810?text=Hello%20NexorDive,%20I%20would%20like%20to%20discuss%20a%20new%20project."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl bg-emerald-50/80 hover:bg-emerald-100/80 border border-emerald-200/80 hover:border-emerald-300 transition-all group"
+                href={whatsappUrl || '#'}
+                onClick={!whatsappUrl ? (e) => e.preventDefault() : undefined}
+                aria-disabled={!whatsappUrl}
+                target={whatsappUrl ? "_blank" : undefined}
+                rel={whatsappUrl ? "noopener noreferrer" : undefined}
+                className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl bg-emerald-50/80 hover:bg-emerald-100/80 border border-emerald-200/80 hover:border-emerald-300 transition-all group ${!whatsappUrl ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
                 <div className="w-11 h-11 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
                   <MessageCircle className="w-5 h-5" />
@@ -166,7 +262,7 @@ export const Contact: React.FC<ContactProps> = ({
                     <span>WhatsApp Direct</span>
                   </div>
                   <div className="text-sm sm:text-base font-bold text-slate-950 font-mono tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
-                    +92 314 600 9810
+                    {displayPhone}
                   </div>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
@@ -174,8 +270,10 @@ export const Contact: React.FC<ContactProps> = ({
 
               {/* Email */}
               <a
-                href="mailto:hello@nexordive.com?subject=Project%20Inquiry%20via%20NexorDive"
-                className="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl bg-cyan-50/60 hover:bg-cyan-100/70 border border-cyan-200/80 hover:border-cyan-300 transition-all group"
+                href={emailUrl || '#'}
+                onClick={!emailUrl ? (e) => e.preventDefault() : undefined}
+                aria-disabled={!emailUrl}
+                className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl bg-cyan-50/60 hover:bg-cyan-100/70 border border-cyan-200/80 hover:border-cyan-300 transition-all group ${!emailUrl ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
                 <div className="w-11 h-11 rounded-xl bg-[#004d6a] text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
                   <Mail className="w-5 h-5" />
@@ -185,7 +283,7 @@ export const Contact: React.FC<ContactProps> = ({
                     Official RFP & Inquiries
                   </div>
                   <div className="text-xs sm:text-sm font-bold text-slate-950 font-mono tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
-                    hello@nexordive.com
+                    {displayEmail}
                   </div>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-[#004d6a] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
@@ -196,11 +294,11 @@ export const Contact: React.FC<ContactProps> = ({
             <div className="pt-5 border-t border-slate-100 space-y-3 text-xs text-slate-600">
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[#004d6a] shrink-0" />
-                <span className="font-medium">24-Hour Technical Review Guarantee</span>
+                <span className="font-medium">{responseGuarantee}</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="font-medium">Mutual NDA Protection for all client briefs</span>
+                <span className="font-medium">{ndaGuarantee}</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Sparkles className="w-4 h-4 text-cyan-600 shrink-0" />
@@ -230,7 +328,7 @@ export const Contact: React.FC<ContactProps> = ({
                     Thank you, {formData.name}!
                   </h3>
                   <p className="text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-                    We have received your project details for <span className="text-slate-950 font-semibold">{formData.service}</span>. Our engineering team will contact you on WhatsApp (<span className="text-slate-950 font-mono font-medium">{formData.whatsapp}</span>) or email within 24 hours.
+                    {successMessage}
                   </p>
                 </div>
 
@@ -260,6 +358,13 @@ export const Contact: React.FC<ContactProps> = ({
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                {submitError && (
+                  <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                    <span>{submitError}</span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Name */}
                   <div>
@@ -438,13 +543,13 @@ export const Contact: React.FC<ContactProps> = ({
   );
 
   if (isModal) {
-    return content;
+    return contentElement;
   }
 
   return (
     <section id="contact" className={`py-20 md:py-28 relative bg-[#f8fafc] ${className}`}>
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        {content}
+        {contentElement}
       </div>
     </section>
   );
