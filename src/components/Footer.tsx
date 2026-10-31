@@ -25,6 +25,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
 
   const logoPrefix = content?.global?.logoPrefix || 'NEXOR';
   const logoSuffix = content?.global?.logoSuffix || 'DIVE';
+  const categoryTagline = content?.global?.categoryTagline || 'SOFTWARE • DIGITAL GROWTH • STREAMER ASSETS';
   const tagline = content?.global?.footerTagline || 'NexorDive builds websites, software systems, digital marketing assets, AI automation, and premium streamer graphics for brands and creators who want to grow online.';
   const whatsapp = content?.global?.whatsappNumber || '+92 314 600 9810';
   const email = content?.global?.contactEmail || 'hello@nexordive.com';
@@ -49,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
             </div>
 
             <div className="text-[11px] font-mono uppercase tracking-wider text-[#0d5363] font-bold">
-              SOFTWARE • DIGITAL GROWTH • STREAMER ASSETS
+              {categoryTagline}
             </div>
 
             <p className="text-sm text-slate-600 leading-relaxed max-w-sm">

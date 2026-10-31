@@ -6,6 +6,7 @@ import { ArrowUpRight, CheckCircle2, Radio, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { DynamicIcon } from './common/DynamicIcon';
 import { StreamerStartingCard, StreamerSuite } from '../types/content';
+import { executeAction } from '../utils/actionHandler';
 
 interface StreamerAssetsProps {
   onInquirePackage?: (packageName: string) => void;
@@ -20,7 +21,9 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
     .filter((c: StreamerStartingCard) => c.visible !== false)
     .sort((a: StreamerStartingCard, b: StreamerStartingCard) => (a.order ?? 0) - (b.order ?? 0));
 
-  const suites = streamerData?.suites || [];
+  const suites = (streamerData?.suites || [])
+    .filter((s: StreamerSuite) => s.visible !== false)
+    .sort((a: StreamerSuite, b: StreamerSuite) => (a.order ?? 0) - (b.order ?? 0));
 
   const handleAction = (packageName: string) => {
     if (onInquirePackage) {
@@ -132,10 +135,10 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
           <div>
             <div className="mb-8">
               <span className="text-xs font-mono uppercase tracking-wider text-indigo-600 font-semibold block mb-1">
-                Full Production
+                {streamerData?.suitesSectionEyebrow || 'Full Production'}
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-display">
-                All-Inclusive Broadcast Suites
+                {streamerData?.suitesSectionTitle || 'All-Inclusive Broadcast Suites'}
               </h3>
             </div>
 
@@ -182,10 +185,16 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
                   </div>
 
                   <button
-                    onClick={() => handleAction(suite.name)}
+                    onClick={() => {
+                      if (suite.buttonAction && suite.buttonAction !== 'contact') {
+                        executeAction(suite.buttonAction);
+                      } else {
+                        handleAction(suite.name);
+                      }
+                    }}
                     className="w-full py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-950 hover:bg-slate-800 text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
                   >
-                    <span>Inquire Broadcast Suite</span>
+                    <span>{suite.buttonLabel || 'Inquire Broadcast Suite'}</span>
                     <ArrowUpRight className="w-4 h-4" />
                   </button>
                 </div>

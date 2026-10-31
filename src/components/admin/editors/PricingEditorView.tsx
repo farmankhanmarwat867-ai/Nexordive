@@ -4,21 +4,22 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAdmin } from '../../../context/AdminStore';
 import { EditorActionBar } from '../EditorActionBar';
 import { DynamicIcon } from '../../common/DynamicIcon';
+import { ActionSelector } from '../common/ActionSelector';
 import {
   Plus,
   Trash2,
   ArrowUp,
   ArrowDown,
-  DollarSign,
-  Radio,
-  ChevronDown,
-  ChevronUp,
-  Calculator,
+  Sparkles,
+  Shield,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   PricingContent,
   PricingPlanItem,
   StreamerContent,
+  StreamerSuite,
 } from '../../../types/content';
 
 interface PricingEditorViewProps {
@@ -41,7 +42,7 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
   // Expanded items
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [editingStreamerId, setEditingStreamerId] = useState<string | null>(null);
-  const [showAdvancedRates, setShowAdvancedRates] = useState(false);
+  const [editingSuiteId, setEditingSuiteId] = useState<string | null>(null);
 
   useEffect(() => {
     setPricingDraft(structuredClone(content.pricing));
@@ -93,6 +94,7 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
     setStreamerDraft(structuredClone(content.streamer));
     setEditingPlanId(null);
     setEditingStreamerId(null);
+    setEditingSuiteId(null);
     setFeedback(null);
   };
 
@@ -103,44 +105,71 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
     }
   }, [isDirty, onDirtyChange]);
 
+  // Plan ordering
+  const movePlan = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= pricingDraft.plans.length) return;
+    const updated = [...pricingDraft.plans];
+    const temp = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = temp;
+    updated.forEach((p, i) => {
+      p.order = i + 1;
+    });
+    setPricingDraft({ ...pricingDraft, plans: updated });
+  };
+
+  // Suite ordering
+  const moveSuite = (index: number, direction: 'up' | 'down') => {
+    const suites = streamerDraft.suites || [];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= suites.length) return;
+    const updated = [...suites];
+    const temp = updated[index];
+    updated[index] = updated[targetIndex];
+    updated[targetIndex] = temp;
+    updated.forEach((s, i) => {
+      s.order = i + 1;
+    });
+    setStreamerDraft({ ...streamerDraft, suites: updated });
+  };
+
   return (
     <div className="space-y-6 pb-28 sm:pb-32">
-      {/* Header Card */}
+      {/* Top Header Information */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
         <h1 className="text-lg font-bold text-slate-900 font-display">
-          Packages & Pricing
+          Packages & Pricing Management
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Manage your website service pricing tiers, streamer creator bundles, and estimator baseline rates.
+          Manage public pricing plans, streamer starting kits, broadcast suites, and assurance guarantees.
         </p>
       </div>
 
-      {/* Primary Tab Switcher */}
+      {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
         <button
           type="button"
           onClick={() => setActiveTab('website')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'website'
               ? 'bg-indigo-600 text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          <DollarSign className="w-4 h-4" />
-          <span>Website Packages ({pricingDraft.plans.length})</span>
+          Website Packages ({pricingDraft.plans.length})
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('streamer')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'streamer'
               ? 'bg-indigo-600 text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
-          <Radio className="w-4 h-4" />
-          <span>Streamer & Creator Packages ({streamerDraft.startingCards.length})</span>
+          Streamer Packages & Suites ({streamerDraft.startingCards.length} + {(streamerDraft.suites || []).length})
         </button>
       </div>
 
@@ -249,49 +278,51 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
                         <span className="text-xs font-bold text-slate-900">{plan.name}</span>
                         <span className="text-xs font-bold text-indigo-600 font-mono">({plan.price})</span>
                         {plan.popular && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
-                            Most Popular
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700">
+                            Popular
+                          </span>
+                        )}
+                        {!plan.visible && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600">
+                            Hidden
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] text-slate-500 block mt-0.5">
-                        {plan.billing} · {plan.turnaround}
-                      </span>
+                      <span className="text-[11px] text-slate-500">{plan.turnaround || 'Standard delivery'}</span>
                     </div>
 
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
+                        onClick={() => movePlan(idx, 'up')}
                         disabled={idx === 0}
-                        onClick={() => {
-                          const list = [...pricingDraft.plans];
-                          const temp = list[idx];
-                          list[idx] = list[idx - 1];
-                          list[idx - 1] = temp;
-                          list.forEach((p, i) => { p.order = i + 1; });
-                          setPricingDraft({ ...pricingDraft, plans: list });
-                        }}
-                        className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-500 disabled:opacity-30 cursor-pointer"
                         title="Move Up"
                       >
                         <ArrowUp className="w-3.5 h-3.5" />
                       </button>
-
                       <button
                         type="button"
+                        onClick={() => movePlan(idx, 'down')}
                         disabled={idx === pricingDraft.plans.length - 1}
-                        onClick={() => {
-                          const list = [...pricingDraft.plans];
-                          const temp = list[idx];
-                          list[idx] = list[idx + 1];
-                          list[idx + 1] = temp;
-                          list.forEach((p, i) => { p.order = i + 1; });
-                          setPricingDraft({ ...pricingDraft, plans: list });
-                        }}
-                        className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-500 disabled:opacity-30 cursor-pointer"
                         title="Move Down"
                       >
                         <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = pricingDraft.plans.map((p) =>
+                            p.id === plan.id ? { ...p, visible: !p.visible } : p
+                          );
+                          setPricingDraft({ ...pricingDraft, plans: updated });
+                        }}
+                        className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-500 cursor-pointer"
+                        title={plan.visible ? 'Hide from public site' : 'Show on public site'}
+                      >
+                        {plan.visible ? <Eye className="w-3.5 h-3.5 text-emerald-600" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
                       </button>
 
                       <button
@@ -305,27 +336,26 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
                       <button
                         type="button"
                         onClick={() => {
-                          if (window.confirm(`Delete package "${plan.name}"?`)) {
-                            setPricingDraft({
-                              ...pricingDraft,
-                              plans: pricingDraft.plans.filter((p) => p.id !== plan.id),
-                            });
+                          if (window.confirm(`Delete plan "${plan.name}"?`)) {
+                            const updated = pricingDraft.plans.filter((p) => p.id !== plan.id);
+                            setPricingDraft({ ...pricingDraft, plans: updated });
+                            if (editingPlanId === plan.id) setEditingPlanId(null);
                           }
                         }}
                         className="p-1.5 rounded-lg border border-slate-200 hover:bg-rose-50 text-slate-400 hover:text-rose-600 cursor-pointer"
+                        title="Delete Plan"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Editing Panel */}
                   {editingPlanId === plan.id && (
-                    <div className="mt-4 pt-4 border-t border-slate-200 space-y-3 bg-white p-4 rounded-xl">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="mt-3 pt-3 border-t border-slate-200 space-y-3 bg-white p-4 rounded-xl">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                            Package Name
+                            Plan Name
                           </label>
                           <input
                             type="text"
@@ -340,6 +370,25 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
                           />
                         </div>
 
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Badge Label (e.g. Most Popular, Launch Fast)
+                          </label>
+                          <input
+                            type="text"
+                            value={plan.badge}
+                            onChange={(e) => {
+                              const updated = pricingDraft.plans.map((p) =>
+                                p.id === plan.id ? { ...p, badge: e.target.value } : p
+                              );
+                              setPricingDraft({ ...pricingDraft, plans: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                             Price Display (e.g. $99 – $299)
@@ -411,6 +460,17 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
                         </div>
                       </div>
 
+                      <ActionSelector
+                        label="Button Destination / Action"
+                        value={plan.buttonAction || 'contact'}
+                        onChange={(action) => {
+                          const updated = pricingDraft.plans.map((p) =>
+                            p.id === plan.id ? { ...p, buttonAction: action } : p
+                          );
+                          setPricingDraft({ ...pricingDraft, plans: updated });
+                        }}
+                      />
+
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                           Short Description
@@ -469,84 +529,101 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
             </div>
           </div>
 
-          {/* Collapsible Advanced Rates & Estimator */}
+          {/* Reassurance Banner Editor */}
           <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-            <button
-              type="button"
-              onClick={() => setShowAdvancedRates(!showAdvancedRates)}
-              className="flex items-center justify-between w-full text-left cursor-pointer"
-            >
+            <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                  <Calculator className="w-4 h-4 text-indigo-600" />
-                  <span>Advanced: Project Estimator Calculation Rates</span>
+                  <Shield className="w-4 h-4 text-indigo-600" />
+                  <span>Pricing Reassurance Banner</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Customize the baseline costs and delivery timelines used by the website's interactive scope estimator.
+                  The guarantee strip displayed directly below the pricing plans table.
                 </p>
               </div>
-              <div className="p-1 rounded-lg text-slate-400">
-                {showAdvancedRates ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </div>
-            </button>
 
-            {showAdvancedRates && (
-              <div className="pt-4 border-t border-slate-200 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {Object.entries(pricingDraft.estimatorRates.baseRates).map(([key, rate]) => (
-                    <div key={key} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                      <span className="text-xs font-bold uppercase text-slate-800 block">
-                        Category: {key.toUpperCase()}
-                      </span>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <label className="text-[11px] text-slate-600 block mb-0.5">Min Cost ($)</label>
-                          <input
-                            type="number"
-                            value={rate.min}
-                            onChange={(e) => {
-                              const updated = {
-                                ...pricingDraft.estimatorRates.baseRates,
-                                [key]: {
-                                  ...pricingDraft.estimatorRates.baseRates[key],
-                                  min: Number(e.target.value),
-                                },
-                              };
-                              setPricingDraft({
-                                ...pricingDraft,
-                                estimatorRates: { ...pricingDraft.estimatorRates, baseRates: updated },
-                              });
-                            }}
-                            className="w-full px-2 py-1 rounded border border-slate-200 bg-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[11px] text-slate-600 block mb-0.5">Max Cost ($)</label>
-                          <input
-                            type="number"
-                            value={rate.max}
-                            onChange={(e) => {
-                              const updated = {
-                                ...pricingDraft.estimatorRates.baseRates,
-                                [key]: {
-                                  ...pricingDraft.estimatorRates.baseRates[key],
-                                  max: Number(e.target.value),
-                                },
-                              };
-                              setPricingDraft({
-                                ...pricingDraft,
-                                estimatorRates: { ...pricingDraft.estimatorRates, baseRates: updated },
-                              });
-                            }}
-                            className="w-full px-2 py-1 rounded border border-slate-200 bg-white"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={pricingDraft.reassuranceBanner?.visible !== false}
+                  onChange={(e) =>
+                    setPricingDraft((prev) => ({
+                      ...prev,
+                      reassuranceBanner: {
+                        text: prev.reassuranceBanner?.text || 'All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.',
+                        ctaLabel: prev.reassuranceBanner?.ctaLabel || 'Need Custom Scope?',
+                        ctaAction: prev.reassuranceBanner?.ctaAction || 'contact',
+                        visible: e.target.checked,
+                      },
+                    }))
+                  }
+                  className="w-4 h-4 text-indigo-600 rounded"
+                />
+                <span>Visible</span>
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Reassurance Statement Text
+              </label>
+              <textarea
+                rows={2}
+                value={pricingDraft.reassuranceBanner?.text ?? ''}
+                onChange={(e) =>
+                  setPricingDraft((prev) => ({
+                    ...prev,
+                    reassuranceBanner: {
+                      text: e.target.value,
+                      ctaLabel: prev.reassuranceBanner?.ctaLabel || 'Need Custom Scope?',
+                      ctaAction: prev.reassuranceBanner?.ctaAction || 'contact',
+                      visible: prev.reassuranceBanner?.visible !== false,
+                    },
+                  }))
+                }
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  CTA Button Label
+                </label>
+                <input
+                  type="text"
+                  value={pricingDraft.reassuranceBanner?.ctaLabel ?? ''}
+                  onChange={(e) =>
+                    setPricingDraft((prev) => ({
+                      ...prev,
+                      reassuranceBanner: {
+                        text: prev.reassuranceBanner?.text || '',
+                        ctaLabel: e.target.value,
+                        ctaAction: prev.reassuranceBanner?.ctaAction || 'contact',
+                        visible: prev.reassuranceBanner?.visible !== false,
+                      },
+                    }))
+                  }
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                />
               </div>
-            )}
+
+              <ActionSelector
+                label="CTA Button Action"
+                value={pricingDraft.reassuranceBanner?.ctaAction || 'contact'}
+                onChange={(action) =>
+                  setPricingDraft((prev) => ({
+                    ...prev,
+                    reassuranceBanner: {
+                      text: prev.reassuranceBanner?.text || '',
+                      ctaLabel: prev.reassuranceBanner?.ctaLabel || 'Need Custom Scope?',
+                      ctaAction: action,
+                      visible: prev.reassuranceBanner?.visible !== false,
+                    },
+                  }))
+                }
+              />
+            </div>
           </div>
         </div>
       )}
@@ -709,6 +786,303 @@ export const PricingEditorView: React.FC<PricingEditorViewProps> = ({ onDirtyCha
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Broadcast Turnkey Suites Section */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 font-display">
+                  Broadcast Turnkey Suites ({(streamerDraft.suites || []).length})
+                </h2>
+                <p className="text-xs text-slate-500">
+                  All-inclusive production packages shown on the Streamer Assets page.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const newSuiteId = `suite-${Date.now()}`;
+                  const currentSuites = streamerDraft.suites || [];
+                  const newSuite: StreamerSuite = {
+                    id: newSuiteId,
+                    name: 'New Turnkey Suite',
+                    turnaround: '7–10 Business Days',
+                    description: 'A complete broadcast overhaul engineered for competitive creators and esports organizations.',
+                    items: [
+                      'Custom 60fps WebM stinger transitions with audio',
+                      'Starting Soon & Intermission animated loops',
+                      'Modular webcam HUDs & sponsor badges',
+                    ],
+                    popular: false,
+                    order: currentSuites.length + 1,
+                    visible: true,
+                    buttonLabel: 'Inquire Broadcast Suite',
+                    buttonAction: 'contact',
+                  };
+                  setStreamerDraft({
+                    ...streamerDraft,
+                    suites: [...currentSuites, newSuite],
+                  });
+                  setEditingSuiteId(newSuiteId);
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Suite</span>
+              </button>
+            </div>
+
+            {/* Suites Section Eyebrow & Title */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Suites Section Eyebrow
+                </label>
+                <input
+                  type="text"
+                  value={streamerDraft.suitesSectionEyebrow ?? 'Full Production'}
+                  onChange={(e) => setStreamerDraft({ ...streamerDraft, suitesSectionEyebrow: e.target.value })}
+                  placeholder="Full Production"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Suites Section Title
+                </label>
+                <input
+                  type="text"
+                  value={streamerDraft.suitesSectionTitle ?? 'All-Inclusive Broadcast Suites'}
+                  onChange={(e) => setStreamerDraft({ ...streamerDraft, suitesSectionTitle: e.target.value })}
+                  placeholder="All-Inclusive Broadcast Suites"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+                />
+              </div>
+            </div>
+
+            {/* Suites List */}
+            <div className="space-y-3 pt-2">
+              {(!streamerDraft.suites || streamerDraft.suites.length === 0) ? (
+                <div className="p-8 text-center rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
+                  No broadcast suites defined. Click "Add Suite" to create one.
+                </div>
+              ) : (
+                streamerDraft.suites.map((suite, idx) => (
+                  <div
+                    key={suite.id}
+                    className={`p-4 rounded-xl border transition-all ${
+                      editingSuiteId === suite.id
+                        ? 'border-indigo-500 bg-indigo-50/20'
+                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100/60'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-900">{suite.name}</span>
+                          {suite.popular && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 flex items-center gap-1">
+                              <Sparkles className="w-3 h-3" />
+                              <span>Staff Pick</span>
+                            </span>
+                          )}
+                          {suite.visible === false && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600">
+                              Hidden
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-slate-500">Turnaround: {suite.turnaround}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => moveSuite(idx, 'up')}
+                          disabled={idx === 0}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-500 disabled:opacity-30 cursor-pointer"
+                          title="Move Up"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveSuite(idx, 'down')}
+                          disabled={idx === (streamerDraft.suites?.length || 0) - 1}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-500 disabled:opacity-30 cursor-pointer"
+                          title="Move Down"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = (streamerDraft.suites || []).map((s) =>
+                              s.id === suite.id ? { ...s, visible: s.visible === false ? true : false } : s
+                            );
+                            setStreamerDraft({ ...streamerDraft, suites: updated });
+                          }}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-500 cursor-pointer"
+                          title={suite.visible !== false ? 'Hide from public site' : 'Show on public site'}
+                        >
+                          {suite.visible !== false ? <Eye className="w-3.5 h-3.5 text-emerald-600" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setEditingSuiteId(editingSuiteId === suite.id ? null : suite.id)}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer"
+                        >
+                          {editingSuiteId === suite.id ? 'Close' : 'Edit'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Delete broadcast suite "${suite.name}"?`)) {
+                              setStreamerDraft((prev) => ({
+                                ...prev,
+                                suites: (prev.suites || []).filter((s) => s.id !== suite.id),
+                              }));
+                              if (editingSuiteId === suite.id) setEditingSuiteId(null);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-rose-50 text-slate-400 hover:text-rose-600 cursor-pointer"
+                          title="Delete Suite"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {editingSuiteId === suite.id && (
+                      <div className="mt-3 pt-3 border-t border-slate-200 space-y-3 bg-white p-4 rounded-xl">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                              Suite Name
+                            </label>
+                            <input
+                              type="text"
+                              value={suite.name}
+                              onChange={(e) => {
+                                const updated = (streamerDraft.suites || []).map((s) =>
+                                  s.id === suite.id ? { ...s, name: e.target.value } : s
+                                );
+                                setStreamerDraft({ ...streamerDraft, suites: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                              Turnaround (e.g. 7–10 Business Days)
+                            </label>
+                            <input
+                              type="text"
+                              value={suite.turnaround}
+                              onChange={(e) => {
+                                const updated = (streamerDraft.suites || []).map((s) =>
+                                  s.id === suite.id ? { ...s, turnaround: e.target.value } : s
+                                );
+                                setStreamerDraft({ ...streamerDraft, suites: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Description
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={suite.description}
+                            onChange={(e) => {
+                              const updated = (streamerDraft.suites || []).map((s) =>
+                                s.id === suite.id ? { ...s, description: e.target.value } : s
+                              );
+                              setStreamerDraft({ ...streamerDraft, suites: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                            Included Deliverables (one per line)
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={(suite.items || []).join('\n')}
+                            onChange={(e) => {
+                              const lines = e.target.value.split('\n');
+                              const updated = (streamerDraft.suites || []).map((s) =>
+                                s.id === suite.id ? { ...s, items: lines } : s
+                              );
+                              setStreamerDraft({ ...streamerDraft, suites: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 font-mono"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                              Button Text
+                            </label>
+                            <input
+                              type="text"
+                              value={suite.buttonLabel || 'Inquire Broadcast Suite'}
+                              onChange={(e) => {
+                                const updated = (streamerDraft.suites || []).map((s) =>
+                                  s.id === suite.id ? { ...s, buttonLabel: e.target.value } : s
+                                );
+                                setStreamerDraft({ ...streamerDraft, suites: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200"
+                            />
+                          </div>
+
+                          <ActionSelector
+                            label="Button Destination / Action"
+                            value={suite.buttonAction || 'contact'}
+                            onChange={(action) => {
+                              const updated = (streamerDraft.suites || []).map((s) =>
+                                s.id === suite.id ? { ...s, buttonAction: action } : s
+                              );
+                              setStreamerDraft({ ...streamerDraft, suites: updated });
+                            }}
+                          />
+                        </div>
+
+                        <div className="pt-2">
+                          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(suite.popular)}
+                              onChange={(e) => {
+                                const updated = (streamerDraft.suites || []).map((s) =>
+                                  s.id === suite.id ? { ...s, popular: e.target.checked } : s
+                                );
+                                setStreamerDraft({ ...streamerDraft, suites: updated });
+                              }}
+                              className="w-4 h-4 text-indigo-600 rounded"
+                            />
+                            <span>Highlight as "Staff Pick"</span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
