@@ -7,6 +7,7 @@ import { UnsavedChangesModal } from '../UnsavedChangesModal';
 import { ImageFieldEditor } from '../ImageFieldEditor';
 import { IconPicker } from '../IconPicker';
 import { DynamicIcon } from '../../common/DynamicIcon';
+import { ActionSelector } from '../common/ActionSelector';
 import {
   Layout,
   Sparkles,
@@ -18,6 +19,7 @@ import {
   Star,
   BookOpen,
   Award,
+  Zap,
   Mail,
   Eye,
   EyeOff,
@@ -44,6 +46,7 @@ import {
   BlogCardItem,
   PartnersContent,
   ContactContent,
+  CtaBannerContent,
 } from '../../../types/content';
 
 export type PageSectionId =
@@ -55,6 +58,7 @@ export type PageSectionId =
   | 'testimonials'
   | 'blog'
   | 'partners'
+  | 'cta-banner'
   | 'contact'
   | 'page-headers';
 
@@ -80,6 +84,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   // Independent, deep-cloned draft states
   const [sectionsDraft, setSectionsDraft] = useState<SectionsManagerContent>(() => structuredClone(content.sectionsManager));
   const [heroDraft, setHeroDraft] = useState<HeroContent>(() => structuredClone(content.hero));
+  const [ctaBannerDraft, setCtaBannerDraft] = useState<CtaBannerContent>(() => structuredClone(content.ctaBanner));
   const [missionDraft, setMissionDraft] = useState<MissionContent>(() => structuredClone(content.mission));
   const [servicesDraft, setServicesDraft] = useState<ServicesContent>(() => structuredClone(content.services));
   const [processDraft, setProcessDraft] = useState<ProcessContent>(() => structuredClone(content.process));
@@ -101,6 +106,8 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         return JSON.stringify(sectionsDraft) !== JSON.stringify(content.sectionsManager);
       case 'hero':
         return JSON.stringify(heroDraft) !== JSON.stringify(content.hero);
+      case 'cta-banner':
+        return JSON.stringify(ctaBannerDraft) !== JSON.stringify(content.ctaBanner);
       case 'about':
         return JSON.stringify(missionDraft) !== JSON.stringify(content.mission);
       case 'services':
@@ -132,6 +139,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
     partnersDraft,
     contactDraft,
     headersDraft,
+    ctaBannerDraft,
     content,
   ]);
 
@@ -149,6 +157,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   // Section names mapping
   const sectionLabels: Record<PageSectionId, string> = {
     'home-layout': 'Home Layout & Sections',
+    'cta-banner': 'Bottom CTA Banner',
     hero: 'Hero Section',
     about: 'About & Mission',
     services: 'Services Grid',
@@ -162,7 +171,11 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
 
   // Perform validation on the active draft
   const validateActiveDraft = (): { valid: boolean; error?: string } => {
-    if (activeSection === 'hero') {
+    if (activeSection === 'cta-banner') {
+      if (!ctaBannerDraft.heading.trim()) {
+        return { valid: false, error: 'Banner heading is required.' };
+      }
+    } else if (activeSection === 'hero') {
       if (!heroDraft.headingLine1.trim()) {
         return { valid: false, error: 'Headline Line 1 is required.' };
       }
@@ -202,6 +215,9 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
           break;
         case 'hero':
           result = updateContentSection('hero', heroDraft);
+          break;
+        case 'cta-banner':
+          result = updateContentSection('ctaBanner', ctaBannerDraft);
           break;
         case 'about':
           result = updateContentSection('mission', missionDraft);
@@ -253,6 +269,9 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         break;
       case 'hero':
         setHeroDraft(structuredClone(content.hero));
+        break;
+      case 'cta-banner':
+        setCtaBannerDraft(structuredClone(content.ctaBanner));
         break;
       case 'about':
         setMissionDraft(structuredClone(content.mission));
@@ -339,6 +358,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
     { id: 'testimonials', label: 'Testimonials', icon: Star },
     { id: 'blog', label: 'Blog Cards', icon: BookOpen },
     { id: 'partners', label: 'Partners Banner', icon: Award },
+    { id: 'cta-banner', label: 'Bottom CTA Banner', icon: Zap },
     { id: 'contact', label: 'Contact Text', icon: Mail },
     { id: 'page-headers', label: 'Page Banners', icon: FileText },
   ];
@@ -468,6 +488,95 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* BOTTOM CTA BANNER */}
+      {activeSection === 'cta-banner' && (
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 font-display">
+              Homepage Bottom CTA Banner
+            </h2>
+            <p className="text-xs text-slate-500">
+              The high-conversion banner displayed near the footer of the homepage.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Eyebrow Badge Text
+              </label>
+              <input
+                type="text"
+                value={ctaBannerDraft.eyebrow}
+                onChange={(e) => setCtaBannerDraft({ ...ctaBannerDraft, eyebrow: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Main Heading *
+              </label>
+              <input
+                type="text"
+                value={ctaBannerDraft.heading}
+                onChange={(e) => setCtaBannerDraft({ ...ctaBannerDraft, heading: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Description Paragraph
+            </label>
+            <textarea
+              rows={3}
+              value={ctaBannerDraft.description}
+              onChange={(e) => setCtaBannerDraft({ ...ctaBannerDraft, description: e.target.value })}
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Primary Button Label
+              </label>
+              <input
+                type="text"
+                value={ctaBannerDraft.primaryButtonLabel}
+                onChange={(e) => setCtaBannerDraft({ ...ctaBannerDraft, primaryButtonLabel: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+            <ActionSelector
+              label="Primary Button Action"
+              value={ctaBannerDraft.primaryButtonAction || 'start-project'}
+              onChange={(action) => setCtaBannerDraft({ ...ctaBannerDraft, primaryButtonAction: action })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Secondary Button Label
+              </label>
+              <input
+                type="text"
+                value={ctaBannerDraft.secondaryButtonLabel}
+                onChange={(e) => setCtaBannerDraft({ ...ctaBannerDraft, secondaryButtonLabel: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+            <ActionSelector
+              label="Secondary Button Action"
+              value={ctaBannerDraft.secondaryButtonAction || 'services'}
+              onChange={(action) => setCtaBannerDraft({ ...ctaBannerDraft, secondaryButtonAction: action })}
+            />
           </div>
         </div>
       )}
@@ -633,12 +742,91 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         <div className="space-y-6">
           <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
             <h2 className="text-base font-bold text-slate-900 font-display">
+              About Section Content
+            </h2>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Small Pre-heading Pill
+              </label>
+              <input
+                type="text"
+                value={missionDraft.preheading ?? 'About NexorDive'}
+                onChange={(e) => setMissionDraft({ ...missionDraft, preheading: e.target.value })}
+                placeholder="About NexorDive"
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Main Headline *
+              </label>
+              <input
+                type="text"
+                value={missionDraft.heading}
+                onChange={(e) => setMissionDraft({ ...missionDraft, heading: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Description Paragraph
+              </label>
+              <textarea
+                rows={4}
+                value={missionDraft.description}
+                onChange={(e) => setMissionDraft({ ...missionDraft, description: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Read More Button Label
+                </label>
+                <input
+                  type="text"
+                  value={missionDraft.readMoreLabel ?? 'Read More'}
+                  onChange={(e) => setMissionDraft({ ...missionDraft, readMoreLabel: e.target.value })}
+                  placeholder="Read More"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <ActionSelector
+                label="Read More Button Action"
+                value={missionDraft.readMoreAction || 'services'}
+                onChange={(action) => setMissionDraft({ ...missionDraft, readMoreAction: action })}
+              />
+            </div>
+
+            <div className="pt-2">
+              <ImageFieldEditor
+                label="About Graphic Illustration"
+                imageSrc={missionDraft.missionImage}
+                imageAlt={missionDraft.missionImageAlt}
+                onChange={(src, alt) => setMissionDraft({ ...missionDraft, missionImage: src, missionImageAlt: alt || '' })}
+                helperText="Visual image on the right side of the about section."
+              />
+            </div>
+          </div>
+
+          {/* CEO / Leadership Badge */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <h2 className="text-base font-bold text-slate-900 font-display">
               Founder & Executive Badge
             </h2>
+            <p className="text-xs text-slate-500">
+              Floating badge displayed over the bottom-right corner of the about graphic.
+            </p>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Founder Name
+                  Founder / Executive Name
                 </label>
                 <input
                   type="text"
@@ -662,73 +850,34 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
             </div>
 
             <ImageFieldEditor
-              label="Founder Avatar Photo"
+              label="Executive Avatar Photo"
               imageSrc={missionDraft.ceoAvatar}
               onChange={(src) => setMissionDraft({ ...missionDraft, ceoAvatar: src })}
-              helperText="Small profile photo displayed inside the badge."
+              helperText="Small profile photo displayed inside the floating badge."
             />
-          </div>
 
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-            <h2 className="text-base font-bold text-slate-900 font-display">
-              Mission Statement & Pillars
-            </h2>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Main Heading *
-              </label>
-              <input
-                type="text"
-                value={missionDraft.heading}
-                onChange={(e) => setMissionDraft({ ...missionDraft, heading: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Description
-              </label>
-              <textarea
-                rows={3}
-                value={missionDraft.description}
-                onChange={(e) => setMissionDraft({ ...missionDraft, description: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              />
-            </div>
-
-            {/* 3 Numbered Pillars */}
-            <div className="space-y-3 pt-2">
-              <label className="block text-xs font-bold text-slate-800">
-                Core Service Pillars
-              </label>
-              {missionDraft.pillars.map((pillar, idx) => (
-                <div key={pillar.id} className="flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
-                    {pillar.number}
-                  </span>
-                  <input
-                    type="text"
-                    value={pillar.title}
-                    onChange={(e) => {
-                      const updated = [...missionDraft.pillars];
-                      updated[idx].title = e.target.value;
-                      setMissionDraft({ ...missionDraft, pillars: updated });
-                    }}
-                    className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+            {/* Live Interactive Badge Preview */}
+            <div className="pt-3 border-t border-slate-100">
+              <span className="block text-xs font-semibold text-slate-700 mb-2">
+                Live Badge Preview
+              </span>
+              <div className="inline-flex items-center gap-3.5 px-5 py-3 rounded-2xl bg-[#004d6a] text-white shadow-xl border border-cyan-400/30">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-white/20 border-2 border-white shrink-0 shadow-md">
+                  <img
+                    src={missionDraft.ceoAvatar || '/assets/akleem_orakzai_avatar.png'}
+                    alt={missionDraft.ceoBadgeName || 'Executive'}
+                    className="w-full h-full object-cover"
                   />
                 </div>
-              ))}
-            </div>
-
-            <div className="pt-2">
-              <ImageFieldEditor
-                label="Mission Collaboration Graphic"
-                imageSrc={missionDraft.missionImage}
-                imageAlt={missionDraft.missionImageAlt}
-                onChange={(src, alt) => setMissionDraft({ ...missionDraft, missionImage: src, missionImageAlt: alt || '' })}
-                helperText="Visual image on the right side of the mission section."
-              />
+                <div>
+                  <div className="text-sm font-serif font-bold text-white tracking-wide uppercase">
+                    {missionDraft.ceoBadgeName || 'Akleem Orakzai'}
+                  </div>
+                  <div className="text-xs text-cyan-200 font-serif font-medium mt-0.5">
+                    {missionDraft.ceoBadgeTitle || 'CEO'}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -992,27 +1141,83 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
             </p>
           </div>
 
-          <div className="space-y-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Section Tag / Eyebrow
+              </label>
+              <input
+                type="text"
+                value={processDraft.sectionEyebrow ?? 'Execution Methodology'}
+                onChange={(e) => setProcessDraft({ ...processDraft, sectionEyebrow: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Section Main Heading
+              </label>
+              <input
+                type="text"
+                value={processDraft.sectionTitle ?? 'A disciplined four-phase pipeline from blueprint to scale.'}
+                onChange={(e) => setProcessDraft({ ...processDraft, sectionTitle: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Section Description
+            </label>
+            <textarea
+              rows={2}
+              value={processDraft.sectionDescription ?? 'We operate in tight fortnightly sprints with continuous staging access, rigorous automated testing, and clear delivery gates at every milestone.'}
+              onChange={(e) => setProcessDraft({ ...processDraft, sectionDescription: e.target.value })}
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+            />
+          </div>
+
+          <div className="space-y-4 pt-3 border-t border-slate-100">
             {processDraft.steps.map((step, idx) => (
               <div key={step.id || step.number} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                  <div className="sm:col-span-1 flex items-center">
+                    <span className="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">
                       {step.number}
                     </span>
-                    <span className="text-xs font-bold text-slate-900">{step.title}</span>
                   </div>
-                  <input
-                    type="text"
-                    value={step.duration}
-                    onChange={(e) => {
-                      const updated = [...processDraft.steps];
-                      updated[idx].duration = e.target.value;
-                      setProcessDraft({ ...processDraft, steps: updated });
-                    }}
-                    placeholder="e.g. Sprints 1–2 (Wk 1–2)"
-                    className="px-3 py-1 text-xs rounded-lg border border-slate-200 bg-white"
-                  />
+                  <div className="sm:col-span-7">
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">
+                      Phase Title
+                    </label>
+                    <input
+                      type="text"
+                      value={step.title}
+                      onChange={(e) => {
+                        const updated = [...processDraft.steps];
+                        updated[idx].title = e.target.value;
+                        setProcessDraft({ ...processDraft, steps: updated });
+                      }}
+                      className="w-full px-3 py-1.5 text-xs font-bold text-slate-900 rounded-lg border border-slate-200 bg-white"
+                    />
+                  </div>
+                  <div className="sm:col-span-4">
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">
+                      Duration
+                    </label>
+                    <input
+                      type="text"
+                      value={step.duration}
+                      onChange={(e) => {
+                        const updated = [...processDraft.steps];
+                        updated[idx].duration = e.target.value;
+                        setProcessDraft({ ...processDraft, steps: updated });
+                      }}
+                      placeholder="e.g. Sprints 1–2 (Wk 1–2)"
+                      className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white font-mono"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -1043,6 +1248,23 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
                       updated[idx].deliverables = e.target.value.split(',').map((s) => s.trim()).filter(Boolean);
                       setProcessDraft({ ...processDraft, steps: updated });
                     }}
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                    Key Gate / Milestone Outcome
+                  </label>
+                  <input
+                    type="text"
+                    value={step.keyOutcome || ''}
+                    onChange={(e) => {
+                      const updated = [...processDraft.steps];
+                      updated[idx].keyOutcome = e.target.value;
+                      setProcessDraft({ ...processDraft, steps: updated });
+                    }}
+                    placeholder="e.g. Approved clickable prototype and architecture spec sign-off."
                     className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
                   />
                 </div>
@@ -1090,6 +1312,31 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               <Plus className="w-3.5 h-3.5" />
               <span>Add Testimonial</span>
             </button>
+          </div>
+
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Section Main Title
+              </label>
+              <input
+                type="text"
+                value={testimonialsDraft.sectionTitle ?? "What Our Client's Say About Us"}
+                onChange={(e) => setTestimonialsDraft({ ...testimonialsDraft, sectionTitle: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Section Subtitle / Description
+              </label>
+              <textarea
+                rows={2}
+                value={testimonialsDraft.sectionDescription ?? 'Our clients are highly satisfied with NexorDive digital solutions.'}
+                onChange={(e) => setTestimonialsDraft({ ...testimonialsDraft, sectionDescription: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
           </div>
 
           <div className="space-y-3 pt-2">
@@ -1245,6 +1492,31 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               <Plus className="w-3.5 h-3.5" />
               <span>Add Blog Card</span>
             </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Section Eyebrow
+              </label>
+              <input
+                type="text"
+                value={blogDraft.sectionEyebrow ?? 'OUR BLOG'}
+                onChange={(e) => setBlogDraft({ ...blogDraft, sectionEyebrow: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Section Main Title
+              </label>
+              <input
+                type="text"
+                value={blogDraft.sectionTitle ?? 'Latest From Blog'}
+                onChange={(e) => setBlogDraft({ ...blogDraft, sectionTitle: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
+              />
+            </div>
           </div>
 
           <div className="space-y-3 pt-2">

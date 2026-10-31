@@ -32,6 +32,7 @@ export interface GlobalContent {
   leaderName?: string;
   leaderRole?: string;
   leaderImage?: string;
+  categoryTagline?: string;
   footerTagline: string;
   copyrightText: string;
   officeLocations: { city: string; timezone: string; label: string }[];
@@ -53,7 +54,7 @@ export interface HeroContent {
   image: string;
   imageAlt: string;
   primaryButtonLabel: string;
-  primaryButtonAction: string; // 'contact' | 'services' | 'portfolio' | 'streamer-assets'
+  primaryButtonAction: string; // 'contact' | 'services' | 'portfolio' | 'streamer-assets' | 'start-project' | custom
   secondaryButtonLabel: string;
   secondaryButtonAction: string;
   statCards: HeroStatCard[];
@@ -95,11 +96,14 @@ export interface MetricItem {
 }
 
 export interface MissionContent {
+  preheading?: string;
+  heading: string;
+  description: string;
+  readMoreLabel?: string;
+  readMoreAction?: string;
   ceoBadgeName: string;
   ceoBadgeTitle: string;
   ceoAvatar: string;
-  heading: string;
-  description: string;
   missionImage: string;
   missionImageAlt: string;
   pillars: MissionPillar[];
@@ -185,11 +189,19 @@ export interface EstimatorRateConfig {
   };
 }
 
+export interface PricingReassuranceBanner {
+  text: string;
+  ctaLabel: string;
+  ctaAction: string;
+  visible: boolean;
+}
+
 export interface PricingContent {
   sectionEyebrow: string;
   sectionTitle: string;
   sectionDescription: string;
   plans: PricingPlanItem[];
+  reassuranceBanner?: PricingReassuranceBanner;
   estimatorRates: EstimatorRateConfig;
 }
 
@@ -215,12 +227,17 @@ export interface StreamerSuite {
   items: string[];
   popular: boolean;
   order: number;
+  visible?: boolean;
+  buttonLabel?: string;
+  buttonAction?: string;
 }
 
 export interface StreamerContent {
   sectionEyebrow: string;
   sectionTitle: string;
   sectionDescription: string;
+  suitesSectionEyebrow?: string;
+  suitesSectionTitle?: string;
   startingCards: StreamerStartingCard[];
   suites: StreamerSuite[];
 }
@@ -278,6 +295,16 @@ export interface PartnersContent {
   bannerImage: string;
   bannerAlt: string;
   partners: PartnerLogoItem[];
+}
+
+export interface CtaBannerContent {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  primaryButtonLabel: string;
+  primaryButtonAction: string;
+  secondaryButtonLabel: string;
+  secondaryButtonAction: string;
 }
 
 export interface ContactContent {
@@ -338,6 +365,7 @@ export interface SiteContent {
   testimonials: TestimonialsContent;
   blog: BlogContent;
   partners: PartnersContent;
+  ctaBanner: CtaBannerContent;
   contact: ContactContent;
   pageHeaders: PageHeadersContent;
   sectionsManager: SectionsManagerContent;

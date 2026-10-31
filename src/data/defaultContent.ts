@@ -36,6 +36,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     leaderName: 'Akleem Orakzai',
     leaderRole: 'CEO',
     leaderImage: '/assets/akleem_orakzai_avatar.png',
+    categoryTagline: 'SOFTWARE • DIGITAL GROWTH • STREAMER ASSETS',
     footerTagline: 'NexorDive is an elite digital product agency crafting cutting-edge web applications, brand identities, and high-performance digital systems.',
     copyrightText: '© 2026 NexorDive Digital Agency. All rights reserved.',
     officeLocations: [
@@ -144,6 +145,9 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   },
 
   mission: {
+    preheading: 'About NexorDive',
+    readMoreLabel: 'Read More',
+    readMoreAction: 'services',
     ceoBadgeName: 'Akleem Orakzai',
     ceoBadgeTitle: 'CEO',
     ceoAvatar: '/assets/akleem_orakzai_avatar.png',
@@ -303,6 +307,12 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         order: 4,
       },
     ],
+    reassuranceBanner: {
+      text: 'All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.',
+      ctaLabel: 'Need Custom Scope?',
+      ctaAction: 'contact',
+      visible: true,
+    },
     estimatorRates: {
       baseRates: {
         mvp: { min: 28000, max: 45000, minWeeks: 6, maxWeeks: 10 },
@@ -334,6 +344,8 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     sectionEyebrow: 'Dedicated to Gamers & Creators',
     sectionTitle: 'Streamer Assets Hub',
     sectionDescription: 'Elevate your broadcast into an unforgettable visual spectacle. We craft broadcast-grade overlays, animated stingers, interactive alerts, and custom branding for top-tier creators across Twitch, Kick, YouTube, and VTubing.',
+    suitesSectionEyebrow: 'Full Production',
+    suitesSectionTitle: 'All-Inclusive Broadcast Suites',
     startingCards: [
       {
         id: 'twitch-assets',
@@ -391,6 +403,9 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     suites: [
       {
         id: 'signature-broadcast',
+        visible: true,
+        buttonLabel: 'Inquire Broadcast Suite',
+        buttonAction: 'contact',
         name: 'Turnkey Esports & Streamer Package',
         turnaround: '7–10 Business Days',
         description: 'An all-inclusive broadcast overhaul engineered for partnered creators, esports teams, and tournament organizers.',
@@ -405,6 +420,9 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       },
       {
         id: 'interactive-alert-engine',
+        visible: true,
+        buttonLabel: 'Inquire Broadcast Suite',
+        buttonAction: 'contact',
         name: 'Custom WebGL Interactive Alerts',
         turnaround: '5–7 Business Days',
         description: 'Dynamic browser-source particles and audio cues that trigger live during subs, gift bombs, raids, and donations.',
@@ -520,6 +538,15 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       visible: true,
       order: idx + 1,
     })),
+  },
+  ctaBanner: {
+    eyebrow: 'Ready to Scale Your Brand?',
+    heading: "Let's Engineer Your Next Big Digital Milestone.",
+    description: 'From modern web applications and AI automation to high-voltage streamer graphics, NexorDive brings world-class craft to your vision.',
+    primaryButtonLabel: 'Start a Project',
+    primaryButtonAction: 'start-project',
+    secondaryButtonLabel: 'Explore All Services',
+    secondaryButtonAction: 'services',
   },
 
   contact: {

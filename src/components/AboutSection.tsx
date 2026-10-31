@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { useAdmin } from '../context/AdminStore';
+import { executeAction } from '../utils/actionHandler';
 
 interface AboutSectionProps {
   onReadMore?: () => void;
@@ -10,28 +11,29 @@ interface AboutSectionProps {
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
   const { content, settings } = useAdmin();
-  const leaderName = settings?.leaderName || content?.mission?.ceoBadgeName || 'Akleem Orakzai';
-  const leaderRole = settings?.leaderRole || content?.mission?.ceoBadgeTitle || 'CEO';
-  const leaderImage = settings?.leaderImage || content?.mission?.ceoAvatar || '/assets/akleem_orakzai_avatar.png';
+  const leaderName = content?.mission?.ceoBadgeName || settings?.leaderName || 'Akleem Orakzai';
+  const leaderRole = content?.mission?.ceoBadgeTitle || settings?.leaderRole || 'CEO';
+  const leaderImage = content?.mission?.ceoAvatar || settings?.leaderImage || '/assets/akleem_orakzai_avatar.png';
 
+  const preheading = content?.mission?.preheading || 'About NexorDive';
   const heading = content?.mission?.heading || 'We love our work and do it passionately';
   const description =
     content?.mission?.description ||
     'NexorDive designs and builds great software, high-performance web platforms, and modern digital experiences. Each project is created with passion, innovation, and dedicated craftsmanship by our engineering team. We work efficiently to keep development costs lean while delivering enterprise-grade quality. We also specialize in SEO, digital marketing, mobile app development, AI systems, and creator digital assets, helping businesses succeed smoothly.';
+  const readMoreLabel = content?.mission?.readMoreLabel || 'Read More';
+  const readMoreAction = content?.mission?.readMoreAction || 'services';
+
   const aboutGraphic = content?.mission?.missionImage || '/assets/about_nexordive_graphic.png';
   const aboutGraphicAlt =
     content?.mission?.missionImageAlt || 'About NexorDive - Digital Excellence & Passionate Engineering';
 
   const handleReadMore = () => {
-    if (onReadMore) {
+    if (readMoreAction && readMoreAction !== 'services') {
+      executeAction(readMoreAction, { onNavigate: onReadMore });
+    } else if (onReadMore) {
       onReadMore();
     } else {
-      const servicesSection = document.getElementById('services');
-      if (servicesSection) {
-        servicesSection.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        window.location.hash = '#services';
-      }
+      executeAction('services');
     }
   };
 
@@ -51,7 +53,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
             {/* Small Pre-heading Pill */}
             <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 mb-5">
               <span className="w-2 h-2 rounded-full bg-slate-300" />
-              <span>About NexorDive</span>
+              <span>{preheading}</span>
             </div>
 
             {/* Main Headline */}
@@ -69,7 +71,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
               onClick={handleReadMore}
               className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl bg-[#004d61] hover:bg-[#093c47] text-white font-medium text-sm sm:text-base tracking-wide shadow-md shadow-[#004d61]/20 hover:shadow-lg transition-all cursor-pointer active:scale-95"
             >
-              <span>Read More</span>
+              <span>{readMoreLabel}</span>
             </button>
           </motion.div>
 

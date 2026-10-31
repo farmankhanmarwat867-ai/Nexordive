@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { useAdmin } from '../context/AdminStore';
+import { executeAction } from '../utils/actionHandler';
 
 interface HeroProps {
   onOpenContact?: () => void;
@@ -40,39 +41,27 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   const handlePrimaryClick = () => {
-    const action = hero.primaryButtonAction || 'contact';
-    if (action === 'contact') {
-      if (onStartProject) onStartProject();
-      else if (onOpenContact) onOpenContact();
-      else window.location.hash = '#contact';
-    } else if (action === 'streamer-assets') {
-      if (onExploreStreamerAssets) onExploreStreamerAssets();
-      else window.location.hash = '#streamer-assets';
-    } else if (action === 'portfolio') {
-      if (onExploreWork) onExploreWork();
-      else window.location.hash = '#portfolio';
-    } else {
-      window.location.hash = `#${action}`;
-    }
+    executeAction(hero.primaryButtonAction || 'contact', {
+      onStartProject,
+      onOpenContact,
+      onNavigate: (page) => {
+        if (page === 'portfolio' && onExploreWork) onExploreWork();
+        else if (page === 'streamer-assets' && onExploreStreamerAssets) onExploreStreamerAssets();
+        else window.location.hash = page === 'home' ? '' : `#${page}`;
+      },
+    });
   };
 
   const handleSecondaryClick = () => {
-    const action = hero.secondaryButtonAction || 'streamer-assets';
-    if (action === 'streamer-assets') {
-      if (onExploreStreamerAssets) onExploreStreamerAssets();
-      else {
-        const streamerSection = document.querySelector('#streamer-assets');
-        if (streamerSection) streamerSection.scrollIntoView({ behavior: 'smooth' });
-        else window.location.hash = '#streamer-assets';
-      }
-    } else if (action === 'portfolio') {
-      if (onExploreWork) onExploreWork();
-      else window.location.hash = '#portfolio';
-    } else if (action === 'contact') {
-      handlePrimaryClick();
-    } else {
-      window.location.hash = `#${action}`;
-    }
+    executeAction(hero.secondaryButtonAction || 'streamer-assets', {
+      onStartProject,
+      onOpenContact,
+      onNavigate: (page) => {
+        if (page === 'portfolio' && onExploreWork) onExploreWork();
+        else if (page === 'streamer-assets' && onExploreStreamerAssets) onExploreStreamerAssets();
+        else window.location.hash = page === 'home' ? '' : `#${page}`;
+      },
+    });
   };
 
   const statCards = hero.statCards || [];

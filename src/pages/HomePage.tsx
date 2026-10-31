@@ -9,6 +9,7 @@ import { BlogSection } from '../components/BlogSection';
 import { PartnersMarquee } from '../components/PartnersMarquee';
 import { ArrowRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
+import { executeAction } from '../utils/actionHandler';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -39,17 +40,17 @@ export const HomePage: React.FC<HomePageProps> = ({
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
-    <div className="flex-1">
-      {sections.map((sec) => {
-        switch (sec.id) {
+    <div className="flex flex-col w-full">
+      {sections.map((section) => {
+        switch (section.id) {
           case 'hero':
             return (
               <Hero
                 key="hero"
                 onOpenContact={onOpenContact}
-                onStartProject={onStartProject}
-                onExploreStreamerAssets={() => onNavigate('streamer-assets')}
                 onExploreWork={() => onNavigate('portfolio')}
+                onExploreStreamerAssets={() => onNavigate('streamer-assets')}
+                onStartProject={onStartProject}
               />
             );
           case 'about':
@@ -73,7 +74,16 @@ export const HomePage: React.FC<HomePageProps> = ({
             return <BlogSection key="blog" />;
           case 'partners':
             return <PartnersMarquee key="partners" />;
-          case 'ctaBanner':
+          case 'ctaBanner': {
+            const banner = content?.ctaBanner;
+            const eyebrow = banner?.eyebrow || 'Ready to Scale Your Brand?';
+            const heading = banner?.heading || "Let's Engineer Your Next Big Digital Milestone.";
+            const description = banner?.description || 'From modern web applications and AI automation to high-voltage streamer graphics, NexorDive brings world-class craft to your vision.';
+            const primaryLabel = banner?.primaryButtonLabel || 'Start a Project';
+            const primaryAction = banner?.primaryButtonAction || 'start-project';
+            const secondaryLabel = banner?.secondaryButtonLabel || 'Explore All Services';
+            const secondaryAction = banner?.secondaryButtonAction || 'services';
+
             return (
               <section
                 key="ctaBanner"
@@ -82,32 +92,47 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 text-center relative z-10 space-y-6">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold uppercase tracking-wider text-cyan-200">
-                    <span>Ready to Scale Your Brand?</span>
+                    <span>{eyebrow}</span>
                   </div>
                   <h2 className="text-3xl sm:text-5xl font-serif font-bold text-white max-w-3xl mx-auto leading-tight">
-                    Let's Engineer Your Next Big Digital Milestone.
+                    {heading}
                   </h2>
                   <p className="text-sm sm:text-base text-slate-200 max-w-xl mx-auto">
-                    From modern web applications and AI automation to high-voltage streamer graphics, NexorDive brings world-class craft to your vision.
+                    {description}
                   </p>
                   <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
                     <button
-                      onClick={onStartProject || (() => onNavigate('contact'))}
+                      onClick={() =>
+                        executeAction(primaryAction, {
+                          onNavigate,
+                          onStartProject,
+                          onOpenContact,
+                          onOpenContactWithSummary,
+                        })
+                      }
                       className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white text-[#0d5363] hover:bg-slate-100 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl transition-all cursor-pointer"
                     >
-                      <span>Start a Project</span>
+                      <span>{primaryLabel}</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => onNavigate('services')}
+                      onClick={() =>
+                        executeAction(secondaryAction, {
+                          onNavigate,
+                          onStartProject,
+                          onOpenContact,
+                          onOpenContactWithSummary,
+                        })
+                      }
                       className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-black/25 hover:bg-black/40 text-white font-semibold text-xs sm:text-sm tracking-wide border border-white/20 transition-all cursor-pointer"
                     >
-                      <span>Explore All Services</span>
+                      <span>{secondaryLabel}</span>
                     </button>
                   </div>
                 </div>
               </section>
             );
+          }
           default:
             return null;
         }

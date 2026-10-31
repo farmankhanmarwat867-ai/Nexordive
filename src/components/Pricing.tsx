@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { ArrowUpRight, CheckCircle2, Sparkles, Shield } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { PricingPlanItem } from '../types/content';
+import { executeAction } from '../utils/actionHandler';
 
 interface PricingProps {
   onSelectPackage?: (packageName: string, priceRange: string) => void;
@@ -144,21 +145,31 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
         </div>
 
         {/* Reassurance Banner */}
-        <div className="mt-14 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-600">
-          <div className="flex items-center gap-3">
-            <Shield className="w-5 h-5 text-indigo-600 shrink-0" />
-            <span>
-              All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.
-            </span>
+        {pricingData?.reassuranceBanner?.visible !== false && (
+          <div className="mt-14 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-600">
+            <div className="flex items-center gap-3">
+              <Shield className="w-5 h-5 text-indigo-600 shrink-0" />
+              <span>
+                {pricingData?.reassuranceBanner?.text ||
+                  'All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.'}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                const action = pricingData?.reassuranceBanner?.ctaAction;
+                if (action && action !== 'contact') {
+                  executeAction(action);
+                } else {
+                  handleDiscuss('Custom Scope / Tailored Plan', 'Custom');
+                }
+              }}
+              className="text-indigo-600 hover:text-indigo-700 font-semibold whitespace-nowrap inline-flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <span>{pricingData?.reassuranceBanner?.ctaLabel || 'Need Custom Scope?'}</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <button
-            onClick={() => handleDiscuss('Custom Scope / Tailored Plan', 'Custom')}
-            className="text-indigo-600 hover:text-indigo-700 font-semibold whitespace-nowrap inline-flex items-center gap-1 transition-colors cursor-pointer"
-          >
-            <span>Need Custom Scope?</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        )}
       </div>
     </section>
   );

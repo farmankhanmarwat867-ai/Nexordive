@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { CASE_STUDIES } from '../data/agencyData';
 import { CaseStudy } from '../types/agency';
 import { SiteContent } from '../types/content';
@@ -219,6 +219,8 @@ const AdminContext = createContext<AdminContextType | null>(null);
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Master site content published state
   const [content, setContent] = useState<SiteContent>(() => getStoredContent());
+  const contentRef = useRef<SiteContent>(content);
+  contentRef.current = content;
 
   // Leads CRM state (persisted in localStorage)
   const [leads, setLeads] = useState<Lead[]>(() => {
@@ -265,6 +267,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Update entire content
   const updateContent = (newContent: SiteContent): { success: boolean; error?: string } => {
+    contentRef.current = newContent;
     const result = saveStoredContent(newContent);
     if (result.success) {
       setContent(newContent);
@@ -277,11 +280,23 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     section: K,
     sectionData: SiteContent[K]
   ): { success: boolean; error?: string } => {
+    const baseContent = contentRef.current;
     const updated: SiteContent = {
-      ...content,
+      ...baseContent,
       [section]: sectionData,
+      ...(section === 'mission'
+        ? {
+            global: {
+              ...baseContent.global,
+              leaderName: (sectionData as any)?.ceoBadgeName || baseContent.global?.leaderName,
+              leaderRole: (sectionData as any)?.ceoBadgeTitle || baseContent.global?.leaderRole,
+              leaderImage: (sectionData as any)?.ceoAvatar || baseContent.global?.leaderImage,
+            },
+          }
+        : {}),
       lastUpdated: new Date().toISOString(),
     };
+    contentRef.current = updated;
     const result = saveStoredContent(updated);
     if (result.success) {
       setContent(updated);
@@ -292,6 +307,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Reset content to defaults
   const resetAllContent = () => {
     const defaults = resetContentToDefaults();
+    contentRef.current = defaults;
     setContent(defaults);
   };
 
@@ -411,9 +427,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       metaDescription: content.seo?.metaDescription || savedSettings.metaDescription || DEFAULT_SETTINGS.metaDescription,
       ogImageUrl: content.seo?.ogImageUrl || savedSettings.ogImageUrl || DEFAULT_SETTINGS.ogImageUrl,
       agencyName: content.global?.agencyName || savedSettings.agencyName || DEFAULT_SETTINGS.agencyName,
-      leaderName: content.global?.leaderName || content.mission?.ceoBadgeName || savedSettings.leaderName || DEFAULT_SETTINGS.leaderName,
-      leaderRole: content.global?.leaderRole || content.mission?.ceoBadgeTitle || savedSettings.leaderRole || DEFAULT_SETTINGS.leaderRole,
-      leaderImage: content.global?.leaderImage || content.mission?.ceoAvatar || savedSettings.leaderImage || DEFAULT_SETTINGS.leaderImage,
+      leaderName: content.mission?.ceoBadgeName || content.global?.leaderName || savedSettings.leaderName || DEFAULT_SETTINGS.leaderName,
+      leaderRole: content.mission?.ceoBadgeTitle || content.global?.leaderRole || savedSettings.leaderRole || DEFAULT_SETTINGS.leaderRole,
+      leaderImage: content.mission?.ceoAvatar || content.global?.leaderImage || savedSettings.leaderImage || DEFAULT_SETTINGS.leaderImage,
     };
   })();
 

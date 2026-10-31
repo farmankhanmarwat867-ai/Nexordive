@@ -67,6 +67,12 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
       ...defaults.pricing,
       ...(saved.pricing || {}),
       plans: Array.isArray(saved.pricing?.plans) ? saved.pricing.plans : defaults.pricing.plans,
+      reassuranceBanner: {
+        text: saved.pricing?.reassuranceBanner?.text ?? defaults.pricing.reassuranceBanner?.text ?? '',
+        ctaLabel: saved.pricing?.reassuranceBanner?.ctaLabel ?? defaults.pricing.reassuranceBanner?.ctaLabel ?? '',
+        ctaAction: saved.pricing?.reassuranceBanner?.ctaAction ?? defaults.pricing.reassuranceBanner?.ctaAction ?? 'contact',
+        visible: saved.pricing?.reassuranceBanner?.visible ?? defaults.pricing.reassuranceBanner?.visible ?? true,
+      },
       estimatorRates: {
         ...defaults.pricing.estimatorRates,
         ...(saved.pricing?.estimatorRates || {}),
@@ -92,6 +98,10 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
       ...defaults.partners,
       ...(saved.partners || {}),
       partners: Array.isArray(saved.partners?.partners) ? saved.partners.partners : defaults.partners.partners,
+    },
+    ctaBanner: {
+      ...defaults.ctaBanner,
+      ...(saved.ctaBanner || {}),
     },
     contact: { ...defaults.contact, ...(saved.contact || {}) },
     pageHeaders: {
