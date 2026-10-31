@@ -324,6 +324,8 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     description: 'NexorDive designs and builds great software, high-performance web platforms, and modern digital experiences. Each project is created with passion, innovation, and dedicated craftsmanship by our engineering team. We work efficiently to keep development costs lean while delivering enterprise-grade quality. We also specialize in SEO, digital marketing, mobile app development, AI systems, and creator digital assets, helping businesses succeed smoothly.',
     missionImage: '/assets/about_nexordive_graphic.png',
     missionImageAlt: 'About NexorDive - Digital Excellence & Passionate Engineering',
+    secondaryImage: '',
+    secondaryImageAlt: 'Feature Accent Graphic',
     pillars: [
       { id: 'pil-1', number: '01', title: 'Web Development & Custom Software' },
       { id: 'pil-2', number: '02', title: 'AI Automation & Digital Marketing' },

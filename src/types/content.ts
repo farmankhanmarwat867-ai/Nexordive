@@ -106,6 +106,8 @@ export interface MissionContent {
   ceoAvatar: string;
   missionImage: string;
   missionImageAlt: string;
+  secondaryImage?: string;
+  secondaryImageAlt?: string;
   pillars: MissionPillar[];
   metrics: MetricItem[];
 }

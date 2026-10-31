@@ -848,79 +848,168 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
                 onChange={(action) => setMissionDraft({ ...missionDraft, readMoreAction: action })}
               />
             </div>
+          </div>
 
-            <div className="pt-2">
+          {/* About Section Visuals & Media (All 3 Images) */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 font-display flex items-center gap-2">
+                  <span>About Section Images & Visuals</span>
+                  <span className="px-2 py-0.5 text-[11px] font-semibold bg-cyan-50 text-cyan-700 rounded-full border border-cyan-200">
+                    3 Images Managed
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Manage each of the 3 visual image elements displayed in the About section on the home page.
+                </p>
+              </div>
+            </div>
+
+            {/* Image 1: Main Section Graphic */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                  Main Graphic Illustration (Right Side)
+                </span>
+                <span className="text-[11px] text-slate-400">Large tech screen curved graphic</span>
+              </div>
               <ImageFieldEditor
-                label="About Graphic Illustration"
+                label="Main Illustration Image"
                 imageSrc={missionDraft.missionImage}
                 imageAlt={missionDraft.missionImageAlt}
                 onChange={(src, alt) => setMissionDraft({ ...missionDraft, missionImage: src, missionImageAlt: alt || '' })}
-                helperText="Visual image on the right side of the about section."
+                helperText="Primary curved illustration displaying screens and digital tech on the right."
               />
             </div>
-          </div>
 
-          {/* CEO / Leadership Badge */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-            <h2 className="text-base font-bold text-slate-900 font-display">
-              Founder & Executive Badge
-            </h2>
-            <p className="text-xs text-slate-500">
-              Floating badge displayed over the bottom-right corner of the about graphic.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Founder / Executive Name
-                </label>
-                <input
-                  type="text"
-                  value={missionDraft.ceoBadgeName}
-                  onChange={(e) => setMissionDraft({ ...missionDraft, ceoBadgeName: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
+            {/* Image 2: Secondary Feature / Accent Graphic */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                  Secondary Feature Card / Icon (Bottom-Left)
+                </span>
+                <span className="text-[11px] text-slate-400">Accent mobile / tech badge</span>
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Title / Role
-                </label>
-                <input
-                  type="text"
-                  value={missionDraft.ceoBadgeTitle}
-                  onChange={(e) => setMissionDraft({ ...missionDraft, ceoBadgeTitle: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
+              <ImageFieldEditor
+                label="Secondary Accent Image"
+                imageSrc={missionDraft.secondaryImage || ''}
+                imageAlt={missionDraft.secondaryImageAlt || ''}
+                onChange={(src, alt) => setMissionDraft({ ...missionDraft, secondaryImage: src, secondaryImageAlt: alt || '' })}
+                helperText="Floating card or icon on the lower-left corner (e.g. mobile app preview or metrics badge)."
+              />
+              <div className="flex items-center gap-2 pt-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setMissionDraft({ ...missionDraft, secondaryImage: '/assets/about_feature_icon.png', secondaryImageAlt: 'Feature Accent Icon' })}
+                  className="px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Apply Built-in Feature Icon
+                </button>
+                {missionDraft.secondaryImage && (
+                  <button
+                    type="button"
+                    onClick={() => setMissionDraft({ ...missionDraft, secondaryImage: '', secondaryImageAlt: '' })}
+                    className="px-2.5 py-1 text-[11px] font-medium bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  >
+                    Clear Custom Image
+                  </button>
+                )}
               </div>
             </div>
 
-            <ImageFieldEditor
-              label="Executive Avatar Photo"
-              imageSrc={missionDraft.ceoAvatar}
-              onChange={(src) => setMissionDraft({ ...missionDraft, ceoAvatar: src })}
-              helperText="Small profile photo displayed inside the floating badge."
-            />
+            {/* Image 3: Founder & CEO Avatar Photo */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">3</span>
+                  Executive Avatar Photo (CEO Badge)
+                </span>
+                <span className="text-[11px] text-slate-400">Floating badge profile picture</span>
+              </div>
 
-            {/* Live Interactive Badge Preview */}
-            <div className="pt-3 border-t border-slate-100">
-              <span className="block text-xs font-semibold text-slate-700 mb-2">
-                Live Badge Preview
-              </span>
-              <div className="inline-flex items-center gap-3.5 px-5 py-3 rounded-2xl bg-[#004d6a] text-white shadow-xl border border-cyan-400/30">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-white/20 border-2 border-white shrink-0 shadow-md">
-                  <img
-                    src={missionDraft.ceoAvatar || '/assets/akleem_orakzai_avatar.png'}
-                    alt={missionDraft.ceoBadgeName || 'Executive'}
-                    className="w-full h-full object-cover"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Founder / Executive Name
+                  </label>
+                  <input
+                    type="text"
+                    value={missionDraft.ceoBadgeName}
+                    onChange={(e) => setMissionDraft({ ...missionDraft, ceoBadgeName: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
+
                 <div>
-                  <div className="text-sm font-serif font-bold text-white tracking-wide uppercase">
-                    {missionDraft.ceoBadgeName || 'Akleem Orakzai'}
-                  </div>
-                  <div className="text-xs text-cyan-200 font-serif font-medium mt-0.5">
-                    {missionDraft.ceoBadgeTitle || 'CEO'}
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Title / Role
+                  </label>
+                  <input
+                    type="text"
+                    value={missionDraft.ceoBadgeTitle}
+                    onChange={(e) => setMissionDraft({ ...missionDraft, ceoBadgeTitle: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <ImageFieldEditor
+                label="Executive Avatar Photo"
+                imageSrc={missionDraft.ceoAvatar}
+                onChange={(src) => setMissionDraft({ ...missionDraft, ceoAvatar: src })}
+                helperText="Circular profile photo displayed inside the floating CEO leadership badge."
+              />
+            </div>
+
+            {/* Live Interactive Composite Preview of all 3 Images */}
+            <div className="pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wide">
+                  Live Preview: All 3 Visual Elements in Context
+                </span>
+                <span className="text-[11px] text-slate-400">Real-time composite layout</span>
+              </div>
+
+              <div className="relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/90 overflow-hidden flex items-center justify-center">
+                <div className="relative w-full max-w-[460px]">
+                  {/* Image 1 Preview */}
+                  <img
+                    src={missionDraft.missionImage || '/assets/about_nexordive_graphic.png'}
+                    alt={missionDraft.missionImageAlt || 'About NexorDive'}
+                    className="w-full h-auto object-contain select-none rounded-xl"
+                  />
+
+                  {/* Image 2 Preview (if provided) */}
+                  {missionDraft.secondaryImage && (
+                    <div className="absolute bottom-[10%] left-[1.5%] w-[25%] max-w-[110px] aspect-square rounded-2xl bg-[#004d6a] p-1.5 shadow-2xl border border-cyan-400/30 overflow-hidden z-20 flex items-center justify-center">
+                      <img
+                        src={missionDraft.secondaryImage}
+                        alt={missionDraft.secondaryImageAlt || 'Feature'}
+                        className="w-full h-full object-contain rounded-xl"
+                      />
+                    </div>
+                  )}
+
+                  {/* Image 3 Preview: CEO Badge */}
+                  <div className="absolute bottom-[5%] right-[2%] inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#004d6a] text-white shadow-xl border border-cyan-400/30 max-w-[85%] z-20">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20 border-2 border-white shrink-0 shadow-md">
+                      <img
+                        src={missionDraft.ceoAvatar || '/assets/akleem_orakzai_avatar.png'}
+                        alt={missionDraft.ceoBadgeName || 'Executive'}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="text-left pr-1 min-w-0">
+                      <div className="text-xs font-serif font-bold text-white tracking-wide uppercase truncate">
+                        {missionDraft.ceoBadgeName || 'Akleem Orakzai'}
+                      </div>
+                      <div className="text-[10px] text-cyan-200 font-serif font-medium mt-0.5 leading-snug">
+                        {missionDraft.ceoBadgeTitle || 'CEO'}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

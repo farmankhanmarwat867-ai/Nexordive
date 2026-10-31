@@ -36,6 +36,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   const aboutGraphic = content?.mission?.missionImage || '/assets/about_nexordive_graphic.png';
   const aboutGraphicAlt =
     content?.mission?.missionImageAlt || 'About NexorDive - Digital Excellence & Passionate Engineering';
+  const secondaryImage = content?.mission?.secondaryImage;
+  const secondaryImageAlt = content?.mission?.secondaryImageAlt || 'Feature Graphic';
 
   const handleReadMore = () => {
     const action = readMoreAction || 'about';
@@ -109,6 +111,13 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                 alt={aboutGraphicAlt}
                 className="w-full h-auto object-contain select-none"
               />
+
+              {/* 2. Secondary Feature / Accent Graphic (Managed from Dashboard) */}
+              {secondaryImage && (
+                <div className="absolute bottom-[10%] left-[1.5%] w-[25%] max-w-[145px] aspect-square rounded-2xl bg-[#004d6a] p-1.5 sm:p-2 shadow-2xl border border-cyan-400/30 overflow-hidden z-20 hover:scale-105 transition-transform flex items-center justify-center">
+                  <img src={secondaryImage} alt={secondaryImageAlt} className="w-full h-full object-contain rounded-xl" />
+                </div>
+              )}
 
               {/* Dynamic CEO / Leadership Badge (Controlled from Admin Dashboard) */}
               <div className="absolute bottom-[5%] right-[2%] sm:bottom-[7%] sm:right-[3%] inline-flex items-center gap-3 sm:gap-4 px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-2xl bg-[#004d6a] text-white shadow-2xl shadow-[#004d6a]/40 border border-cyan-400/25 max-w-[92%] z-10">
