@@ -4,6 +4,7 @@ import React from 'react';
 import { Hero } from '../components/Hero';
 import { AboutSection } from '../components/AboutSection';
 import { Services } from '../components/Services';
+import { ProjectShowcase } from '../components/ProjectShowcase';
 import { Testimonials } from '../components/Testimonials';
 
 import { PartnersMarquee } from '../components/PartnersMarquee';
@@ -31,22 +32,26 @@ export const HomePage: React.FC<HomePageProps> = ({
     { id: 'hero', label: 'Hero Section', visible: true, order: 1 },
     { id: 'about', label: 'About NexorDive', visible: true, order: 2 },
     { id: 'services', label: 'Services Grid', visible: true, order: 3 },
-    { id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 4 },
-    { id: 'pricing', label: 'Pricing Packages', visible: true, order: 5 },
-    { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 6 },
-    { id: 'partners', label: 'Partners Marquee', visible: true, order: 7 },
-    { id: 'ctaBanner', label: 'Bottom CTA Banner', visible: true, order: 8 },
+    { id: 'portfolio', label: 'Projects & Case Studies', visible: true, order: 4 },
+    { id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 5 },
+    { id: 'pricing', label: 'Pricing Packages', visible: true, order: 6 },
+    { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 7 },
+    { id: 'partners', label: 'Partners Marquee', visible: true, order: 8 },
+    { id: 'ctaBanner', label: 'Bottom CTA Banner', visible: true, order: 9 },
   ];
 
   const rawSections = content?.sectionsManager?.landingPageSections || defaultSections;
 
-  // Ensure streamer-assets and pricing are present even if older localStorage data lacked them
+  // Ensure portfolio, streamer-assets, and pricing are present even if older localStorage data lacked them
   let workingSections = [...rawSections];
+  if (!workingSections.some((s) => s.id === 'portfolio' || s.id === 'work')) {
+    workingSections.push({ id: 'portfolio', label: 'Projects & Case Studies', visible: true, order: 4 });
+  }
   if (!workingSections.some((s) => s.id === 'streamer-assets' || s.id === 'streamer')) {
-    workingSections.push({ id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 4 });
+    workingSections.push({ id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 5 });
   }
   if (!workingSections.some((s) => s.id === 'pricing')) {
-    workingSections.push({ id: 'pricing', label: 'Pricing Packages', visible: true, order: 5 });
+    workingSections.push({ id: 'pricing', label: 'Pricing Packages', visible: true, order: 6 });
   }
 
   const sections = workingSections
@@ -84,6 +89,18 @@ export const HomePage: React.FC<HomePageProps> = ({
               <Services
                 key="services"
                 onSelectService={(_serviceTitle) => onNavigate('services')}
+              />
+            );
+          case 'portfolio':
+          case 'work':
+            return (
+              <ProjectShowcase
+                key="portfolio"
+                limit={4}
+                onViewAll={() => onNavigate('portfolio')}
+                onInquireProject={(projectName) =>
+                  onOpenContactWithSummary(`Case Study Reference: ${projectName}`)
+                }
               />
             );
           case 'streamer-assets':

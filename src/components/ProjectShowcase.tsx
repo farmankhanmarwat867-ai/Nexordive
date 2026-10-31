@@ -2,16 +2,18 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, Check, Sparkles, TrendingUp, X } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, Sparkles, TrendingUp, X } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { CASE_STUDIES } from '../data/agencyData';
 import { PortfolioProjectItem } from '../types/content';
 
 interface ProjectShowcaseProps {
   onInquireProject?: (projectName: string) => void;
+  onViewAll?: () => void;
+  limit?: number;
 }
 
-export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ onInquireProject }) => {
+export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ onInquireProject, onViewAll, limit }) => {
   const { content } = useAdmin();
   const portfolioData = content?.portfolio;
 
@@ -54,6 +56,8 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ onInquireProje
     return p.category.toLowerCase() === activeFilter.toLowerCase();
   });
 
+  const displayedProjects = limit && limit > 0 ? filteredProjects.slice(0, limit) : filteredProjects;
+
   return (
     <section id="work" className="py-24 md:py-32 relative bg-white">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
@@ -63,42 +67,55 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ onInquireProje
             <div className="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-3">
               {portfolioData?.sectionEyebrow || 'Selected Works & Proof'}
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 font-display tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight text-balance">
               {portfolioData?.sectionTitle || 'Transformative systems with measurable impact.'}
             </h2>
           </div>
 
-          {/* Interactive filter tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 border border-slate-200 rounded-xl overflow-x-auto max-w-full">
-            <button
-              onClick={() => setActiveFilter('all')}
-              className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
-                activeFilter === 'all'
-                  ? 'bg-indigo-600 text-white shadow-xs font-semibold'
-                  : 'text-slate-600 hover:text-slate-950'
-              }`}
-            >
-              All Projects ({visibleProjects.length})
-            </button>
-            {uniqueCategories.map((cat: string) => (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            {/* Interactive filter tabs */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 border border-slate-200 rounded-xl overflow-x-auto max-w-full">
               <button
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer capitalize ${
-                  activeFilter.toLowerCase() === cat.toLowerCase()
+                onClick={() => setActiveFilter('all')}
+                className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+                  activeFilter === 'all'
                     ? 'bg-indigo-600 text-white shadow-xs font-semibold'
                     : 'text-slate-600 hover:text-slate-950'
                 }`}
               >
-                {cat}
+                All Projects ({visibleProjects.length})
               </button>
-            ))}
+              {uniqueCategories.map((cat: string) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveFilter(cat)}
+                  className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer capitalize ${
+                    activeFilter.toLowerCase() === cat.toLowerCase()
+                      ? 'bg-indigo-600 text-white shadow-xs font-semibold'
+                      : 'text-slate-600 hover:text-slate-950'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {onViewAll && (
+              <button
+                type="button"
+                onClick={onViewAll}
+                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#004d6a] hover:text-[#006f94] transition-colors group cursor-pointer whitespace-nowrap"
+              >
+                <span>View Full Portfolio</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Case Studies Responsive Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredProjects.map((project: PortfolioProjectItem, index: number) => (
+          {displayedProjects.map((project: PortfolioProjectItem, index: number) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 35 }}
