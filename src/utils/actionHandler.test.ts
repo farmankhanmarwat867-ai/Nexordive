@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { executeAction } from './actionHandler';
+import { executeAction, COMMON_ACTION_OPTIONS } from './actionHandler';
+
+test('COMMON_ACTION_OPTIONS includes About Page action option', () => {
+  const aboutOption = COMMON_ACTION_OPTIONS.find((opt) => opt.value === 'about');
+  assert.ok(aboutOption, 'About option must exist in COMMON_ACTION_OPTIONS');
+  assert.equal(aboutOption?.label, 'About Page');
+});
 
 test('executeAction handles start-project by calling onStartProject', () => {
   let startProjectCalled = false;
@@ -23,7 +29,7 @@ test('executeAction falls back to onNavigate contact when onStartProject not pro
 });
 
 test('executeAction calls onNavigate for valid pages', () => {
-  const pages = ['home', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'];
+  const pages = ['home', 'about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'];
   for (const page of pages) {
     let navigatedTo = '';
     executeAction(page, {

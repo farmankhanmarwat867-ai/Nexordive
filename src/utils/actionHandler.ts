@@ -18,6 +18,7 @@ export interface ActionOption {
 export const COMMON_ACTION_OPTIONS: ActionOption[] = [
   { value: 'start-project', label: 'Start a Project (Scroll to Contact Form)' },
   { value: 'contact', label: 'Contact Page / Inquiry' },
+  { value: 'about', label: 'About Page' },
   { value: 'services', label: 'Services Page' },
   { value: 'streamer-assets', label: 'Streamer Assets Page' },
   { value: 'pricing', label: 'Pricing Page' },
@@ -108,7 +109,7 @@ export function executeAction(action: string | undefined | null, context?: Actio
   }
 
   // 7. Page destination navigation
-  const knownPages = ['home', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'];
+  const knownPages = ['home', 'about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'];
   if (knownPages.includes(target)) {
     if (context?.onNavigate) {
       context.onNavigate(target);

@@ -58,7 +58,11 @@ export const HomePage: React.FC<HomePageProps> = ({
             return (
               <AboutSection
                 key="about"
+                onNavigate={onNavigate}
                 onReadMore={() => onNavigate('about')}
+                onStartProject={onStartProject}
+                onOpenContact={onOpenContact}
+                onOpenContactWithSummary={onOpenContactWithSummary}
               />
             );
           case 'services':

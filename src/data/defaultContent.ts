@@ -147,7 +147,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   mission: {
     preheading: 'About NexorDive',
     readMoreLabel: 'Read More',
-    readMoreAction: 'services',
+    readMoreAction: 'about',
     ceoBadgeName: 'Akleem Orakzai',
     ceoBadgeTitle: 'CEO',
     ceoAvatar: '/assets/akleem_orakzai_avatar.png',

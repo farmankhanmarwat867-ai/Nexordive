@@ -798,7 +798,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
 
               <ActionSelector
                 label="Read More Button Action"
-                value={missionDraft.readMoreAction || 'services'}
+                value={missionDraft.readMoreAction || 'about'}
                 onChange={(action) => setMissionDraft({ ...missionDraft, readMoreAction: action })}
               />
             </div>

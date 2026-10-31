@@ -6,10 +6,20 @@ import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
 
 interface AboutSectionProps {
+  onNavigate?: (page: string) => void;
   onReadMore?: () => void;
+  onStartProject?: () => void;
+  onOpenContact?: () => void;
+  onOpenContactWithSummary?: (summary: string) => void;
 }
 
-export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
+export const AboutSection: React.FC<AboutSectionProps> = ({
+  onNavigate,
+  onReadMore,
+  onStartProject,
+  onOpenContact,
+  onOpenContactWithSummary,
+}) => {
   const { content, settings } = useAdmin();
   const leaderName = content?.mission?.ceoBadgeName || settings?.leaderName || 'Akleem Orakzai';
   const leaderRole = content?.mission?.ceoBadgeTitle || settings?.leaderRole || 'CEO';
@@ -21,20 +31,30 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onReadMore }) => {
     content?.mission?.description ||
     'NexorDive designs and builds great software, high-performance web platforms, and modern digital experiences. Each project is created with passion, innovation, and dedicated craftsmanship by our engineering team. We work efficiently to keep development costs lean while delivering enterprise-grade quality. We also specialize in SEO, digital marketing, mobile app development, AI systems, and creator digital assets, helping businesses succeed smoothly.';
   const readMoreLabel = content?.mission?.readMoreLabel || 'Read More';
-  const readMoreAction = content?.mission?.readMoreAction || 'services';
+  const readMoreAction = content?.mission?.readMoreAction || 'about';
 
   const aboutGraphic = content?.mission?.missionImage || '/assets/about_nexordive_graphic.png';
   const aboutGraphicAlt =
     content?.mission?.missionImageAlt || 'About NexorDive - Digital Excellence & Passionate Engineering';
 
   const handleReadMore = () => {
-    if (readMoreAction && readMoreAction !== 'services') {
-      executeAction(readMoreAction, { onNavigate: onReadMore });
-    } else if (onReadMore) {
-      onReadMore();
-    } else {
-      executeAction('services');
-    }
+    const action = readMoreAction || 'about';
+    const navigateFn =
+      onNavigate ||
+      ((page: string) => {
+        if (page === 'about' && onReadMore) {
+          onReadMore();
+        } else {
+          window.location.hash = page === 'home' ? '' : `#${page}`;
+        }
+      });
+
+    executeAction(action, {
+      onNavigate: navigateFn,
+      onStartProject,
+      onOpenContact,
+      onOpenContactWithSummary,
+    });
   };
 
   return (

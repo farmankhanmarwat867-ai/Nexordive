@@ -61,4 +61,19 @@ test('getStoredContent safely populates missing new fields on legacy stored data
   assert.equal(retrieved.ctaBanner.eyebrow, 'Ready to Scale Your Brand?');
   assert.equal(retrieved.pricing.reassuranceBanner?.ctaLabel, 'Need Custom Scope?');
   assert.equal(retrieved.mission.readMoreLabel, 'Read More');
+  assert.equal(retrieved.mission.readMoreAction, 'about');
+});
+
+test('getStoredContent preserves explicitly configured readMoreAction', () => {
+  localStorage.clear();
+  const customData = {
+    schemaVersion: 1,
+    mission: {
+      readMoreAction: 'services',
+    },
+  };
+  localStorage.setItem('nexordive_site_content_v1', JSON.stringify(customData));
+
+  const retrieved = getStoredContent();
+  assert.equal(retrieved.mission.readMoreAction, 'services');
 });
