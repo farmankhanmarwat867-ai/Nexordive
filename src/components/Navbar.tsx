@@ -21,38 +21,31 @@ export const Navbar: React.FC<NavbarProps> = ({
   onStartProject,
 }) => {
   const { content } = useAdmin();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Exact 6 navigation links matching user's reference image
+  const defaultNavLinks = [
+    { id: 'home', label: 'HOME' },
+    { id: 'about', label: 'ABOUT' },
+    { id: 'services', label: 'SERVICES' },
+    { id: 'blog', label: 'BLOG' },
+    { id: 'portfolio', label: 'PROJECTS' },
+    { id: 'contact', label: 'CONTACT' },
+  ];
 
-  // Connect to CMS navLinks with strict fallback: preserve empty arrays, deleted links, and custom order
+  // Dynamic CMS nav links if configured by admin, defaulting to the reference image structure
   const rawLinks = content?.global?.navLinks;
-  const navLinks = Array.isArray(rawLinks)
+  const navLinks = Array.isArray(rawLinks) && rawLinks.length > 0
     ? [...rawLinks]
         .filter((link) => link.visible !== false)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((link) => ({
           id: link.destination || link.id,
-          label: link.label,
+          label: link.label.toUpperCase(),
         }))
-    : [
-        { id: 'home', label: 'Home' },
-        { id: 'about', label: 'About' },
-        { id: 'services', label: 'Services' },
-        { id: 'streamer-assets', label: 'Streamer Assets' },
-        { id: 'pricing', label: 'Pricing' },
-        { id: 'portfolio', label: 'Portfolio' },
-        { id: 'contact', label: 'Contact' },
-      ];
+    : defaultNavLinks;
 
-  // Dynamic social links & logo: intentionally empty URLs are NOT replaced by generic fallback URLs
+  // Social links & logo settings
   const facebookItem = content?.global?.socialLinks?.find((s) => s.platform === 'facebook');
   const linkedinItem = content?.global?.socialLinks?.find((s) => s.platform === 'linkedin');
   const facebookUrl = facebookItem !== undefined ? (facebookItem.url || '') : 'https://facebook.com';
@@ -74,54 +67,34 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  const handleStartProjectClick = () => {
-    setMobileMenuOpen(false);
-    if (onStartProject) {
-      onStartProject();
-    } else if (onNavigate) {
-      onNavigate('contact');
-    }
-  };
-
-  const handleCallUs = () => {
-    handleStartProjectClick();
-  };
-
-  const isSolidNav = isScrolled || currentPage !== 'home';
-
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isSolidNav
-          ? 'py-3.5 bg-[#0d5363]/95 backdrop-blur-md shadow-lg shadow-black/20 border-b border-white/10'
-          : 'py-5 bg-transparent'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        <div className="flex items-center justify-between gap-6">
-          {/* Logo on Left - Geometric Stylized `<NEXOR | DIVE>` */}
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#004d6a] py-3.5 sm:py-4 shadow-md shadow-black/15 border-b border-white/5 transition-all">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10">
+        <div className="flex items-center justify-between gap-4">
+          
+          {/* 1. Left Logo - Stylized Geometric `<NEXOR | DIVE>` */}
           <a
             href="#home"
             onClick={(e) => {
               e.preventDefault();
               handleLinkClick('home');
             }}
-            className="flex items-center gap-2 group cursor-pointer"
+            className="flex items-center select-none group cursor-pointer shrink-0"
             aria-label="NexorDive Home"
           >
-            <div className="flex items-center tracking-widest text-white font-extrabold text-lg sm:text-2xl font-mono select-none">
-              <span className="text-cyan-300 font-bold">&lt;</span>
-              <span className="tracking-widest">{logoPrefix}</span>
-              <span className="mx-1 text-cyan-400 font-normal">|</span>
-              <span className="tracking-widest">{logoSuffix}</span>
-              <span className="text-cyan-300 font-bold">&gt;</span>
+            <div className="flex items-center text-white font-mono tracking-[0.18em] font-extrabold text-lg sm:text-2xl">
+              <span className="text-white font-light text-2xl mr-1 select-none">&lt;</span>
+              <span className="tracking-[0.18em] font-black">{logoPrefix}</span>
+              <span className="inline-block w-[1.5px] h-4.5 bg-white/70 mx-2" />
+              <span className="tracking-[0.18em] font-black">{logoSuffix}</span>
+              <span className="text-white font-light text-2xl ml-1 select-none">&gt;</span>
             </div>
           </a>
 
-          {/* Center Nav Links - Matching user's image */}
-          <nav className="hidden lg:flex items-center gap-6 text-[13px] tracking-wider font-semibold">
+          {/* 2. Center Nav Links - Exact Serif Uppercase Typography matching user reference */}
+          <nav className="hidden lg:flex items-center gap-7 lg:gap-9 xl:gap-12">
             {navLinks.map((link) => {
-              const isActive = currentPage === link.id;
+              const isActive = currentPage === link.id || (link.id === 'portfolio' && currentPage === 'portfolio');
 
               return (
                 <a
@@ -131,10 +104,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                     e.preventDefault();
                     handleLinkClick(link.id);
                   }}
-                  className={`transition-all py-1.5 px-3 text-[13px] tracking-wider cursor-pointer ${
+                  className={`font-serif uppercase text-[12.5px] xl:text-[13.5px] tracking-[0.16em] transition-colors cursor-pointer ${
                     isActive
-                      ? 'text-white font-bold border border-white/70 rounded shadow-xs'
-                      : 'text-white/80 hover:text-white'
+                      ? 'text-white font-semibold'
+                      : 'text-white/85 hover:text-white'
                   }`}
                 >
                   {link.label}
@@ -143,63 +116,53 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Right Action Icons (Facebook + LinkedIn buttons matching video) */}
-          <div className="flex items-center gap-3 shrink-0">
-            {/* Facebook Icon Button */}
+          {/* 3. Right Action Icons (Facebook + LinkedIn white rounded square buttons) */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Facebook White Button */}
             {showFacebook && (
               <a
                 href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#0d5363] font-bold text-sm shadow-md transition-all hover:scale-105"
+                className="w-[34px] h-[34px] rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#004d6a] transition-all hover:scale-105 shadow-sm cursor-pointer"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 fill-[#004d6a]" viewBox="0 0 24 24">
                   <path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.667 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z" />
                 </svg>
               </a>
             )}
 
-            {/* LinkedIn Icon Button */}
+            {/* LinkedIn White Button */}
             {showLinkedin && (
               <a
                 href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#0d5363] font-bold text-sm shadow-md transition-all hover:scale-105"
+                className="w-[34px] h-[34px] rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#004d6a] transition-all hover:scale-105 shadow-sm cursor-pointer"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 fill-[#004d6a]" viewBox="0 0 24 24">
                   <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
                 </svg>
               </a>
             )}
 
-            {/* Login Button */}
-            {onOpenAdmin && (
-              <button
-                onClick={onOpenAdmin}
-                className="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 transition-all cursor-pointer shadow-xs"
-                title="Login"
-              >
-                <span>Login</span>
-              </button>
-            )}
-
             {/* Mobile Hamburger Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors cursor-pointer"
+              className="lg:hidden p-1.5 rounded-lg text-white hover:bg-white/10 transition-colors cursor-pointer ml-1"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
+
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Drawer Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -207,11 +170,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="lg:hidden border-b border-white/10 bg-[#0d5363] px-6 py-6 shadow-2xl overflow-hidden"
+            className="lg:hidden border-b border-white/10 bg-[#004d6a] px-6 py-6 shadow-2xl overflow-hidden"
           >
             <div className="flex flex-col gap-3">
               {navLinks.map((link) => {
-                const isActive = currentPage === link.id;
+                const isActive = currentPage === link.id || (link.id === 'portfolio' && currentPage === 'portfolio');
                 return (
                   <a
                     key={link.id}
@@ -220,16 +183,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                       e.preventDefault();
                       handleLinkClick(link.id);
                     }}
-                    className={`text-base font-semibold py-2 border-b border-white/10 transition-colors ${
-                      isActive ? 'text-cyan-200' : 'text-white hover:text-cyan-200'
+                    className={`font-serif uppercase text-sm tracking-[0.18em] py-2.5 border-b border-white/10 transition-colors ${
+                      isActive ? 'text-cyan-200 font-bold' : 'text-white hover:text-cyan-200'
                     }`}
                   >
                     {link.label}
                   </a>
                 );
               })}
+
               {onOpenAdmin && (
-                <div className="pt-2">
+                <div className="pt-3">
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
@@ -237,7 +201,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }}
                     className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer"
                   >
-                    <span>Login</span>
+                    <span>Admin Dashboard</span>
                   </button>
                 </div>
               )}

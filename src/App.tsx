@@ -20,15 +20,16 @@ import { StreamerAssetsPage } from './pages/StreamerAssetsPage';
 import { PricingPage } from './pages/PricingPage';
 import { PortfolioPage } from './pages/PortfolioPage';
 import { ContactPage } from './pages/ContactPage';
+import { BlogPage } from './pages/BlogPage';
 import { ArrowUp } from 'lucide-react';
 
-export type AppPage = 'home' | 'about' | 'services' | 'streamer-assets' | 'pricing' | 'portfolio' | 'contact';
+export type AppPage = 'home' | 'about' | 'services' | 'blog' | 'streamer-assets' | 'pricing' | 'portfolio' | 'contact';
 
 function MainAppContent() {
   const [currentPage, setCurrentPage] = useState<AppPage>(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      if (['about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
+      if (['about', 'services', 'blog', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
         return hash as AppPage;
       }
     }
@@ -88,7 +89,7 @@ function MainAppContent() {
       }
       setIsAdminView(false);
 
-      if (['about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
+      if (['about', 'services', 'blog', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(hash)) {
         setCurrentPage(hash as AppPage);
       } else {
         setCurrentPage('home');
@@ -113,7 +114,7 @@ function MainAppContent() {
   const handleNavigate = (page: string) => {
     setIsAdminView(false);
     setShouldScrollToContactForm(false);
-    const validPage = (['home', 'about', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(page)
+    const validPage = (['home', 'about', 'services', 'blog', 'streamer-assets', 'pricing', 'portfolio', 'contact'].includes(page)
       ? page
       : 'home') as AppPage;
 
@@ -264,6 +265,10 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
+            )}
+
+            {currentPage === 'blog' && (
+              <BlogPage />
             )}
 
             {currentPage === 'streamer-assets' && (
