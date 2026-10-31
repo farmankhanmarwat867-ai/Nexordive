@@ -8,6 +8,7 @@ import { Testimonials } from '../components/Testimonials';
 
 import { PartnersMarquee } from '../components/PartnersMarquee';
 import { StreamerAssets } from '../components/StreamerAssets';
+import { Pricing } from '../components/Pricing';
 import { ArrowRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
@@ -31,24 +32,24 @@ export const HomePage: React.FC<HomePageProps> = ({
     { id: 'about', label: 'About NexorDive', visible: true, order: 2 },
     { id: 'services', label: 'Services Grid', visible: true, order: 3 },
     { id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 4 },
-    { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 5 },
-    { id: 'partners', label: 'Partners Marquee', visible: true, order: 6 },
-    { id: 'ctaBanner', label: 'Bottom CTA Banner', visible: true, order: 7 },
+    { id: 'pricing', label: 'Pricing Packages', visible: true, order: 5 },
+    { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 6 },
+    { id: 'partners', label: 'Partners Marquee', visible: true, order: 7 },
+    { id: 'ctaBanner', label: 'Bottom CTA Banner', visible: true, order: 8 },
   ];
 
   const rawSections = content?.sectionsManager?.landingPageSections || defaultSections;
 
-  // Ensure streamer-assets is present even if older localStorage data did not contain it
-  const hasStreamer = rawSections.some((s) => s.id === 'streamer-assets' || s.id === 'streamer');
-  const mergedSections = hasStreamer
-    ? rawSections
-    : [
-        ...rawSections.slice(0, 3),
-        { id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 3.5 },
-        ...rawSections.slice(3),
-      ];
+  // Ensure streamer-assets and pricing are present even if older localStorage data lacked them
+  let workingSections = [...rawSections];
+  if (!workingSections.some((s) => s.id === 'streamer-assets' || s.id === 'streamer')) {
+    workingSections.push({ id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 4 });
+  }
+  if (!workingSections.some((s) => s.id === 'pricing')) {
+    workingSections.push({ id: 'pricing', label: 'Pricing Packages', visible: true, order: 5 });
+  }
 
-  const sections = [...mergedSections]
+  const sections = workingSections
     .filter((s) => s.id !== 'blog' && s.visible !== false)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
@@ -94,6 +95,16 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onViewAll={() => onNavigate('streamer-assets')}
                 onInquirePackage={(packageName) =>
                   onOpenContactWithSummary(`Streamer Pack Inquiry: ${packageName}`)
+                }
+              />
+            );
+          case 'pricing':
+            return (
+              <Pricing
+                key="pricing"
+                onViewAll={() => onNavigate('pricing')}
+                onSelectPackage={(pkg, price) =>
+                  onOpenContactWithSummary(`Pricing Inquiry: ${pkg} (${price})`)
                 }
               />
             );

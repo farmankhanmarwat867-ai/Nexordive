@@ -2,16 +2,17 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, CheckCircle2, Sparkles, Shield } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle2, Sparkles, Shield } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { PricingPlanItem } from '../types/content';
 import { executeAction } from '../utils/actionHandler';
 
 interface PricingProps {
   onSelectPackage?: (packageName: string, priceRange: string) => void;
+  onViewAll?: () => void;
 }
 
-export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
+export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) => {
   const { content } = useAdmin();
   const pricingData = content?.pricing;
 
@@ -43,14 +44,28 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
               <span>{pricingData?.sectionEyebrow || 'Transparent Investment'}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 font-display tracking-tight text-balance">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight text-balance">
               {pricingData?.sectionTitle || 'Predictable packages, world-class execution.'}
             </h2>
           </div>
-          <p className="text-slate-600 text-sm sm:text-base max-w-md font-normal leading-relaxed">
-            {pricingData?.sectionDescription ||
-              'Zero surprise hourly overages. Every package includes direct engineer communication, weekly demos, full IP assignment, and post-launch bug warranty.'}
-          </p>
+          <div className="max-w-md">
+            <p className="text-slate-600 text-sm sm:text-base font-normal leading-relaxed">
+              {pricingData?.sectionDescription ||
+                'Zero surprise hourly overages. Every package includes direct engineer communication, weekly demos, full IP assignment, and post-launch bug warranty.'}
+            </p>
+            {onViewAll && (
+              <div className="mt-3 flex justify-start md:justify-end">
+                <button
+                  type="button"
+                  onClick={onViewAll}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#004d6a] hover:text-[#006f94] transition-colors group cursor-pointer"
+                >
+                  <span>View All Prices</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Pricing Cards Grid */}
@@ -143,6 +158,20 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
             </motion.div>
           ))}
         </div>
+
+        {/* View All CTA Button */}
+        {onViewAll && (
+          <div className="flex justify-center mt-12 mb-6">
+            <button
+              type="button"
+              onClick={onViewAll}
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-[#004d6a] hover:bg-[#003d54] text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-cyan-400/20 group"
+            >
+              <span>View All Pricing Plans</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        )}
 
         {/* Reassurance Banner */}
         {pricingData?.reassuranceBanner?.visible !== false && (
