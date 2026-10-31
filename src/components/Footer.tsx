@@ -107,6 +107,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
             </h3>
             <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-600">
               <button onClick={() => handleLink('home')} className="text-left hover:text-[#0d5363] py-1 transition-colors cursor-pointer">Home</button>
+              <button onClick={() => handleLink('about')} className="text-left hover:text-[#0d5363] py-1 transition-colors cursor-pointer">About</button>
               <button onClick={() => handleLink('services')} className="text-left hover:text-[#0d5363] py-1 transition-colors cursor-pointer">Services</button>
               <button onClick={() => handleLink('streamer-assets')} className="text-left hover:text-[#0d5363] py-1 transition-colors cursor-pointer">Streamer Assets</button>
               <button onClick={() => handleLink('pricing')} className="text-left hover:text-[#0d5363] py-1 transition-colors cursor-pointer">Pricing</button>

@@ -40,7 +40,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full flex-1">
       {sections.map((section) => {
         switch (section.id) {
           case 'hero':
@@ -48,9 +48,9 @@ export const HomePage: React.FC<HomePageProps> = ({
               <Hero
                 key="hero"
                 onOpenContact={onOpenContact}
-                onExploreWork={() => onNavigate('portfolio')}
-                onExploreStreamerAssets={() => onNavigate('streamer-assets')}
                 onStartProject={onStartProject}
+                onExploreStreamerAssets={() => onNavigate('streamer-assets')}
+                onExploreWork={() => onNavigate('portfolio')}
               />
             );
           case 'about':
@@ -58,14 +58,14 @@ export const HomePage: React.FC<HomePageProps> = ({
             return (
               <AboutSection
                 key="about"
-                onReadMore={() => onNavigate('services')}
+                onReadMore={() => onNavigate('about')}
               />
             );
           case 'services':
             return (
               <Services
                 key="services"
-                onSelectService={() => onNavigate('services')}
+                onSelectService={(_serviceTitle) => onNavigate('services')}
               />
             );
           case 'testimonials':
@@ -78,7 +78,9 @@ export const HomePage: React.FC<HomePageProps> = ({
             const banner = content?.ctaBanner;
             const eyebrow = banner?.eyebrow || 'Ready to Scale Your Brand?';
             const heading = banner?.heading || "Let's Engineer Your Next Big Digital Milestone.";
-            const description = banner?.description || 'From modern web applications and AI automation to high-voltage streamer graphics, NexorDive brings world-class craft to your vision.';
+            const description =
+              banner?.description ||
+              'From modern web applications and AI automation to high-voltage streamer graphics, NexorDive brings world-class craft to your vision.';
             const primaryLabel = banner?.primaryButtonLabel || 'Start a Project';
             const primaryAction = banner?.primaryButtonAction || 'start-project';
             const secondaryLabel = banner?.secondaryButtonLabel || 'Explore All Services';

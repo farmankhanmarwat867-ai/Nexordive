@@ -1,36 +1,18 @@
 'use client';
 
 import React from 'react';
-import { PageHeader } from '../components/PageHeader';
 import { StreamerAssets } from '../components/StreamerAssets';
-import { useAdmin } from '../context/AdminStore';
 
 interface StreamerAssetsPageProps {
-  onNavigateHome: () => void;
+  onNavigateHome?: () => void;
   onOpenContactWithSummary: (summary: string) => void;
 }
 
 export const StreamerAssetsPage: React.FC<StreamerAssetsPageProps> = ({
-  onNavigateHome,
   onOpenContactWithSummary,
 }) => {
-  const { content } = useAdmin();
-  const header = content?.pageHeaders?.streamerAssets;
-
   return (
-    <div className="flex-1">
-      {/* Page Header Banner */}
-      <PageHeader
-        badge={header?.badge || 'Creators & Esports Hub'}
-        title={header?.title || 'Broadcast-Ready Creator & Streamer Graphics'}
-        description={
-          header?.description ||
-          'Elevate your livestream into an unforgettable visual spectacle. We engineer custom animated overlays, 60fps WebM stingers, interactive alerts, and visual identities across Twitch, Kick, YouTube, and VTubing.'
-        }
-        currentPage="Streamer Assets"
-        onNavigateHome={onNavigateHome}
-      />
-
+    <div className="flex-1 bg-[#F8FAFC] pt-12 sm:pt-16">
       {/* Streamer Assets Showcase */}
       <StreamerAssets
         onInquirePackage={(packageName) =>

@@ -1,24 +1,18 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { PageHeader } from '../components/PageHeader';
 import { Contact } from '../components/Contact';
-import { useAdmin } from '../context/AdminStore';
 
 interface ContactPageProps {
-  onNavigateHome: () => void;
+  onNavigateHome?: () => void;
   onSuccessSubmit: (data: any) => void;
   scrollToForm?: boolean;
 }
 
 export const ContactPage: React.FC<ContactPageProps> = ({
-  onNavigateHome,
   onSuccessSubmit,
   scrollToForm = false,
 }) => {
-  const { content } = useAdmin();
-  const header = content?.pageHeaders?.contact;
-
   useEffect(() => {
     if (scrollToForm) {
       const scrollTimer = setTimeout(() => {
@@ -36,21 +30,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
   }, [scrollToForm]);
 
   return (
-    <div className="flex-1">
-      {/* Page Header Banner */}
-      <PageHeader
-        badge={header?.badge || 'Get In Touch'}
-        title={header?.title || "Let's Start Your Next Digital Project"}
-        description={
-          header?.description ||
-          'Connect directly with our engineering and design leads. We offer 24-hour proposal turnarounds, strict mutual NDAs, and clear milestone blueprints.'
-        }
-        currentPage="Contact"
-        onNavigateHome={onNavigateHome}
-      />
-
+    <div className="flex-1 bg-[#f8fafc]">
       {/* Main Contact Section with WhatsApp, Email & Form */}
-      <Contact onSuccessSubmit={onSuccessSubmit} />
+      <Contact onSuccessSubmit={onSuccessSubmit} className="pt-28 sm:pt-36 border-t-0" />
     </div>
   );
 };

@@ -34,7 +34,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage }) => {
   };
 
   return (
-    <section id="pricing" className="py-24 md:py-32 relative border-t border-slate-200/80 bg-white">
+    <section id="pricing" className="py-24 md:py-32 relative bg-white">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">

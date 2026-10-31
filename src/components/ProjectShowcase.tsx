@@ -55,7 +55,7 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ onInquireProje
   });
 
   return (
-    <section id="work" className="py-24 md:py-32 relative border-t border-slate-200/80 bg-white">
+    <section id="work" className="py-24 md:py-32 relative bg-white">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         {/* Section Header & Interactive Filter Bar */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
