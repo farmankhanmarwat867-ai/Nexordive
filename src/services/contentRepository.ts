@@ -73,7 +73,16 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
     portfolio: {
       ...defaults.portfolio,
       ...(saved.portfolio || {}),
-      projects: Array.isArray(saved.portfolio?.projects) ? saved.portfolio.projects : defaults.portfolio.projects,
+      projects: (() => {
+        if (!Array.isArray(saved.portfolio?.projects)) {
+          return defaults.portfolio.projects;
+        }
+        const savedProjects = saved.portfolio.projects;
+        const missing = defaults.portfolio.projects.filter(
+          (d) => !savedProjects.some((p) => p.id === d.id)
+        );
+        return [...missing, ...savedProjects];
+      })(),
     },
     pricing: {
       ...defaults.pricing,

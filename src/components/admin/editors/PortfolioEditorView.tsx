@@ -9,6 +9,9 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
+  Star,
+  Check,
+  Sparkles,
   ChevronDown,
   ChevronUp,
   X,
@@ -42,6 +45,7 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
   const [techStackStr, setTechStackStr] = useState('React, Next.js, Tailwind');
   const [challenge, setChallenge] = useState('');
   const [solution, setSolution] = useState('');
+  const [featured, setFeatured] = useState(false);
 
   useEffect(() => {
     setDraft(structuredClone(content.portfolio));
@@ -109,6 +113,7 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
     setTechStackStr('React, TypeScript, Tailwind');
     setChallenge('');
     setSolution('');
+    setFeatured(draft.projects.filter((p) => p.featured).length < 2);
     setShowMoreModalOptions(false);
     setIsModalOpen(true);
   };
@@ -127,6 +132,7 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
     setTechStackStr(project.techStack?.join(', ') || '');
     setChallenge(project.challenge || '');
     setSolution(project.solution || '');
+    setFeatured(!!project.featured);
     setShowMoreModalOptions(false);
     setIsModalOpen(true);
   };
@@ -156,6 +162,7 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
               techStack,
               challenge,
               solution,
+              featured,
             }
           : p
       );
@@ -177,7 +184,7 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
         solution,
         outcome: '',
         previewGradient: '',
-        featured: false,
+        featured,
         visible: true,
         order: draft.projects.length + 1,
       };
@@ -223,6 +230,59 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
           <Plus className="w-3.5 h-3.5" />
           <span>Add Project</span>
         </button>
+      </div>
+
+      {/* Home Section Copy Header */}
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+        <div>
+          <h2 className="text-base font-bold text-slate-900 font-display">
+            Home Section Copy (Featured Projects)
+          </h2>
+          <p className="text-xs text-slate-500">
+            Control the eyebrow pill, headline, and subtitle for the 2 featured project cards displayed on the Home Page.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Section Eyebrow Pill
+            </label>
+            <input
+              type="text"
+              value={draft.sectionEyebrow || 'My Work'}
+              onChange={(e) => setDraft({ ...draft, sectionEyebrow: e.target.value })}
+              placeholder="My Work"
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Main Heading
+            </label>
+            <input
+              type="text"
+              value={draft.sectionTitle || 'Featured Projects'}
+              onChange={(e) => setDraft({ ...draft, sectionTitle: e.target.value })}
+              placeholder="Featured Projects"
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">
+            Subtitle / Description
+          </label>
+          <input
+            type="text"
+            value={draft.sectionSubtitle ?? 'A glimpse of my recent work. Explore more projects in my portfolio.'}
+            onChange={(e) => setDraft({ ...draft, sectionSubtitle: e.target.value })}
+            placeholder="A glimpse of my recent work. Explore more projects in my portfolio."
+            className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+        </div>
       </div>
 
       {/* Projects List Card */}
@@ -280,6 +340,27 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const list = draft.projects.map((p) =>
+                      p.id === project.id ? { ...p, featured: !p.featured } : p
+                    );
+                    const updated = { ...draft, projects: list };
+                    setDraft(updated);
+                    updateContentSection('portfolio', updated);
+                  }}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                    project.featured
+                      ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                  title="Toggle Home Page Featured (Top 2 are shown on Home Page)"
+                >
+                  <Star className={`w-3.5 h-3.5 ${project.featured ? 'fill-blue-600 text-blue-600' : 'text-slate-400'}`} />
+                  <span className="hidden sm:inline">{project.featured ? 'Home Card' : 'Feature'}</span>
+                </button>
+
                 <button
                   type="button"
                   disabled={idx === 0}
@@ -413,17 +494,13 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Category Tag
                   </label>
-                  <select
+                  <input
+                    type="text"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
+                    placeholder="Healthcare, Education, SaaS..."
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200"
-                  >
-                    <option value="saas">SaaS</option>
-                    <option value="ai">AI Systems</option>
-                    <option value="fintech">FinTech</option>
-                    <option value="spatial">Spatial & 3D</option>
-                    <option value="web">Web Platform</option>
-                  </select>
+                  />
                 </div>
 
                 <div>

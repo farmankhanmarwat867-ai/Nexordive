@@ -4,7 +4,7 @@ import React from 'react';
 import { Hero } from '../components/Hero';
 import { AboutSection } from '../components/AboutSection';
 import { Services } from '../components/Services';
-import { ProjectShowcase } from '../components/ProjectShowcase';
+import { FeaturedProjects } from '../components/FeaturedProjects';
 import { Testimonials } from '../components/Testimonials';
 
 import { PartnersMarquee } from '../components/PartnersMarquee';
@@ -94,12 +94,11 @@ export const HomePage: React.FC<HomePageProps> = ({
           case 'portfolio':
           case 'work':
             return (
-              <ProjectShowcase
-                key="portfolio"
-                limit={4}
+              <FeaturedProjects
+                key="featured-projects"
                 onViewAll={() => onNavigate('portfolio')}
-                onInquireProject={(projectName) =>
-                  onOpenContactWithSummary(`Case Study Reference: ${projectName}`)
+                onSelectProject={(project) =>
+                  onOpenContactWithSummary(`Project Inquiry: ${project.title}`)
                 }
               />
             );

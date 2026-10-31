@@ -155,6 +155,7 @@ export interface PortfolioProjectItem {
 export interface PortfolioContent {
   sectionEyebrow: string;
   sectionTitle: string;
+  sectionSubtitle?: string;
   projects: PortfolioProjectItem[];
 }
 
