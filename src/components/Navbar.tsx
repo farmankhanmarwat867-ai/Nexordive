@@ -92,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
 
           {/* 2. Center Nav Links - Exact Serif Uppercase Typography matching user reference */}
-          <nav className="hidden lg:flex items-center gap-7 lg:gap-9 xl:gap-12">
+          <nav className="hidden lg:flex items-center gap-4 lg:gap-5 xl:gap-8 2xl:gap-10 shrink-0">
             {navLinks.map((link) => {
               const isActive = currentPage === link.id || (link.id === 'portfolio' && currentPage === 'portfolio');
 
@@ -104,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     e.preventDefault();
                     handleLinkClick(link.id);
                   }}
-                  className={`font-serif uppercase text-[12.5px] xl:text-[13.5px] tracking-[0.16em] transition-colors cursor-pointer ${
+                  className={`font-serif uppercase text-[12px] xl:text-[13.5px] tracking-[0.14em] xl:tracking-[0.16em] whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                     isActive
                       ? 'text-white font-semibold'
                       : 'text-white/85 hover:text-white'
@@ -183,7 +183,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       e.preventDefault();
                       handleLinkClick(link.id);
                     }}
-                    className={`font-serif uppercase text-sm tracking-[0.18em] py-2.5 border-b border-white/10 transition-colors ${
+                    className={`font-serif uppercase text-sm tracking-[0.18em] whitespace-nowrap py-2.5 border-b border-white/10 transition-colors ${
                       isActive ? 'text-cyan-200 font-bold' : 'text-white hover:text-cyan-200'
                     }`}
                   >

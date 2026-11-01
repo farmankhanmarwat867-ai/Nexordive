@@ -53,6 +53,10 @@ export interface HeroContent {
   description: string;
   image: string;
   imageAlt: string;
+  secondaryShapeImage?: string;
+  secondaryShapeAlt?: string;
+  outlineGraphic?: string;
+  outlineGraphicAlt?: string;
   primaryButtonLabel: string;
   primaryButtonAction: string; // 'contact' | 'services' | 'portfolio' | 'streamer-assets' | 'start-project' | custom
   secondaryButtonLabel: string;

@@ -70,7 +70,7 @@ export const Testimonials: React.FC = () => {
 
               {/* Bottom Protruding Avatar */}
               <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-100">
+                <div className="w-20 h-20 rounded-full overflow-hidden shadow-xl bg-slate-100">
                   <img
                     src={t.avatar || '/assets/khyber/avatar1.png'}
                     alt={t.author}

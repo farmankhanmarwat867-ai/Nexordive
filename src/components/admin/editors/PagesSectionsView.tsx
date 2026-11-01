@@ -724,18 +724,171 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
             </div>
           </div>
 
-          {/* Hero Graphic Image */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-            <h2 className="text-base font-bold text-slate-900 font-display">
-              Hero Visual Graphic
-            </h2>
-            <ImageFieldEditor
-              label="Main Hero Graphic"
-              imageSrc={heroDraft.image}
-              imageAlt={heroDraft.imageAlt}
-              onChange={(src, alt) => setHeroDraft({ ...heroDraft, image: src, imageAlt: alt || '' })}
-              helperText="The visual graphic shown on the right side of the hero section."
-            />
+          {/* Hero Section Visuals & Media (All 3 Images) */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 font-display flex items-center gap-2">
+                  <span>Hero Section Images & Visuals</span>
+                  <span className="px-2 py-0.5 text-[11px] font-semibold bg-cyan-50 text-cyan-700 rounded-full border border-cyan-200">
+                    3 Images Managed
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Manage each of the 3 visual image layers displayed on the right side of the Hero section: Main Tech Graphic, Left Backdrop Accent Blob, and Outer Orbital Loop.
+                </p>
+              </div>
+            </div>
+
+            {/* Live Interactive Composite Preview of all 3 Hero Layers */}
+            <div className="p-4 rounded-xl bg-slate-900/5 border border-slate-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+                  Live Hero 3-Layer Composite Preview
+                </span>
+                <span className="text-[11px] text-slate-400">Previews the live visual composition as rendered on Home page</span>
+              </div>
+
+              <div className="w-full max-w-[460px] mx-auto aspect-[932/766] rounded-2xl bg-[#004d6a] relative overflow-hidden flex items-center justify-center p-4 border border-cyan-500/20 shadow-xl shadow-[#004d6a]/20">
+                {/* Layer 2: Left Accent Shape */}
+                {heroDraft.secondaryShapeImage && (
+                  <img
+                    src={heroDraft.secondaryShapeImage}
+                    alt={heroDraft.secondaryShapeAlt || 'Accent blob preview'}
+                    className="absolute inset-0 w-full h-full object-contain pointer-events-none z-10"
+                  />
+                )}
+
+                {/* Layer 1: Main Tech Graphic */}
+                {heroDraft.image && (
+                  <img
+                    src={heroDraft.image}
+                    alt={heroDraft.imageAlt || 'Main graphic preview'}
+                    className="relative w-full h-full object-contain pointer-events-none z-20 drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]"
+                  />
+                )}
+
+                {/* Layer 3: Orbit Loop Line */}
+                {heroDraft.outlineGraphic && (
+                  <img
+                    src={heroDraft.outlineGraphic}
+                    alt={heroDraft.outlineGraphicAlt || 'Orbit loop preview'}
+                    className="absolute inset-0 w-full h-full object-contain pointer-events-none z-30"
+                  />
+                )}
+
+                <div className="absolute bottom-2 right-2 px-2.5 py-1 rounded-md bg-black/50 backdrop-blur-sm text-[10px] font-medium text-cyan-200 border border-white/10 z-40">
+                  {Boolean(heroDraft.secondaryShapeImage && heroDraft.outlineGraphic) ? '3 Layers Active' : 'Layers Customized'}
+                </div>
+              </div>
+            </div>
+
+            {/* Image 1: Main Section Graphic */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                  Main Graphic (Organic Tech / Hand Visual)
+                </span>
+                <span className="text-[11px] text-slate-400">Center organic visual</span>
+              </div>
+              <ImageFieldEditor
+                label="Main Illustration Image"
+                imageSrc={heroDraft.image}
+                imageAlt={heroDraft.imageAlt}
+                onChange={(src, alt) => setHeroDraft({ ...heroDraft, image: src, imageAlt: alt || '' })}
+                helperText="Primary cyber hand & futuristic holographic visual inside the organic container."
+              />
+              <div className="flex items-center gap-2 pt-1 text-xs flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setHeroDraft({ ...heroDraft, image: '/assets/khyber/hero_main_tech.png', imageAlt: 'NexorDive Futuristic Digital Technology Visual' })}
+                  className="px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Apply Main Tech Graphic
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHeroDraft({ ...heroDraft, image: '/assets/khyber/hero_graphic.png', imageAlt: 'NexorDive Complete Hero Graphic' })}
+                  className="px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Apply Full Composite Graphic
+                </button>
+              </div>
+            </div>
+
+            {/* Image 2: Secondary Accent Shape / Backdrop Blob */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                  Secondary Backdrop Shape (Left White Organic Blob)
+                </span>
+                <span className="text-[11px] text-slate-400">Left accent shape</span>
+              </div>
+              <ImageFieldEditor
+                label="Secondary Accent Shape Image"
+                imageSrc={heroDraft.secondaryShapeImage || ''}
+                imageAlt={heroDraft.secondaryShapeAlt || ''}
+                onChange={(src, alt) => setHeroDraft({ ...heroDraft, secondaryShapeImage: src, secondaryShapeAlt: alt || '' })}
+                helperText="The organic white shape that layers on the left behind the main visual."
+              />
+              <div className="flex items-center gap-2 pt-1 text-xs flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setHeroDraft({ ...heroDraft, secondaryShapeImage: '/assets/khyber/hero_accent_blob.png', secondaryShapeAlt: 'White Organic Accent Backdrop Shape' })}
+                  className="px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Apply Built-in Accent Blob
+                </button>
+                {heroDraft.secondaryShapeImage && (
+                  <button
+                    type="button"
+                    onClick={() => setHeroDraft({ ...heroDraft, secondaryShapeImage: '', secondaryShapeAlt: '' })}
+                    className="px-2.5 py-1 text-[11px] font-medium bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  >
+                    Clear Accent Shape
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Image 3: Orbital Loop Ring / Outline Graphic */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center">3</span>
+                  Orbital Outline Loop Ring (Outer Contour Graphic)
+                </span>
+                <span className="text-[11px] text-slate-400">White curved outline loop</span>
+              </div>
+              <ImageFieldEditor
+                label="Orbital Outline Loop Image"
+                imageSrc={heroDraft.outlineGraphic || ''}
+                imageAlt={heroDraft.outlineGraphicAlt || ''}
+                onChange={(src, alt) => setHeroDraft({ ...heroDraft, outlineGraphic: src, outlineGraphicAlt: alt || '' })}
+                helperText="The continuous curved white outline stroke that loops around the top and right of the graphic."
+              />
+              <div className="flex items-center gap-2 pt-1 text-xs flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setHeroDraft({ ...heroDraft, outlineGraphic: '/assets/khyber/hero_orbit_ring.png', outlineGraphicAlt: 'White Orbital Outline Contour Line' })}
+                  className="px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Apply Built-in Orbit Loop
+                </button>
+                {heroDraft.outlineGraphic && (
+                  <button
+                    type="button"
+                    onClick={() => setHeroDraft({ ...heroDraft, outlineGraphic: '', outlineGraphicAlt: '' })}
+                    className="px-2.5 py-1 text-[11px] font-medium bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  >
+                    Clear Outline Line
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Stat Cards Under Hero */}
@@ -984,7 +1137,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
 
                   {/* Image 2 Preview (if provided) */}
                   {missionDraft.secondaryImage && (
-                    <div className="absolute bottom-[10%] left-[1.5%] w-[25%] max-w-[110px] aspect-square rounded-2xl bg-[#004d6a] p-1.5 shadow-2xl border border-cyan-400/30 overflow-hidden z-20 flex items-center justify-center">
+                    <div className="absolute bottom-[10%] left-[1.5%] w-[25%] max-w-[110px] aspect-square rounded-2xl bg-[#004d6a] p-1.5 shadow-2xl overflow-hidden z-20 flex items-center justify-center">
                       <img
                         src={missionDraft.secondaryImage}
                         alt={missionDraft.secondaryImageAlt || 'Feature'}
@@ -995,7 +1148,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
 
                   {/* Image 3 Preview: CEO Badge */}
                   <div className="absolute bottom-[5%] right-[2%] inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#004d6a] text-white shadow-xl border border-cyan-400/30 max-w-[85%] z-20">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20 border-2 border-white shrink-0 shadow-md">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20 shrink-0 shadow-md">
                       <img
                         src={missionDraft.ceoAvatar || '/assets/akleem_orakzai_avatar.png'}
                         alt={missionDraft.ceoBadgeName || 'Executive'}
@@ -2178,7 +2331,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
                     <img
                       src={t.avatar || '/assets/khyber/avatar1.png'}
                       alt={t.author}
-                      className="w-10 h-10 rounded-full object-cover border border-slate-200 bg-white"
+                      className="w-10 h-10 rounded-full object-cover bg-white"
                     />
                     <div>
                       <span className="text-xs font-bold text-slate-900 block">{t.author}</span>
@@ -2355,7 +2508,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
                     <img
                       src={blog.image || '/assets/khyber/blog1.png'}
                       alt={blog.title}
-                      className="w-14 h-10 rounded-lg object-cover border border-slate-200 bg-slate-900"
+                      className="w-14 h-10 rounded-lg object-cover bg-slate-900"
                     />
                     <div>
                       <span className="text-xs font-bold text-slate-900 block">{blog.title}</span>

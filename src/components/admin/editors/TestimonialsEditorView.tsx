@@ -140,7 +140,7 @@ export const TestimonialsEditorView: React.FC = () => {
             >
               <div className="p-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200 dark:border-slate-700">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
                     <img src={t.avatar} alt={t.author} className="w-full h-full object-cover" />
                   </div>
                   <div className="min-w-0">

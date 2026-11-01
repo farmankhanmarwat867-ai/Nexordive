@@ -13,6 +13,7 @@ import {
   Search,
 } from 'lucide-react';
 import { GlobalContent, SeoSettings } from '../../../types/content';
+import { DEFAULT_SITE_CONTENT } from '../../../data/defaultContent';
 
 interface SettingsEditorViewProps {
   onDirtyChange?: (dirty: boolean, saveFn: () => Promise<boolean>, discardFn: () => void) => void;
@@ -353,14 +354,56 @@ export const SettingsEditorView: React.FC<SettingsEditorViewProps> = ({ onDirtyC
       {/* 2. NAVIGATION MENU */}
       {activeTab === 'navigation' && (
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <div>
-            <h2 className="text-base font-bold text-slate-900 font-display">
-              Header Navigation Links
-            </h2>
-            <p className="text-xs text-slate-500">
-              Reorder or hide links shown in the top navigation bar.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 font-display">
+                Header Navigation Links
+              </h2>
+              <p className="text-xs text-slate-500">
+                Reorder or hide links shown in the top navigation bar.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setGlobalDraft({
+                  ...globalDraft,
+                  navLinks: structuredClone(DEFAULT_SITE_CONTENT.global.navLinks),
+                });
+              }}
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer self-start sm:self-auto"
+            >
+              Reset to Defaults
+            </button>
           </div>
+
+          {(() => {
+            const missing = DEFAULT_SITE_CONTENT.global.navLinks.filter(
+              (def) => !globalDraft.navLinks.some((l) => l.destination === def.destination || l.id === def.id)
+            );
+            if (missing.length === 0) return null;
+            return (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between gap-3">
+                <span className="text-xs text-amber-800">
+                  Missing default links: <strong>{missing.map((m) => m.label).join(', ')}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextOrder = globalDraft.navLinks.length + 1;
+                    const toAdd = missing.map((m, i) => ({ ...m, order: nextOrder + i, visible: true }));
+                    setGlobalDraft({
+                      ...globalDraft,
+                      navLinks: [...globalDraft.navLinks, ...toAdd],
+                    });
+                  }}
+                  className="px-3 py-1 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors cursor-pointer shrink-0"
+                >
+                  + Add Missing Links
+                </button>
+              </div>
+            );
+          })()}
 
           <div className="space-y-2.5 pt-2">
             {globalDraft.navLinks.map((link, idx) => (

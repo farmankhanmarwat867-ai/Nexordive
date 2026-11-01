@@ -114,14 +114,14 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 
               {/* 2. Secondary Feature / Accent Graphic (Managed from Dashboard) */}
               {secondaryImage && (
-                <div className="absolute bottom-[10%] left-[1.5%] w-[25%] max-w-[145px] aspect-square rounded-2xl bg-[#004d6a] p-1.5 sm:p-2 shadow-2xl border border-cyan-400/30 overflow-hidden z-20 hover:scale-105 transition-transform flex items-center justify-center">
+                <div className="absolute bottom-[10%] left-[1.5%] w-[25%] max-w-[145px] aspect-square rounded-2xl bg-[#004d6a] p-1.5 sm:p-2 shadow-2xl overflow-hidden z-20 hover:scale-105 transition-transform flex items-center justify-center">
                   <img src={secondaryImage} alt={secondaryImageAlt} className="w-full h-full object-contain rounded-xl" />
                 </div>
               )}
 
               {/* Dynamic CEO / Leadership Badge (Controlled from Admin Dashboard) */}
               <div className="absolute bottom-[5%] right-[2%] sm:bottom-[7%] sm:right-[3%] inline-flex items-center gap-3 sm:gap-4 px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-2xl bg-[#004d6a] text-white shadow-2xl shadow-[#004d6a]/40 border border-cyan-400/25 max-w-[92%] z-10">
-                <div className="w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-full overflow-hidden bg-white/20 border-2 border-white shrink-0 shadow-md">
+                <div className="w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-full overflow-hidden bg-white/20 shrink-0 shadow-md">
                   <img
                     src={leaderImage}
                     alt={leaderName}

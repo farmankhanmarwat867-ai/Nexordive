@@ -27,8 +27,12 @@ export const Hero: React.FC<HeroProps> = ({
     headingLine4: 'Businesses',
     description:
       'NexorDive builds websites, software systems, digital marketing assets, AI automation and premium streamer graphics for brands and creators who want to grow online.',
-    image: '/assets/hero_business_tech.jpg',
+    image: '/assets/khyber/hero_main_tech.png',
     imageAlt: 'NexorDive Digital & AI Solutions',
+    secondaryShapeImage: '/assets/khyber/hero_accent_blob.png',
+    secondaryShapeAlt: 'White Organic Accent Backdrop Shape',
+    outlineGraphic: '/assets/khyber/hero_orbit_ring.png',
+    outlineGraphicAlt: 'White Orbital Outline Contour Line',
     primaryButtonLabel: 'Start a Project',
     primaryButtonAction: 'contact',
     secondaryButtonLabel: 'Explore Streamer Assets',
@@ -69,7 +73,7 @@ export const Hero: React.FC<HeroProps> = ({
   return (
     <section
       id="home"
-      className="relative min-h-[92vh] lg:min-h-screen bg-[#0d5363] pt-28 pb-16 lg:pt-36 lg:pb-24 flex items-center overflow-hidden"
+      className="relative min-h-[92vh] lg:min-h-screen bg-[#004d6a] pt-28 pb-16 lg:pt-36 lg:pb-24 flex items-center overflow-hidden"
     >
       {/* Background ambient lighting */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
@@ -176,33 +180,65 @@ export const Hero: React.FC<HeroProps> = ({
             )}
           </motion.div>
 
-          {/* Right Column - Future Tech Holographic Visual */}
+          {/* Right Column - Future Tech Holographic Visual (3 Managed Visual Elements) */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.9, delay: 0.15, ease: 'easeOut' }}
             className="lg:col-span-6 relative flex justify-center lg:justify-end items-center"
           >
-            <div className="relative w-full max-w-[540px] animate-float-slow">
-              {/* Ambient backlight glow */}
-              <div className="absolute -inset-2 bg-gradient-to-tr from-cyan-400/25 via-sky-500/20 to-indigo-500/25 rounded-3xl blur-2xl opacity-70 pointer-events-none" />
+            <div className="relative w-full max-w-[560px] lg:max-w-[620px] aspect-[932/766] flex items-center justify-center select-none animate-float-slow">
+              
+              {/* Image 2: Secondary Organic Accent Shape / Backdrop Blob (Layer 2 - Left Behind) */}
+              {hero.secondaryShapeImage && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 1, delay: 0.25, ease: 'easeOut' }}
+                  className="absolute inset-0 z-10 pointer-events-none"
+                >
+                  <img
+                    src={hero.secondaryShapeImage}
+                    alt={hero.secondaryShapeAlt || 'White Organic Accent Shape'}
+                    className="w-full h-full object-contain pointer-events-none"
+                  />
+                </motion.div>
+              )}
 
-              {/* Styled image container */}
-              <div className="relative rounded-3xl overflow-hidden border border-cyan-400/30 shadow-2xl shadow-[#04161b]/80 bg-[#071d24]">
+              {/* Image 1: Main Future Tech Graphic / Organic Visual (Layer 1 - Center) */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.2, ease: 'easeOut' }}
+                className="relative z-20 w-full h-full flex items-center justify-center pointer-events-none"
+              >
                 <img
-                  src={hero.image || '/assets/hero_business_tech.jpg'}
-                  alt={hero.imageAlt || 'NexorDive Digital & AI Solutions'}
-                  className="w-full h-auto object-cover select-none"
+                  src={hero.image || '/assets/khyber/hero_main_tech.png'}
+                  alt={hero.imageAlt || 'NexorDive Futuristic Digital Technology Visual'}
+                  className="w-full h-full object-contain pointer-events-none drop-shadow-[0_20px_45px_rgba(0,0,0,0.35)]"
                 />
-                {/* Subtle sheen overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0d5363]/30 via-transparent to-transparent pointer-events-none" />
-              </div>
+              </motion.div>
 
-              {/* Glowing cyan pulse behind */}
-              <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+              {/* Image 3: Orbital Loop Ring / Outline Graphic (Layer 3 - Surrounding Top & Right) */}
+              {hero.outlineGraphic && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1.1, delay: 0.35, ease: 'easeOut' }}
+                  className="absolute inset-0 z-30 pointer-events-none"
+                >
+                  <img
+                    src={hero.outlineGraphic}
+                    alt={hero.outlineGraphicAlt || 'White Orbital Outline Loop'}
+                    className="w-full h-full object-contain pointer-events-none"
+                  />
+                </motion.div>
+              )}
+
+              {/* Ambient Glow Effects */}
+              <div className="absolute inset-10 bg-cyan-400/15 rounded-full blur-3xl pointer-events-none -z-10" />
             </div>
           </motion.div>
-
         </div>
       </div>
     </section>

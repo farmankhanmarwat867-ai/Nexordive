@@ -109,7 +109,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
                 transition={{ duration: 0.9, delay: 0.15, ease: 'easeOut' }}
                 className="lg:col-span-6 relative flex justify-center lg:justify-end items-center"
               >
-                <div className="relative w-full max-w-[540px] rounded-3xl bg-white p-6 sm:p-8 shadow-2xl shadow-slate-300/60 border border-slate-100 animate-float-slow">
+                <div className="relative w-full max-w-[540px] rounded-3xl bg-white p-6 sm:p-8 shadow-2xl shadow-slate-300/60 animate-float-slow">
                   <img
                     src={intro.techTreeImage || '/assets/about/tech_tree_card.png'}
                     alt={intro.techTreeImageAlt || 'NexorDive Full-Spectrum Technology Tree'}

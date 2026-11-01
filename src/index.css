@@ -28,6 +28,15 @@
     overflow-x: hidden;
   }
 
+  /* Ensure no image displays a border or outline across browsers */
+  img,
+  picture img,
+  figure img {
+    border: 0 !important;
+    border-style: none !important;
+    outline: none !important;
+  }
+
   h1, h2, h3, h4, .font-serif-title {
     font-family: var(--font-serif);
   }

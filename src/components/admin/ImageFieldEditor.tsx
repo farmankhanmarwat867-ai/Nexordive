@@ -89,7 +89,7 @@ export const ImageFieldEditor: React.FC<ImageFieldEditorProps> = ({
       {/* Main Image Preview & Action Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 rounded-xl bg-white border border-slate-200">
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+          <div className="w-16 h-16 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center shrink-0">
             {imageSrc ? (
               <img
                 src={imageSrc}
@@ -179,7 +179,7 @@ export const ImageFieldEditor: React.FC<ImageFieldEditorProps> = ({
                       : 'border-slate-200 hover:border-slate-300 bg-slate-50'
                   }`}
                 >
-                  <div className="w-full h-16 rounded-lg bg-white overflow-hidden flex items-center justify-center border border-slate-100">
+                  <div className="w-full h-16 rounded-lg bg-white overflow-hidden flex items-center justify-center">
                     <img
                       src={asset.path}
                       alt={asset.label}

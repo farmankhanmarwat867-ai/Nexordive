@@ -324,7 +324,7 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
               className="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100/60 transition-colors"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-14 h-12 rounded-lg bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                <div className="w-14 h-12 rounded-lg bg-white overflow-hidden shrink-0 flex items-center justify-center">
                   {project.image ? (
                     <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
                   ) : (

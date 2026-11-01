@@ -253,7 +253,7 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ onInquireProje
 
             {/* Image Preview inside modal if available */}
             {selectedCaseStudy.image && (
-              <div className="w-full h-56 rounded-2xl overflow-hidden mb-6 border border-slate-200">
+              <div className="w-full h-56 rounded-2xl overflow-hidden mb-6">
                 <img
                   src={selectedCaseStudy.image}
                   alt={selectedCaseStudy.title}

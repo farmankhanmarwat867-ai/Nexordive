@@ -141,7 +141,7 @@ export const BlogEditorView: React.FC = () => {
             >
               <div className="p-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-14 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200 dark:border-slate-700">
+                  <div className="w-14 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
                     <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
                   </div>
                   <div className="min-w-0">

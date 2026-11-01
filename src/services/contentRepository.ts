@@ -11,7 +11,10 @@ const STORAGE_KEY = 'nexordive_site_content_v1';
 const BACKUP_STORAGE_KEY = 'nexordive_site_content_backup';
 
 export const PRESET_PROJECT_ASSETS = [
-  { label: 'Hero Cybernetic AI Graphic', path: '/assets/khyber/hero_graphic.png', category: 'Hero' },
+  { label: 'Hero Main Tech Graphic', path: '/assets/khyber/hero_main_tech.png', category: 'Hero' },
+  { label: 'Hero Accent Backdrop Blob', path: '/assets/khyber/hero_accent_blob.png', category: 'Hero' },
+  { label: 'Hero Orbital Outline Loop', path: '/assets/khyber/hero_orbit_ring.png', category: 'Hero' },
+  { label: 'Hero Full Composite Graphic', path: '/assets/khyber/hero_graphic.png', category: 'Hero' },
   { label: 'Mission Collaboration Visual', path: '/assets/khyber/mission_graphic.png', category: 'About' },
   { label: 'Partners Official Banner', path: '/assets/khyber/partners_banner.png', category: 'Partners' },
   { label: 'Farman Khalil (Avatar 2)', path: '/assets/khyber/avatar2.png', category: 'Avatars' },
@@ -53,7 +56,22 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
       ...(saved.global || {}),
       navLinks: mergedNavLinks,
     },
-    hero: { ...defaults.hero, ...(saved.hero || {}) },
+    hero: {
+      ...defaults.hero,
+      ...(saved.hero || {}),
+      image:
+        !saved.hero?.image || saved.hero?.image === '/assets/hero_business_tech.jpg'
+          ? defaults.hero.image
+          : saved.hero.image,
+      secondaryShapeImage:
+        saved.hero?.secondaryShapeImage !== undefined
+          ? saved.hero.secondaryShapeImage
+          : defaults.hero.secondaryShapeImage,
+      outlineGraphic:
+        saved.hero?.outlineGraphic !== undefined
+          ? saved.hero.outlineGraphic
+          : defaults.hero.outlineGraphic,
+    },
     services: {
       ...defaults.services,
       ...(saved.services || {}),

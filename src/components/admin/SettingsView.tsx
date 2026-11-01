@@ -190,7 +190,7 @@ export const SettingsView: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
               {/* Avatar Preview */}
               <div className="relative group shrink-0">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-300 shadow-md">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-100 shadow-md">
                   <img
                     src={leaderImage}
                     alt={leaderName}
@@ -234,7 +234,7 @@ export const SettingsView: React.FC = () => {
                 Live Badge Preview (As shown in About Section)
               </span>
               <div className="inline-flex items-center gap-4 px-6 py-3.5 rounded-2xl bg-[#004d6a] text-white shadow-xl shadow-[#004d6a]/20 border border-cyan-400/25">
-                <div className="w-13 h-13 rounded-full overflow-hidden bg-white/20 border-2 border-white shrink-0 shadow-sm">
+                <div className="w-13 h-13 rounded-full overflow-hidden bg-white/20 shrink-0 shadow-sm">
                   <img
                     src={leaderImage}
                     alt={leaderName}
