@@ -46,6 +46,8 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
   const [challenge, setChallenge] = useState('');
   const [solution, setSolution] = useState('');
   const [featured, setFeatured] = useState(false);
+  const [countryBadge, setCountryBadge] = useState('PK');
+  const [liveUrl, setLiveUrl] = useState('');
 
   useEffect(() => {
     setDraft(structuredClone(content.portfolio));
@@ -113,7 +115,9 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
     setTechStackStr('React, TypeScript, Tailwind');
     setChallenge('');
     setSolution('');
-    setFeatured(draft.projects.filter((p) => p.featured).length < 2);
+    setFeatured(draft.projects.filter((p) => p.featured).length < 3);
+    setCountryBadge('PK');
+    setLiveUrl('');
     setShowMoreModalOptions(false);
     setIsModalOpen(true);
   };
@@ -133,6 +137,8 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
     setChallenge(project.challenge || '');
     setSolution(project.solution || '');
     setFeatured(!!project.featured);
+    setCountryBadge(project.countryBadge || '');
+    setLiveUrl(project.liveUrl || '');
     setShowMoreModalOptions(false);
     setIsModalOpen(true);
   };
@@ -163,6 +169,8 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
               challenge,
               solution,
               featured,
+              countryBadge,
+              liveUrl,
             }
           : p
       );
@@ -186,6 +194,8 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
         previewGradient: '',
         featured,
         visible: true,
+        countryBadge,
+        liveUrl,
         order: draft.projects.length + 1,
       };
       updatedProjects = [...draft.projects, newProject];
@@ -355,7 +365,7 @@ export const PortfolioEditorView: React.FC<PortfolioEditorViewProps> = ({ onDirt
                       ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                   }`}
-                  title="Toggle Home Page Featured (Top 2 are shown on Home Page)"
+                  title="Toggle Home Page Featured (Top 3 are shown on Home Page)"
                 >
                   <Star className={`w-3.5 h-3.5 ${project.featured ? 'fill-blue-600 text-blue-600' : 'text-slate-400'}`} />
                   <span className="hidden sm:inline">{project.featured ? 'Home Card' : 'Feature'}</span>

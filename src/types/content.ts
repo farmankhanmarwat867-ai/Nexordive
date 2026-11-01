@@ -150,6 +150,8 @@ export interface PortfolioProjectItem {
   featured: boolean;
   visible: boolean;
   order: number;
+  countryBadge?: string;
+  liveUrl?: string;
 }
 
 export interface PortfolioContent {
