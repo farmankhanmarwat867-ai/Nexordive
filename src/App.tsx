@@ -76,7 +76,7 @@ function parsePageFromLocation(): AppPage {
     return null;
   };
 
-  return resolveSlug(path) || resolveSlug(hash) || 'home';
+  return resolveSlug(hash) || resolveSlug(path) || 'home';
 }
 
 function MainAppContent() {
@@ -286,7 +286,13 @@ function MainAppContent() {
     ) as AppPage;
 
     setCurrentPage(validPage);
-    window.location.hash = validPage === 'home' ? '' : `#${validPage}`;
+    const targetPath = validPage === 'home' ? '/' : `/${validPage}`;
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ page: validPage }, '', targetPath);
+      if (window.location.hash) {
+        window.history.replaceState({ page: validPage }, '', targetPath);
+      }
+    }
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 

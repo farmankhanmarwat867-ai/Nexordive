@@ -39,7 +39,15 @@ export const AboutPage: React.FC<AboutPageProps> = ({
     .filter((p) => p.visible !== false)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-  const visibility = aboutPage?.sectionsVisibility || DEFAULT_ABOUT_PAGE_CONTENT.sectionsVisibility;
+  const visibility = {
+    intro: aboutPage?.sectionsVisibility?.intro ?? DEFAULT_ABOUT_PAGE_CONTENT.sectionsVisibility.intro,
+    consultation: aboutPage?.sectionsVisibility?.consultation ?? DEFAULT_ABOUT_PAGE_CONTENT.sectionsVisibility.consultation,
+    team: aboutPage?.sectionsVisibility?.team ?? DEFAULT_ABOUT_PAGE_CONTENT.sectionsVisibility.team,
+    pillars: aboutPage?.sectionsVisibility?.pillars ?? DEFAULT_ABOUT_PAGE_CONTENT.sectionsVisibility.pillars,
+  };
+
+  const isAllDisabled = !visibility.intro && !visibility.consultation && !visibility.team && !visibility.pillars;
+  const showIntro = visibility.intro !== false || isAllDisabled;
 
   const actionContext = {
     onNavigate,
@@ -59,7 +67,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
   return (
     <div className="flex-1 bg-white">
       {/* Section 1: Choose NexorDive (Intro Section) */}
-      {visibility.intro !== false && (
+      {showIntro && (
         <section id="choose-nexordive" className="pt-28 pb-20 lg:pt-36 lg:pb-28 bg-white relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
