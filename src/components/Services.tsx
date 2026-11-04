@@ -11,6 +11,18 @@ interface ServicesProps {
   searchFilter?: string;
 }
 
+const getServiceUrl = (title: string): { href: string; anchorText: string } => {
+  const t = title.toLowerCase();
+  if (t.includes('web')) return { href: '/services/web-development', anchorText: 'Explore Web Development Services' };
+  if (t.includes('graphic') || t.includes('brand') || t.includes('design')) return { href: '/services/graphic-design', anchorText: 'Explore Graphic Design & Branding' };
+  if (t.includes('marketing') || t.includes('seo')) return { href: '/services/digital-marketing', anchorText: 'Explore Digital Marketing Services' };
+  if (t.includes('ai') || t.includes('automation')) return { href: '/services/ai-automation', anchorText: 'Explore AI Automation Solutions' };
+  if (t.includes('mobile') || t.includes('app')) return { href: '/services/mobile-app-development', anchorText: 'Explore Mobile App Development' };
+  if (t.includes('saas') || t.includes('software')) return { href: '/services/saas-development', anchorText: 'Explore SaaS Development & MVPs' };
+  if (t.includes('shopify') || t.includes('store') || t.includes('commerce')) return { href: '/services/shopify-development', anchorText: 'Explore Shopify Store Development' };
+  return { href: '/services', anchorText: `Explore ${title}` };
+};
+
 export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilter = '' }) => {
   const { content } = useAdmin();
   const servicesData = content?.services;
@@ -59,6 +71,7 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
             <div className="space-y-6">
               {col1.map((card, idx) => {
                 const isHighlight = !!card.isTealHighlight;
+                const serviceLink = getServiceUrl(card.title);
                 return (
                   <motion.div
                     key={card.id}
@@ -118,12 +131,20 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
                       </ul>
                     )}
 
-                    <div className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
-                      <span className={isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'}>{card.linkText || 'Inquire Capability'}</span>
-                      <ChevronRight className={`w-3.5 h-3.5 group-hover:translate-x-1 transition-transform ${
+                    <a
+                      href={serviceLink.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAction(card.title);
+                      }}
+                      className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group/link"
+                      aria-label={serviceLink.anchorText}
+                    >
+                      <span className={isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'}>{serviceLink.anchorText}</span>
+                      <ChevronRight className={`w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform ${
                         isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'
                       }`} />
-                    </div>
+                    </a>
                   </motion.div>
                 );
               })}
@@ -133,6 +154,7 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
             <div className="space-y-6 sm:mt-12">
               {col2.map((card, idx) => {
                 const isHighlight = !!card.isTealHighlight;
+                const serviceLink = getServiceUrl(card.title);
                 return (
                   <motion.div
                     key={card.id}
@@ -192,12 +214,20 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
                       </ul>
                     )}
 
-                    <div className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
-                      <span className={isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'}>{card.linkText || 'Inquire Capability'}</span>
-                      <ChevronRight className={`w-3.5 h-3.5 group-hover:translate-x-1 transition-transform ${
+                    <a
+                      href={serviceLink.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAction(card.title);
+                      }}
+                      className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group/link"
+                      aria-label={serviceLink.anchorText}
+                    >
+                      <span className={isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'}>{serviceLink.anchorText}</span>
+                      <ChevronRight className={`w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform ${
                         isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'
                       }`} />
-                    </div>
+                    </a>
                   </motion.div>
                 );
               })}
@@ -232,13 +262,18 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
 
             {/* Read More Pill Button */}
             <div className="pt-4">
-              <button
-                onClick={() => handleAction('All Services Overview')}
+              <a
+                href="/services"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleAction('All Services Overview');
+                }}
                 className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/25 hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
+                aria-label="Explore all digital services"
               >
                 <span>{servicesData?.ctaText || 'Explore Our Services'}</span>
                 <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </a>
             </div>
           </motion.div>
 

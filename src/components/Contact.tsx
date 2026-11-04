@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { normalizeWhatsAppNumber, validateEmail } from '../utils/inquiryReplies';
+import { trackLeadSubmission, trackContactClick } from '../utils/analytics';
 
 export interface ContactFormData {
   name: string;
@@ -228,6 +229,11 @@ export const Contact: React.FC<ContactProps> = ({
         }
         setSubmittedId(result?.id || `NXD-${Math.floor(100000 + Math.random() * 900000)}`);
         setIsSubmitted(true);
+        trackLeadSubmission({
+          service: formData.service,
+          budget: formData.budget,
+          preferredTimeline: formData.preferredTimeline,
+        });
       }
     } catch (err: any) {
       console.error('Submission error:', err);
@@ -294,7 +300,13 @@ export const Contact: React.FC<ContactProps> = ({
               {/* WhatsApp */}
               <a
                 href={whatsappUrl || '#'}
-                onClick={!whatsappUrl ? (e) => e.preventDefault() : undefined}
+                onClick={(e) => {
+                  if (!whatsappUrl) {
+                    e.preventDefault();
+                  } else {
+                    trackContactClick('whatsapp', displayPhone);
+                  }
+                }}
                 aria-disabled={!whatsappUrl}
                 target={whatsappUrl ? '_blank' : undefined}
                 rel={whatsappUrl ? 'noopener noreferrer' : undefined}
@@ -318,7 +330,13 @@ export const Contact: React.FC<ContactProps> = ({
               {/* Email */}
               <a
                 href={emailUrl || '#'}
-                onClick={!emailUrl ? (e) => e.preventDefault() : undefined}
+                onClick={(e) => {
+                  if (!emailUrl) {
+                    e.preventDefault();
+                  } else {
+                    trackContactClick('email', displayEmail);
+                  }
+                }}
                 aria-disabled={!emailUrl}
                 className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl bg-cyan-50/60 hover:bg-cyan-100/70 border border-cyan-200/80 hover:border-cyan-300 transition-all group ${!emailUrl ? 'opacity-60 cursor-not-allowed' : ''}`}
               >

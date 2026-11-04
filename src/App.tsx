@@ -55,95 +55,28 @@ function parsePageFromLocation(): AppPage {
   const hash = window.location.hash.replace('#', '').toLowerCase().replace(/^\/+|\/+$/g, '');
   const path = window.location.pathname.toLowerCase().replace(/^\/+|\/+$/g, '');
 
-  if (
-    hash === 'web-development' ||
-    hash === 'services/web-development' ||
-    path === 'services/web-development' ||
-    path === 'web-development'
-  ) {
-    return 'web-development';
-  }
-  if (
-    hash === 'graphic-design' ||
-    hash === 'services/graphic-design' ||
-    path === 'services/graphic-design' ||
-    path === 'graphic-design'
-  ) {
-    return 'graphic-design';
-  }
-  if (
-    hash === 'digital-marketing' ||
-    hash === 'services/digital-marketing' ||
-    path === 'services/digital-marketing' ||
-    path === 'digital-marketing'
-  ) {
-    return 'digital-marketing';
-  }
-  if (
-    hash === 'ai-automation' ||
-    hash === 'services/ai-automation' ||
-    path === 'services/ai-automation' ||
-    path === 'ai-automation'
-  ) {
-    return 'ai-automation';
-  }
-  if (
-    hash === 'mobile-app-development' ||
-    hash === 'services/mobile-app-development' ||
-    path === 'services/mobile-app-development' ||
-    path === 'mobile-app-development'
-  ) {
-    return 'mobile-app-development';
-  }
-  if (
-    hash === 'saas' ||
-    hash === 'saas-development' ||
-    hash === 'services/saas' ||
-    hash === 'services/saas-development' ||
-    path === 'services/saas-development' ||
-    path === 'services/saas' ||
-    path === 'saas-development' ||
-    path === 'saas'
-  ) {
-    return 'saas-development';
-  }
-  if (
-    hash === 'shopify' ||
-    hash === 'shopify-development' ||
-    hash === 'services/shopify' ||
-    hash === 'services/shopify-development' ||
-    path === 'services/shopify-development' ||
-    path === 'services/shopify' ||
-    path === 'shopify-development' ||
-    path === 'shopify'
-  ) {
-    return 'shopify-development';
-  }
+  const resolveSlug = (raw: string): AppPage | null => {
+    if (!raw) return null;
+    const s = raw.toLowerCase().replace(/^\/+|\/+$/g, '');
 
-  if (
-    [
-      'about',
-      'services',
-      'web-development',
-      'graphic-design',
-      'digital-marketing',
-      'ai-automation',
-      'mobile-app-development',
-      'saas',
-      'saas-development',
-      'shopify',
-      'shopify-development',
-      'blog',
-      'streamer-assets',
-      'pricing',
-      'portfolio',
-      'contact',
-    ].includes(hash)
-  ) {
-    return hash as AppPage;
-  }
+    if (s === 'web-development' || s === 'services/web-development') return 'web-development';
+    if (s === 'graphic-design' || s === 'services/graphic-design') return 'graphic-design';
+    if (s === 'digital-marketing' || s === 'services/digital-marketing') return 'digital-marketing';
+    if (s === 'ai-automation' || s === 'services/ai-automation') return 'ai-automation';
+    if (s === 'mobile-app-development' || s === 'services/mobile-app-development') return 'mobile-app-development';
+    if (s === 'saas' || s === 'saas-development' || s === 'services/saas' || s === 'services/saas-development') return 'saas-development';
+    if (s === 'shopify' || s === 'shopify-development' || s === 'services/shopify' || s === 'services/shopify-development') return 'shopify-development';
+    if (s === 'about') return 'about';
+    if (s === 'services') return 'services';
+    if (s === 'portfolio' || s === 'work') return 'portfolio';
+    if (s === 'pricing') return 'pricing';
+    if (s === 'contact') return 'contact';
+    if (s === 'blog') return 'blog';
+    if (s === 'streamer-assets' || s === 'streamer') return 'streamer-assets';
+    return null;
+  };
 
-  return 'home';
+  return resolveSlug(path) || resolveSlug(hash) || 'home';
 }
 
 function MainAppContent() {
@@ -185,11 +118,11 @@ function MainAppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Sync state with browser back/forward and URL hash
+  // Sync state with browser back/forward and URL hash/path
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleLocationChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      if (hash === 'admin') {
+      if (hash === 'admin' || window.location.pathname.startsWith('/admin')) {
         const isAuth = sessionStorage.getItem('nexordive_admin_auth') === 'true';
         if (isAuth) {
           setIsAdminAuthenticated(true);
@@ -207,8 +140,12 @@ function MainAppContent() {
       window.scrollTo({ top: 0, behavior: 'instant' });
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('popstate', handleLocationChange);
+    return () => {
+      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('popstate', handleLocationChange);
+    };
   }, []);
 
   // Dynamic SEO meta tags per page
@@ -515,6 +452,7 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
+                onNavigate={handleNavigate}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}
@@ -524,6 +462,7 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
+                onNavigate={handleNavigate}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}
@@ -533,6 +472,7 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
+                onNavigate={handleNavigate}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}
@@ -542,6 +482,7 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
+                onNavigate={handleNavigate}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}
@@ -551,6 +492,7 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
+                onNavigate={handleNavigate}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}
@@ -560,6 +502,7 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
+                onNavigate={handleNavigate}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}
@@ -569,6 +512,7 @@ function MainAppContent() {
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
+                onNavigate={handleNavigate}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}

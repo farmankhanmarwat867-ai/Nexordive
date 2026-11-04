@@ -1,4 +1,5 @@
 'use client';
+import { RelatedServices } from '../components/common/RelatedServices';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -31,6 +32,7 @@ interface WebDevelopmentPageProps {
   onNavigateServices?: () => void;
   onNavigatePricing?: () => void;
   onOpenContactWithSummary: (summary: string) => void;
+  onNavigate?: (page: string) => void;
 }
 
 interface WebCapability {
@@ -174,6 +176,7 @@ export const WebDevelopmentPage: React.FC<WebDevelopmentPageProps> = ({
   onNavigateServices,
   onNavigatePricing,
   onOpenContactWithSummary,
+  onNavigate,
 }) => {
   const { content } = useAdmin();
   const pageHeader = content?.pageHeaders?.webDevelopment;
@@ -465,6 +468,9 @@ export const WebDevelopmentPage: React.FC<WebDevelopmentPageProps> = ({
           </div>
         </div>
       </section>
+
+            {/* Complementary & Related Services Cross-Links */}
+      <RelatedServices currentSlug="web-development" onNavigate={onNavigate} />
 
       {/* 6. Conversion CTA Block */}
       <section className="py-24 sm:py-32 bg-gradient-to-br from-[#004d6a] via-[#093c47] to-[#06242c] text-white relative overflow-hidden">

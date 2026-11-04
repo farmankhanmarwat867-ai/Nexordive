@@ -1,4 +1,5 @@
 'use client';
+import { RelatedServices } from '../components/common/RelatedServices';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -30,6 +31,7 @@ interface AIAutomationPageProps {
   onNavigateServices?: () => void;
   onNavigatePricing?: () => void;
   onOpenContactWithSummary: (summary: string) => void;
+  onNavigate?: (page: string) => void;
 }
 
 interface AutomationCapability {
@@ -173,6 +175,7 @@ export const AIAutomationPage: React.FC<AIAutomationPageProps> = ({
   onNavigateServices,
   onNavigatePricing,
   onOpenContactWithSummary,
+  onNavigate,
 }) => {
   const { content } = useAdmin();
   const pageHeader = content?.pageHeaders?.aiAutomation;
@@ -464,6 +467,9 @@ export const AIAutomationPage: React.FC<AIAutomationPageProps> = ({
           </div>
         </div>
       </section>
+
+            {/* Complementary & Related Services Cross-Links */}
+      <RelatedServices currentSlug="ai-automation" onNavigate={onNavigate} />
 
       {/* 6. Conversion CTA Block */}
       <section className="py-24 sm:py-32 bg-gradient-to-br from-[#004d6a] via-[#093c47] to-[#06242c] text-white relative overflow-hidden">

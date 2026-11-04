@@ -1,4 +1,5 @@
 'use client';
+import { RelatedServices } from '../components/common/RelatedServices';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -29,6 +30,7 @@ interface MobileAppDevelopmentPageProps {
   onNavigateServices?: () => void;
   onNavigatePricing?: () => void;
   onOpenContactWithSummary: (summary: string) => void;
+  onNavigate?: (page: string) => void;
 }
 
 interface MobileCapability {
@@ -172,6 +174,7 @@ export const MobileAppDevelopmentPage: React.FC<MobileAppDevelopmentPageProps> =
   onNavigateServices,
   onNavigatePricing,
   onOpenContactWithSummary,
+  onNavigate,
 }) => {
   const { content } = useAdmin();
   const pageHeader = content?.pageHeaders?.mobileAppDevelopment;
@@ -463,6 +466,9 @@ export const MobileAppDevelopmentPage: React.FC<MobileAppDevelopmentPageProps> =
           </div>
         </div>
       </section>
+
+            {/* Complementary & Related Services Cross-Links */}
+      <RelatedServices currentSlug="mobile-app-development" onNavigate={onNavigate} />
 
       {/* 6. Conversion CTA Block */}
       <section className="py-24 sm:py-32 bg-gradient-to-br from-[#004d6a] via-[#093c47] to-[#06242c] text-white relative overflow-hidden">

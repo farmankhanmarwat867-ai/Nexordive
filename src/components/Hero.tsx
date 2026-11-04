@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
+import { trackCtaClick } from '../utils/analytics';
 
 interface HeroProps {
   onOpenContact?: () => void;
@@ -46,6 +47,7 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   const handlePrimaryClick = () => {
+    trackCtaClick(hero.primaryButtonLabel || 'Discuss Your Project', hero.primaryButtonAction || 'contact');
     executeAction(hero.primaryButtonAction || 'contact', {
       onStartProject,
       onOpenContact,
@@ -58,7 +60,8 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   const handleSecondaryClick = () => {
-    executeAction(hero.secondaryButtonAction || 'streamer-assets', {
+    trackCtaClick(hero.secondaryButtonLabel || 'Explore Our Services', hero.secondaryButtonAction || 'services');
+    executeAction(hero.secondaryButtonAction || 'services', {
       onStartProject,
       onOpenContact,
       onNavigate: (page) => {
