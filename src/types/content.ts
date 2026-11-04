@@ -434,6 +434,7 @@ export interface PageHeadersContent {
   saas?: PageHeaderItem;
   saasDevelopment?: PageHeaderItem;
   shopify?: PageHeaderItem;
+  shopifyDevelopment?: PageHeaderItem;
   streamerAssets: PageHeaderItem;
   pricing: PageHeaderItem;
   portfolio: PageHeaderItem;

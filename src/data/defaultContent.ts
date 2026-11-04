@@ -975,9 +975,16 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         'Building software as a service requires more than a user interface. Nexordive can help plan the features, user journeys and technical foundations of a SaaS MVP or custom business platform.',
     },
     shopify: {
-      badge: 'High-Converting E-Commerce',
-      title: 'Headless Shopify & E-Commerce Engineering',
-      description: 'Sub-second page speeds, bespoke Liquid 2.0 themes, and headless Hydrogen storefronts tailored to ambitious luxury, DTC, and retail brands.',
+      badge: 'Shopify Development Services',
+      title: 'Shopify Development for Better Online Store Experiences',
+      description:
+        'Your Shopify store should present products clearly and make shopping straightforward. Nexordive supports storefront setup, layout customization and user-focused improvements that reflect your brand and operational needs.',
+    },
+    shopifyDevelopment: {
+      badge: 'Shopify Development Services',
+      title: 'Shopify Development for Better Online Store Experiences',
+      description:
+        'Your Shopify store should present products clearly and make shopping straightforward. Nexordive supports storefront setup, layout customization and user-focused improvements that reflect your brand and operational needs.',
     },
     services: {
       badge: 'Full-Spectrum Capabilities',

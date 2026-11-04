@@ -115,7 +115,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
               <button onClick={() => handleLink('about')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">About</button>
               <button onClick={() => handleLink('services')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">Services</button>
               <button onClick={() => handleLink('saas-development')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">SaaS Development</button>
-              <button onClick={() => handleLink('shopify')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">Shopify Store</button>
+              <button onClick={() => handleLink('shopify-development')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">Shopify Store</button>
               <button onClick={() => handleLink('streamer-assets')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">Streamer Assets</button>
               <button onClick={() => handleLink('pricing')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">Pricing</button>
               <button onClick={() => handleLink('portfolio')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer">Portfolio</button>
@@ -145,7 +145,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
               <button onClick={() => handleLink('ai-automation')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">AI Automation</button>
               <button onClick={() => handleLink('mobile-app-development')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Mobile App Dev</button>
               <button onClick={() => handleLink('saas-development')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">SaaS Development</button>
-              <button onClick={() => handleLink('shopify')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Shopify E-Commerce</button>
+              <button onClick={() => handleLink('shopify-development')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Shopify E-Commerce</button>
             </div>
 
             <div className="pt-4">

@@ -110,7 +110,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   } else if (title.includes('saas')) {
                     onNavigate('saas-development');
                   } else if (title.includes('shopify') || title.includes('commerce')) {
-                    onNavigate('shopify');
+                    onNavigate('shopify-development');
                   } else if (title.includes('streamer')) {
                     onNavigate('streamer-assets');
                   } else {

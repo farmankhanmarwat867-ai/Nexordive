@@ -42,6 +42,7 @@ export type AppPage =
   | 'saas'
   | 'saas-development'
   | 'shopify'
+  | 'shopify-development'
   | 'blog'
   | 'streamer-assets'
   | 'pricing'
@@ -108,11 +109,15 @@ function parsePageFromLocation(): AppPage {
   }
   if (
     hash === 'shopify' ||
+    hash === 'shopify-development' ||
     hash === 'services/shopify' ||
+    hash === 'services/shopify-development' ||
+    path === 'services/shopify-development' ||
     path === 'services/shopify' ||
+    path === 'shopify-development' ||
     path === 'shopify'
   ) {
-    return 'shopify';
+    return 'shopify-development';
   }
 
   if (
@@ -127,6 +132,7 @@ function parsePageFromLocation(): AppPage {
       'saas',
       'saas-development',
       'shopify',
+      'shopify-development',
       'blog',
       'streamer-assets',
       'pricing',
@@ -244,11 +250,11 @@ function MainAppContent() {
       description =
         'Turn software ideas into structured SaaS products. Nexordive supports SaaS MVP planning, dashboards, user workflows and custom software development.';
       canonical = 'https://www.nexordive.com/services/saas-development';
-    } else if (currentPage === 'shopify') {
-      title = 'Shopify Development Services | Nexordive';
+    } else if (currentPage === 'shopify' || currentPage === 'shopify-development') {
+      title = 'Shopify Store Design & Development | Nexordive';
       description =
-        'Shopify store setup, custom theme coding, mobile checkout optimization, and headless Hydrogen commerce by Nexordive.';
-      canonical = 'https://www.nexordive.com/services/shopify';
+        'Launch or improve your online store with Shopify setup, theme customization, product pages and mobile-friendly storefront development by Nexordive.';
+      canonical = 'https://www.nexordive.com/services/shopify-development';
     } else if (currentPage === 'services') {
       title = 'Services | Nexordive Digital Solutions';
       description =
@@ -317,7 +323,7 @@ function MainAppContent() {
   const handleNavigate = (page: string) => {
     setIsAdminView(false);
     setShouldScrollToContactForm(false);
-    const targetPage = page === 'saas' ? 'saas-development' : page;
+    const targetPage = page === 'saas' ? 'saas-development' : page === 'shopify' ? 'shopify-development' : page;
     const validPage = (
       [
         'home',
@@ -331,6 +337,7 @@ function MainAppContent() {
         'saas',
         'saas-development',
         'shopify',
+        'shopify-development',
         'blog',
         'streamer-assets',
         'pricing',
@@ -498,7 +505,7 @@ function MainAppContent() {
                 onNavigateAIAutomation={() => handleNavigate('ai-automation')}
                 onNavigateMobileAppDevelopment={() => handleNavigate('mobile-app-development')}
                 onNavigateSaaS={() => handleNavigate('saas-development')}
-                onNavigateShopify={() => handleNavigate('shopify')}
+                onNavigateShopify={() => handleNavigate('shopify-development')}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
             )}
@@ -557,7 +564,7 @@ function MainAppContent() {
               />
             )}
 
-            {currentPage === 'shopify' && (
+            {(currentPage === 'shopify' || currentPage === 'shopify-development') && (
               <ShopifyPage
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}

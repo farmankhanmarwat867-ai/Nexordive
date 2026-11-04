@@ -112,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* 2. Center Nav Links - High-legibility Serif Uppercase Typography matching reference */}
           <nav className="hidden lg:flex items-center gap-4 xl:gap-7 2xl:gap-8 shrink-0" aria-label="Main Navigation">
             {navLinks.map((link) => {
-              const isActive = currentPage === link.id || (link.id === 'saas' && (currentPage === 'saas' || currentPage === 'saas-development')) || (link.id === 'services' && (currentPage === 'web-development' || currentPage === 'graphic-design' || currentPage === 'digital-marketing' || currentPage === 'ai-automation' || currentPage === 'mobile-app-development' || currentPage === 'saas' || currentPage === 'saas-development')) || (link.id === 'portfolio' && currentPage === 'portfolio');
+              const isActive = currentPage === link.id || (link.id === 'saas' && (currentPage === 'saas' || currentPage === 'saas-development')) || (link.id === 'shopify' && (currentPage === 'shopify' || currentPage === 'shopify-development')) || (link.id === 'services' && (currentPage === 'web-development' || currentPage === 'graphic-design' || currentPage === 'digital-marketing' || currentPage === 'ai-automation' || currentPage === 'mobile-app-development' || currentPage === 'saas' || currentPage === 'saas-development' || currentPage === 'shopify' || currentPage === 'shopify-development')) || (link.id === 'portfolio' && currentPage === 'portfolio');
 
               return (
                 <a
@@ -209,7 +209,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => {
-                const isActive = currentPage === link.id || (link.id === 'saas' && (currentPage === 'saas' || currentPage === 'saas-development')) || (link.id === 'services' && (currentPage === 'web-development' || currentPage === 'graphic-design' || currentPage === 'digital-marketing' || currentPage === 'ai-automation' || currentPage === 'mobile-app-development' || currentPage === 'saas' || currentPage === 'saas-development')) || (link.id === 'portfolio' && currentPage === 'portfolio');
+                const isActive = currentPage === link.id || (link.id === 'saas' && (currentPage === 'saas' || currentPage === 'saas-development')) || (link.id === 'shopify' && (currentPage === 'shopify' || currentPage === 'shopify-development')) || (link.id === 'services' && (currentPage === 'web-development' || currentPage === 'graphic-design' || currentPage === 'digital-marketing' || currentPage === 'ai-automation' || currentPage === 'mobile-app-development' || currentPage === 'saas' || currentPage === 'saas-development' || currentPage === 'shopify' || currentPage === 'shopify-development')) || (link.id === 'portfolio' && currentPage === 'portfolio');
                 return (
                   <a
                     key={link.id}
