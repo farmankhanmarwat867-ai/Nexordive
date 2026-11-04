@@ -40,6 +40,7 @@ export type AppPage =
   | 'ai-automation'
   | 'mobile-app-development'
   | 'saas'
+  | 'saas-development'
   | 'shopify'
   | 'blog'
   | 'streamer-assets'
@@ -93,8 +94,17 @@ function parsePageFromLocation(): AppPage {
   ) {
     return 'mobile-app-development';
   }
-  if (hash === 'saas' || hash === 'services/saas' || path === 'services/saas' || path === 'saas') {
-    return 'saas';
+  if (
+    hash === 'saas' ||
+    hash === 'saas-development' ||
+    hash === 'services/saas' ||
+    hash === 'services/saas-development' ||
+    path === 'services/saas-development' ||
+    path === 'services/saas' ||
+    path === 'saas-development' ||
+    path === 'saas'
+  ) {
+    return 'saas-development';
   }
   if (
     hash === 'shopify' ||
@@ -115,6 +125,7 @@ function parsePageFromLocation(): AppPage {
       'ai-automation',
       'mobile-app-development',
       'saas',
+      'saas-development',
       'shopify',
       'blog',
       'streamer-assets',
@@ -228,11 +239,11 @@ function MainAppContent() {
       description =
         'Plan and build intuitive mobile app experiences with Nexordive. Explore Android and iOS application design, MVP development and app interface solutions.';
       canonical = 'https://www.nexordive.com/services/mobile-app-development';
-    } else if (currentPage === 'saas') {
-      title = 'SaaS Development Services | Nexordive';
+    } else if (currentPage === 'saas' || currentPage === 'saas-development') {
+      title = 'SaaS Development & MVP Solutions | Nexordive';
       description =
-        'Full-lifecycle SaaS MVPs, operational dashboards, and automated Stripe subscription billing architectures by Nexordive.';
-      canonical = 'https://www.nexordive.com/services/saas';
+        'Turn software ideas into structured SaaS products. Nexordive supports SaaS MVP planning, dashboards, user workflows and custom software development.';
+      canonical = 'https://www.nexordive.com/services/saas-development';
     } else if (currentPage === 'shopify') {
       title = 'Shopify Development Services | Nexordive';
       description =
@@ -306,6 +317,7 @@ function MainAppContent() {
   const handleNavigate = (page: string) => {
     setIsAdminView(false);
     setShouldScrollToContactForm(false);
+    const targetPage = page === 'saas' ? 'saas-development' : page;
     const validPage = (
       [
         'home',
@@ -317,14 +329,15 @@ function MainAppContent() {
         'ai-automation',
         'mobile-app-development',
         'saas',
+        'saas-development',
         'shopify',
         'blog',
         'streamer-assets',
         'pricing',
         'portfolio',
         'contact',
-      ].includes(page)
-        ? page
+      ].includes(targetPage)
+        ? targetPage
         : 'home'
     ) as AppPage;
 
@@ -484,7 +497,7 @@ function MainAppContent() {
                 onNavigateDigitalMarketing={() => handleNavigate('digital-marketing')}
                 onNavigateAIAutomation={() => handleNavigate('ai-automation')}
                 onNavigateMobileAppDevelopment={() => handleNavigate('mobile-app-development')}
-                onNavigateSaaS={() => handleNavigate('saas')}
+                onNavigateSaaS={() => handleNavigate('saas-development')}
                 onNavigateShopify={() => handleNavigate('shopify')}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
               />
@@ -535,7 +548,7 @@ function MainAppContent() {
               />
             )}
 
-            {currentPage === 'saas' && (
+            {(currentPage === 'saas' || currentPage === 'saas-development') && (
               <SaaSPage
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}

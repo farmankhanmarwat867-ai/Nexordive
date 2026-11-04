@@ -108,7 +108,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   } else if (title.includes('mobile') || title.includes('app') || title.includes('ios') || title.includes('android')) {
                     onNavigate('mobile-app-development');
                   } else if (title.includes('saas')) {
-                    onNavigate('saas');
+                    onNavigate('saas-development');
                   } else if (title.includes('shopify') || title.includes('commerce')) {
                     onNavigate('shopify');
                   } else if (title.includes('streamer')) {

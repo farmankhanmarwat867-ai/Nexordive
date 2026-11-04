@@ -1,25 +1,27 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
-  Server,
-  CreditCard,
-  ShieldCheck,
-  Zap,
-  Layers,
-  Database,
-  ArrowRight,
-  CheckCircle2,
-  Cpu,
-  Search,
   Sparkles,
-  ExternalLink,
-  Lock,
+  Layers,
+  Search,
+  CheckCircle2,
+  ArrowRight,
+  HelpCircle,
+  ChevronDown,
+  MessageCircle,
+  Mail,
+  Zap,
+  Compass,
+  Workflow,
+  Layout,
+  CreditCard,
+  FileCheck,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
-import { ProcessTimeline } from '../components/ProcessTimeline';
 import { ProjectShowcase } from '../components/ProjectShowcase';
+import { useAdmin } from '../context/AdminStore';
 
 interface SaaSPageProps {
   onNavigateHome?: () => void;
@@ -35,93 +37,132 @@ interface SaaSCapability {
   description: string;
   icon: React.ReactNode;
   specs: string[];
-  techStack: string[];
+  deliverables: string[];
 }
 
 const SAAS_CAPABILITIES: SaaSCapability[] = [
   {
-    id: 'multi-tenancy',
-    title: 'Multi-Tenant Database Architecture',
-    tagline: 'Tenant isolation with Postgres Row-Level Security (RLS)',
-    description: 'We design bulletproof multi-tenant database schemas ensuring complete tenant data isolation, encrypted connection pooling, and seamless automated tenant provisioning.',
-    icon: <Database className="w-6 h-6 text-cyan-300" />,
+    id: 'concept-discovery-scoping',
+    title: 'SaaS Concept Discovery & Feature Scoping',
+    tagline: 'Translating software ideas into clear product specifications and technical requirements',
+    description:
+      'We help unpack your software concept into structured requirements, validating core hypotheses, identifying primary user personas, and scoping functional features before investing in development.',
+    icon: <Compass className="w-6 h-6 text-cyan-300" />,
     specs: [
-      'PostgreSQL RLS tenant boundary isolation',
-      'Supabase & Prisma automated schema migrations',
-      'Encrypted read replicas & connection pooling',
-      'Tenant-level backups and restore protocols',
+      'Problem definition, value proposition, and user persona scoping',
+      'Feature scope matrix balancing business goals with technical feasibility',
+      'Data model boundaries and cloud infrastructure evaluation',
+      'Phased development milestone estimation and timeline roadmapping',
     ],
-    techStack: ['PostgreSQL', 'Supabase', 'Prisma', 'Redis'],
+    deliverables: ['Product Scope Blueprint', 'Feature Matrix', 'Architecture Specification', 'Feasibility Audit'],
   },
   {
-    id: 'stripe-billing',
-    title: 'Subscription Engine & Metered Billing',
-    tagline: 'Stripe Billing, usage meters & webhook idempotency',
-    description: 'Engineered for seamless monetization. We implement multi-tier seat licensing, metered usage calculations, customer portals, tax compliance, and automated dunning workflows.',
+    id: 'mvp-roadmap-user-flows',
+    title: 'MVP Roadmap & User Flows',
+    tagline: 'Designing efficient onboarding flows and step-by-step conversion journeys',
+    description:
+      'We map the core user flow from initial sign-up to the primary value moment, eliminating friction, optimizing step sequences, and creating a phased roadmap for launch.',
+    icon: <Workflow className="w-6 h-6 text-teal-300" />,
+    specs: [
+      'End-to-end user journey mapping and low-friction onboarding wireframes',
+      'Critical path prioritization for the initial MVP release',
+      'Interactive prototype validation for user workflows and key interactions',
+      'Phase-by-phase sprint milestones for budget and timeline efficiency',
+    ],
+    deliverables: ['MVP Roadmap', 'User Journey Wireframes', 'Clickable Prototype', 'Release Sprint Plan'],
+  },
+  {
+    id: 'dashboards-portals-admin',
+    title: 'Dashboards, Portals & Administration Interfaces',
+    tagline: 'High-clarity data visualization, role-based portals, and control centers',
+    description:
+      'We design and build responsive SaaS dashboards, multi-tenant client portals, and administrative management panels with clean information architecture and real-time data views.',
+    icon: <Layout className="w-6 h-6 text-sky-300" />,
+    specs: [
+      'Multi-tier operational metrics and KPI visualization layouts',
+      'Role-specific dashboard interfaces and permission boundaries',
+      'Data tables with dynamic search, multi-column sorting, and export capabilities',
+      'Responsive interface design adapted for desktop, tablet, and mobile viewports',
+    ],
+    deliverables: ['Dashboard Design System', 'Client Portal Component Kit', 'Admin Control Panel', 'Responsive Data Views'],
+  },
+  {
+    id: 'user-access-subscriptions',
+    title: 'User Access, Subscription & Integration Planning',
+    tagline: 'Structured authentication, monetization models, and external API connectors',
+    description:
+      'We plan authentication flows, granular role-based access control (RBAC), multi-tier subscription billing with Stripe, and secure API webhooks for third-party business tools.',
     icon: <CreditCard className="w-6 h-6 text-emerald-300" />,
     specs: [
-      'Stripe Checkout, Customer Portal & Elements',
-      'Idempotent webhook handlers with dead-letter retries',
-      'Metered usage reporting and overage billing',
-      'Automated failed payment recovery (Dunning)',
+      'Multi-tier seat licensing, pricing plans, and checkout workflows',
+      'Role-based access control (RBAC) and team invitation mechanisms',
+      'Third-party REST API and webhook integration mapping',
+      'Security considerations and sensitive data encryption boundaries',
     ],
-    techStack: ['Stripe API', 'Webhooks', 'Upstash', 'Node.js'],
+    deliverables: ['Billing Engine Specs', 'RBAC Matrix Blueprint', 'Webhook Integration Map', 'Security Checklist'],
   },
   {
-    id: 'edge-apis',
-    title: 'High-Concurrency Serverless & Edge APIs',
-    tagline: 'Sub-50ms p95 latency for global SaaS users',
-    description: 'Built on Next.js App Router and edge compute. We implement distributed caching layers, rate limiting, and optimistic UI updates for instantaneous user interactions.',
-    icon: <Zap className="w-6 h-6 text-amber-300" />,
+    id: 'testing-iteration-strategy',
+    title: 'Testing & Iteration Strategy',
+    tagline: 'Continuous quality assurance, regression test suites, and post-launch roadmap',
+    description:
+      'We establish systematic quality testing, real-world edge-case validation, telemetry monitoring, and a structured feedback backlog to drive continuous product iterations.',
+    icon: <FileCheck className="w-6 h-6 text-amber-300" />,
     specs: [
-      'Sub-50ms global edge cache hit latency',
-      'Redis token-bucket API rate limiting',
-      'Edge middleware JWT authentication verification',
-      'Real-time WebSocket notifications & state sync',
+      'Automated unit, integration, and critical user-flow test suites',
+      'Realistic load testing, error handling, and edge-case validation',
+      'Telemetry, application error logging, and performance monitoring setup',
+      'User feedback collection mechanisms and iterative release cycles',
     ],
-    techStack: ['Next.js 15', 'Cloudflare Workers', 'Redis', 'Vercel Edge'],
+    deliverables: ['QA Test Matrix', 'Monitoring Blueprint', 'Iteration Backlog', 'Release Playbook'],
+  },
+];
+
+const APPROACH_STEPS = [
+  {
+    number: '01',
+    title: 'Requirement Alignment',
+    description:
+      'We align product requirements with real user needs, clarifying the primary problem solved and establishing concrete technical constraints.',
   },
   {
-    id: 'enterprise-rbac',
-    title: 'Enterprise RBAC, SSO & Audit Logging',
-    tagline: 'SOC2 & enterprise security readiness from Day 1',
-    description: 'Provide enterprise customers with granular role-based permissions, SAML/OIDC single sign-on, and immutable compliance audit logs.',
-    icon: <ShieldCheck className="w-6 h-6 text-sky-300" />,
-    specs: [
-      'Granular role-based access control (RBAC) matrix',
-      'WorkOS / Auth0 enterprise SAML & Okta SSO integration',
-      'Tamper-evident system activity and change logs',
-      'GDPR & HIPAA compliance architectural alignment',
-    ],
-    techStack: ['NextAuth', 'SAML SSO', 'OpenTelemetry', 'TypeScript'],
+    number: '02',
+    title: 'First-Release Prioritization',
+    description:
+      'We prioritize the initial release around the smallest useful feature set that validates value and captures real user engagement.',
   },
   {
-    id: 'background-queues',
-    title: 'Distributed Background Workers & Queues',
-    tagline: 'Reliable asynchronous processing and scheduled jobs',
-    description: 'Prevent UI bottlenecks by offloading heavy computational tasks, AI document analysis, video transcoding, and batch report exports to resilient message queues.',
-    icon: <Cpu className="w-6 h-6 text-purple-300" />,
-    specs: [
-      'BullMQ and Redis distributed task queues',
-      'Automated exponential retry with backoff strategies',
-      'Cron schedules for automated recurring maintenance',
-      'Real-time progress telemetry via WebSockets',
-    ],
-    techStack: ['BullMQ', 'Redis', 'Node.js Workers', 'Docker'],
+    number: '03',
+    title: 'Architecture & Security',
+    description:
+      'We plan implementation around product complexity, data isolation, security considerations, and realistic maintenance expectations.',
   },
   {
-    id: 'ci-cd-devops',
-    title: 'Automated CI/CD & Zero-Downtime Deployments',
-    tagline: 'Sanitized Git repository ownership & automated pipelines',
-    description: 'We construct airtight continuous integration pipelines, automated staging preview environments for every pull request, and zero-downtime rolling production deploys.',
-    icon: <Server className="w-6 h-6 text-teal-300" />,
-    specs: [
-      'GitHub Actions with automated linting & test suites',
-      'Vercel & Docker preview environments per PR',
-      'Zero-downtime blue-green production cutovers',
-      '100% intellectual property & Git ownership handover',
-    ],
-    techStack: ['Docker', 'GitHub Actions', 'Terraform', 'AWS'],
+    number: '04',
+    title: 'Sprint Implementation',
+    description:
+      'Design and development proceed through structured milestone sprints with continuous staging previews and regular review checkpoints.',
+  },
+  {
+    number: '05',
+    title: 'Testing & Maintenance',
+    description:
+      'We conduct thorough multi-scenario testing, configure monitoring, and establish ongoing iteration procedures for long-term product health.',
+  },
+];
+
+const SERVICE_FAQS = [
+  {
+    id: 'faq-saas-mvp',
+    question: 'What is a SaaS MVP?',
+    answer:
+      'It is an initial version of a software service built to test a focused value proposition with real users. By delivering core functionality first, you can validate market interest, collect qualitative feedback, and iterate based on actual usage rather than assumptions.',
+  },
+  {
+    id: 'faq-dashboard-tool',
+    question: 'Can I start with one dashboard or tool?',
+    answer:
+      'Yes. A smaller, well-defined software product can be a sensible starting point. Focusing on a single operational tool or customer dashboard reduces initial complexity and lets you test viability before expanding into a full platform.',
   },
 ];
 
@@ -131,7 +172,10 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
   onNavigatePricing,
   onOpenContactWithSummary,
 }) => {
+  const { content } = useAdmin();
+  const pageHeader = content?.pageHeaders?.saas;
   const [searchQuery, setSearchQuery] = useState('');
+  const [openFaqId, setOpenFaqId] = useState<string | null>(SERVICE_FAQS[0].id);
 
   const filteredCapabilities = SAAS_CAPABILITIES.filter((cap) => {
     if (!searchQuery.trim()) return true;
@@ -141,33 +185,44 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
       cap.tagline.toLowerCase().includes(q) ||
       cap.description.toLowerCase().includes(q) ||
       cap.specs.some((s) => s.toLowerCase().includes(q)) ||
-      cap.techStack.some((t) => t.toLowerCase().includes(q))
+      cap.deliverables.some((d) => d.toLowerCase().includes(q))
     );
   });
+
+  const toggleFaq = (id: string) => {
+    setOpenFaqId((prev) => (prev === id ? null : id));
+  };
 
   return (
     <div className="flex-1 bg-white">
       {/* 1. Page Header with exactly one H1 */}
       <PageHeader
-        badge="SaaS Development Services"
-        title="SaaS Development Services — MVP, Dashboards & Subscriptions"
-        description="We build full-lifecycle SaaS MVPs, interactive operational dashboards, and automated Stripe subscription billing engines for startups, founders, and growing software companies worldwide."
+        badge={pageHeader?.badge || 'SaaS Development Services'}
+        title={pageHeader?.title || 'SaaS Development for Ideas Ready to Become Products'}
+        description={
+          pageHeader?.description ||
+          'Building software as a service requires more than a user interface. Nexordive can help plan the features, user journeys and technical foundations of a SaaS MVP or custom business platform.'
+        }
         breadcrumbs={[
           { label: 'Home', onClick: onNavigateHome },
           { label: 'Services', onClick: onNavigateServices },
-          { label: 'SaaS Architecture' },
+          { label: 'SaaS Development' },
         ]}
         actions={[
           {
-            label: 'Schedule SaaS Architecture Call',
+            label: 'Talk About Your SaaS Concept',
             onClick: () =>
-              onOpenContactWithSummary('Inquiry: Full-Lifecycle SaaS Architecture & Multi-Tenant Platform Engineering'),
+              onOpenContactWithSummary('Inquiry: SaaS Development & MVP Scoping'),
           },
-          {
-            label: 'Calculate SaaS Investment',
-            variant: 'secondary',
-            onClick: onNavigatePricing,
-          },
+          ...(onNavigatePricing
+            ? [
+                {
+                  label: 'Explore Pricing',
+                  variant: 'secondary' as const,
+                  onClick: onNavigatePricing,
+                },
+              ]
+            : []),
         ]}
         searchSlot={
           <div className="relative w-full">
@@ -176,7 +231,7 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search SaaS architecture capabilities (e.g. Stripe, RLS, Edge APIs, SSO)..."
+              placeholder="Search SaaS capabilities (e.g. MVP, dashboard, RBAC, subscriptions, testing)..."
               className="w-full pl-11 pr-4 py-3 rounded-full bg-white/10 text-white placeholder-cyan-100/60 text-xs sm:text-sm border border-cyan-400/30 focus:outline-hidden focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40 transition-all backdrop-blur-md"
             />
             {searchQuery && (
@@ -192,19 +247,19 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
         }
       />
 
-      {/* 2. Architectural Capabilities Section */}
+      {/* 2. What We Can Help With Section */}
       <section className="py-20 lg:py-28 bg-[#f8fafc] border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
           <div className="max-w-2xl mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-4">
               <Layers className="w-3.5 h-3.5 text-[#0d5363]" />
-              <span>Architectural Standards</span>
+              <span>Core SaaS Capabilities</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight">
-              Enterprise SaaS Core Capabilities
+              What We Can Help With
             </h2>
             <p className="text-slate-600 text-sm sm:text-base mt-3 leading-relaxed">
-              Every SaaS platform we engineer is built with zero technical debt, complete intellectual property handover, and production-tested cloud patterns.
+              From initial discovery and MVP feature scoping to dashboards, role-based access, subscription models, and iteration strategies.
             </p>
           </div>
 
@@ -235,7 +290,7 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
 
                   <div className="space-y-2 mb-6">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block font-mono">
-                      Engineering Specifications
+                      Engineering & Architecture Focus
                     </span>
                     {cap.specs.map((spec, i) => (
                       <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
@@ -247,14 +302,14 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
                 </div>
 
                 <div>
-                  {/* Tech Stack Pills */}
+                  {/* Deliverables Pills */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-4 border-t border-slate-100">
-                    {cap.techStack.map((tech) => (
+                    {cap.deliverables.map((deliv) => (
                       <span
-                        key={tech}
+                        key={deliv}
                         className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200/70"
                       >
-                        {tech}
+                        {deliv}
                       </span>
                     ))}
                   </div>
@@ -262,11 +317,11 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
                   <button
                     type="button"
                     onClick={() =>
-                      onOpenContactWithSummary(`Inquiring about SaaS Architecture: ${cap.title}`)
+                      onOpenContactWithSummary(`Inquiring about SaaS Service: ${cap.title}`)
                     }
                     className="mt-5 w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-slate-50 hover:bg-[#004d6a] hover:text-white text-[#0d5363] text-xs font-bold tracking-wide transition-all cursor-pointer group/btn border border-slate-200"
                   >
-                    <span>Inquire This Module</span>
+                    <span>Discuss This Requirement</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
                   </button>
                 </div>
@@ -291,7 +346,49 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
         </div>
       </section>
 
-      {/* 3. SaaS Case Studies & Prototype Proof */}
+      {/* 3. How Nexordive Approaches the Project */}
+      <section className="py-20 lg:py-28 bg-white border-b border-slate-200/80">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+          <div className="max-w-3xl mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-4">
+              <Compass className="w-3.5 h-3.5 text-[#0d5363]" />
+              <span>Project Approach</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight text-balance">
+              How Nexordive Approaches the Project
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base mt-4 leading-relaxed font-normal">
+              We align requirements with user needs, prioritize the first release and plan implementation around the product’s complexity, security considerations and maintenance expectations.
+            </p>
+          </div>
+
+          {/* Sequential Approach Steps */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {APPROACH_STEPS.map((step, idx) => (
+              <motion.div
+                key={step.number}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: idx * 0.08 }}
+                className="p-6 sm:p-7 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-[#0d5363]/40 hover:bg-white hover:shadow-md transition-all duration-200"
+              >
+                <div className="text-2xl sm:text-3xl font-serif font-bold text-[#0d5363] mb-3">
+                  {step.number}
+                </div>
+                <h3 className="text-lg font-serif font-bold text-slate-900 mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {step.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Selected SaaS Platforms & Prototypes */}
       <ProjectShowcase
         limit={3}
         onInquireProject={(project) =>
@@ -299,8 +396,128 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
         }
       />
 
-      {/* 4. Disciplined Six-Phase Process Timeline */}
-      <ProcessTimeline />
+      {/* 5. Service FAQ Section */}
+      <section className="py-20 lg:py-28 bg-[#f8fafc] border-b border-slate-200/80">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-xs font-semibold text-[#0d5363] shadow-xs mb-3">
+              <HelpCircle className="w-3.5 h-3.5 text-[#0d5363]" />
+              <span>Service FAQ</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold font-serif text-slate-950 tracking-tight mb-3">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              Clear answers regarding SaaS MVP scoping, single-tool starts, and product delivery.
+            </p>
+          </div>
+
+          <div className="space-y-3.5">
+            {SERVICE_FAQS.map((faq) => {
+              const isOpen = openFaqId === faq.id;
+              return (
+                <div
+                  key={faq.id}
+                  className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                    isOpen
+                      ? 'bg-white border-[#0d5363]/40 shadow-md shadow-[#004d6a]/5'
+                      : 'bg-white/80 hover:bg-white border-slate-200/90 hover:border-slate-300 shadow-xs'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(faq.id)}
+                    aria-expanded={isOpen}
+                    className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004d6a]"
+                  >
+                    <span className="text-base sm:text-lg font-serif font-bold text-slate-900 pr-2">
+                      {faq.question}
+                    </span>
+                    <span
+                      className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                        isOpen ? 'bg-[#004d6a] text-white rotate-180' : 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      <ChevronDown className="w-4 h-4 transition-transform" />
+                    </span>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        <div className="px-6 pb-6 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
+                          {faq.answer}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Conversion CTA Block */}
+      <section className="py-24 sm:py-32 bg-gradient-to-br from-[#004d6a] via-[#093c47] to-[#06242c] text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 text-center relative z-10 space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold uppercase tracking-wider text-cyan-200 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+            <span>SaaS Development Services</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-white max-w-3xl mx-auto leading-tight text-balance">
+            Talk About Your SaaS Concept
+          </h2>
+
+          <p className="text-sm sm:text-base text-slate-200/90 max-w-xl mx-auto font-normal leading-relaxed">
+            Building software as a service requires more than a user interface. Nexordive can help plan the features, user journeys and technical foundations of a SaaS MVP or custom business platform.
+          </p>
+
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() =>
+                onOpenContactWithSummary(
+                  'Inquiry: SaaS Development & MVP Scoping'
+                )
+              }
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-[#4ee1d6] to-[#38bdf8] text-slate-950 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl hover:shadow-cyan-400/30 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+            >
+              <span>Talk About Your SaaS Concept</span>
+              <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <a
+              href="https://wa.me/923146009810?text=Hello%20Nexordive%2C%20I%20would%20like%20to%20discuss%20a%20SaaS%20development%20project"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm tracking-wide border border-white/20 hover:border-white/40 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
+            >
+              <MessageCircle className="w-4 h-4 text-emerald-400" />
+              <span>Contact via WhatsApp (+92 314 600 9810)</span>
+            </a>
+          </div>
+
+          <div className="pt-2">
+            <a
+              href="mailto:hello@nexordive.com"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm text-cyan-200/90 hover:text-white transition-colors underline underline-offset-4"
+            >
+              <Mail className="w-3.5 h-3.5 text-cyan-300" />
+              <span>hello@nexordive.com</span>
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

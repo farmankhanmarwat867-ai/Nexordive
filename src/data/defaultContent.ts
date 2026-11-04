@@ -963,9 +963,16 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       description: 'Your website should make it easy for visitors to understand what you offer, find information and take the next step. Nexordive creates responsive web experiences with thoughtful structure, readable content and clear calls to action.',
     },
     saas: {
-      badge: 'Venture & Enterprise Cloud',
-      title: 'Full-Lifecycle SaaS Architecture & Cloud Engineering',
-      description: 'We architect and build multi-tenant SaaS platforms with robust subscription engines, edge micro-frontends, and enterprise-grade data isolation.',
+      badge: 'SaaS Development Services',
+      title: 'SaaS Development for Ideas Ready to Become Products',
+      description:
+        'Building software as a service requires more than a user interface. Nexordive can help plan the features, user journeys and technical foundations of a SaaS MVP or custom business platform.',
+    },
+    saasDevelopment: {
+      badge: 'SaaS Development Services',
+      title: 'SaaS Development for Ideas Ready to Become Products',
+      description:
+        'Building software as a service requires more than a user interface. Nexordive can help plan the features, user journeys and technical foundations of a SaaS MVP or custom business platform.',
     },
     shopify: {
       badge: 'High-Converting E-Commerce',
