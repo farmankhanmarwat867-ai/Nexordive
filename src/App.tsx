@@ -261,9 +261,9 @@ function MainAppContent() {
         'Web development, graphic design, digital marketing, AI automation, mobile apps, SaaS and Shopify services by Nexordive.';
       canonical = 'https://www.nexordive.com/services';
     } else if (currentPage === 'about') {
-      title = 'About Nexordive | Digital Solutions Company';
+      title = 'About Nexordive | Digital Solutions & Technology Services';
       description =
-        'Nexordive helps startups, growing businesses and creators design, build, automate and market practical digital experiences.';
+        'Learn about Nexordive, a digital services brand focused on web development, design, marketing, automation, mobile apps, SaaS and Shopify solutions.';
       canonical = 'https://www.nexordive.com/about';
     } else if (currentPage === 'portfolio') {
       title = 'Selected Work & Concepts | Nexordive';
@@ -276,9 +276,9 @@ function MainAppContent() {
         'Predictable, transparent investment packages for web development, MVP engineering, and streamer design suites.';
       canonical = 'https://www.nexordive.com/pricing';
     } else if (currentPage === 'contact') {
-      title = 'Contact Nexordive | Discuss Your Project';
+      title = 'Contact Nexordive | Discuss Your Digital Project';
       description =
-        'Connect directly with Nexordive for prompt 24-hour scoping turnaround on web, mobile, SaaS, and automation projects.';
+        'Contact Nexordive about web development, branding, marketing, AI automation, mobile apps, SaaS or Shopify. Share your project requirements today.';
       canonical = 'https://www.nexordive.com/contact';
     }
 

@@ -8,16 +8,18 @@ import { CASE_STUDIES, AGENCY_METRICS, PROCESS_PHASES, PARTNERS } from './agency
 
 export const DEFAULT_ABOUT_PAGE_CONTENT: AboutPageContent = {
   intro: {
-    eyebrow: 'Our Digital Agency',
-    heading: 'Choose NexorDive',
+    eyebrow: 'About Nexordive',
+    heading: 'About Nexordive: Practical Technology, Clear Digital Experiences',
     paragraph1:
-      'NexorDive is a digital solutions company dedicated to helping startups, growing businesses, and creators design, build, automate, and market practical digital experiences. Specializing in web development, custom software, SaaS platforms, Shopify e-commerce, mobile applications, and digital marketing, we focus on delivering tangible results that drive sustained business success.',
+      'Nexordive is a digital services brand helping businesses explore and build meaningful online experiences. We work across websites, visual branding, digital marketing, AI automation, mobile applications, SaaS products and Shopify solutions. Our approach starts by understanding the people a product serves and the problem it needs to solve. We believe clear communication, thoughtful design and focused development are essential to useful digital work.',
     paragraph2:
-      "With a team of experienced professionals, NexorDive blends creative craft, technical mastery, and a customer-centric approach to deliver tailored solutions that meet the unique needs of each client. Whether you're an ambitious startup or a global enterprise, we empower your business through cutting-edge software and seamless user experiences.",
-    buttonLabel: 'Book a Call',
-    buttonAction: 'start-project',
+      'Whether you are building a new digital presence or planning a more complex platform, our goal is to make the next step understandable, structured and aligned with your requirements.',
+    buttonLabel: 'Explore Our Services',
+    buttonAction: 'navigate-services',
+    secondaryButtonLabel: 'Discuss a Project',
+    secondaryButtonAction: 'start-project',
     techTreeImage: '/assets/about/tech_tree_card.png',
-    techTreeImageAlt: 'NexorDive Full-Spectrum Technology Tree',
+    techTreeImageAlt: 'Nexordive Technology & Services Spectrum',
   },
   consultation: {
     heading: 'Start Project With Us ?',
@@ -208,7 +210,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     leaderRole: 'CEO',
     leaderImage: '/assets/akleem_orakzai_avatar.png',
     categoryTagline: 'SOFTWARE • DIGITAL GROWTH • STREAMER ASSETS',
-    footerTagline: 'NexorDive helps startups, growing businesses, and creators design, build, automate, and market practical digital experiences worldwide.',
+    footerTagline: 'Nexordive | Digital services for modern businesses. Explore web development, branding, marketing, AI automation, mobile apps, SaaS and Shopify solutions.',
     copyrightText: '© 2026 NexorDive Digital Agency. All rights reserved.',
     officeLocations: [
       { city: 'San Francisco', timezone: 'America/Los_Angeles', label: 'Pacific Time (HQ)' },
@@ -391,7 +393,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     ceoBadgeTitle: 'CEO',
     ceoAvatar: '/assets/akleem_orakzai_avatar.png',
     heading: 'We love our work and do it passionately',
-    description: 'NexorDive helps startups, growing businesses, and creators design, build, automate, and market practical digital experiences. From fast business websites and custom software to SaaS MVPs, Shopify e-commerce, and targeted digital marketing, our team provides outcomes-oriented solutions with dedicated craft and zero fluff.',
+    description: 'Nexordive provides web development, graphic design, digital marketing, AI automation, mobile app development, SaaS and Shopify services for startups and growing businesses.',
     missionImage: '/assets/about_nexordive_graphic.png',
     missionImageAlt: 'About NexorDive - Digital Excellence & Passionate Engineering',
     secondaryImage: '',
@@ -919,15 +921,17 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   },
 
   contact: {
-    sectionEyebrow: 'Get In Touch',
-    modalEyebrow: 'Quick Scoping & Inquiry',
-    sectionTitle: "Let's start your project.",
-    sectionDescription: 'Have an idea for high-performance software, modern web platforms, mobile apps, or custom AI automation? Connect directly below for prompt 24-hour scoping turnaround.',
+    sectionEyebrow: 'Contact Nexordive',
+    modalEyebrow: 'Discuss Your Digital Project',
+    sectionTitle: "Let’s Discuss Your Digital Project",
+    sectionDescription:
+      'Tell us what you want to create or improve. Whether you need a website, online store, brand identity, marketing support, business automation or custom software, a clear project brief helps us discuss the right next steps.',
     directHeading: 'Direct Communication',
     directDescription: 'Prefer an immediate conversation? Reach out directly via WhatsApp for quick scoping, or email us your comprehensive RFP.',
     responseGuarantee: 'Prompt 24-Hour Scoping Turnaround',
     ndaGuarantee: 'Mutual NDA & IP Protection Included',
-    successMessage: 'Thank you for reaching out! Your inquiry has been registered locally in this prototype. Our engineering squad will review your scope and follow up within 24 hours.',
+    successMessage:
+      'Thank you for reaching out. Your project inquiry has been received. We will review the information provided and respond using your selected contact details.',
   },
 
   aboutPage: DEFAULT_ABOUT_PAGE_CONTENT,

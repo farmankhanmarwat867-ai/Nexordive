@@ -16,6 +16,9 @@ export interface Lead {
   date: string;
   status: 'New' | 'Contacted' | 'In Progress' | 'Closed';
   notes?: string;
+  projectGoals?: string;
+  requiredFeatures?: string;
+  preferredTimeline?: string;
 }
 
 export interface ServiceControl {

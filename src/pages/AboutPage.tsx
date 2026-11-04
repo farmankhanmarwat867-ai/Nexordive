@@ -90,13 +90,34 @@ export const AboutPage: React.FC<AboutPageProps> = ({
                   </p>
                 )}
 
-                <div className="pt-2">
+                <div className="pt-2 flex flex-wrap items-center gap-3.5">
                   <button
-                    onClick={handleIntroAction}
-                    className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-medium text-sm sm:text-base tracking-wide shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer active:scale-95 group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
+                    onClick={() => {
+                      if (onNavigate) {
+                        onNavigate('services');
+                      } else {
+                        handleIntroAction();
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-semibold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer active:scale-95 group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
                   >
-                    <PhoneCall className="w-4 h-4 text-cyan-300 group-hover:scale-110 transition-transform" />
-                    <span>{intro.buttonLabel || 'Book a Call'}</span>
+                    <span>{intro.buttonLabel || 'Explore Our Services'}</span>
+                    <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (onStartProject) {
+                        onStartProject();
+                      } else if (onOpenContact) {
+                        onOpenContact();
+                      } else {
+                        onOpenContactWithSummary('Inquiry: Discussing a new project from About page');
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs sm:text-sm uppercase tracking-wider border border-slate-200 hover:border-slate-300 hover:-translate-y-0.5 transition-all cursor-pointer active:scale-95 focus-visible:ring-2 focus-visible:ring-slate-400"
+                  >
+                    <span>{intro.secondaryButtonLabel || 'Discuss a Project'}</span>
                   </button>
                 </div>
               </motion.div>

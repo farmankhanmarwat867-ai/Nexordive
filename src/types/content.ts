@@ -360,6 +360,8 @@ export interface AboutPageIntro {
   paragraph2: string;
   buttonLabel: string;
   buttonAction: string;
+  secondaryButtonLabel?: string;
+  secondaryButtonAction?: string;
   techTreeImage: string;
   techTreeImageAlt: string;
 }

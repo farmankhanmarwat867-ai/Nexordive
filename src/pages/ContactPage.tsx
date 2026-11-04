@@ -35,9 +35,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     <div className="flex-1 bg-[#f8fafc]">
       {/* 1. Page Header with exactly one H1 */}
       <PageHeader
-        badge="Direct Communication"
-        title="Initiate an Architectural Discovery"
-        description="Whether you need a full enterprise rebuild, a multi-tenant SaaS platform, a headless Shopify store, or a focused prototype sprint, our staff engineers are ready to scope your requirements."
+        badge="Contact Nexordive"
+        title="Let’s Discuss Your Digital Project"
+        description="Tell us what you want to create or improve. Whether you need a website, online store, brand identity, marketing support, business automation or custom software, a clear project brief helps us discuss the right next steps."
         breadcrumbs={[
           { label: 'Home', onClick: onNavigateHome },
           { label: 'Contact' },
@@ -45,7 +45,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       />
 
       {/* 2. Main Contact Section with WhatsApp, Email & Form */}
-      <Contact onSuccessSubmit={onSuccessSubmit} className="pt-12 sm:pt-16 pb-24 border-t-0" />
+      <Contact onSuccessSubmit={onSuccessSubmit} hideHeader={true} className="pt-8 sm:pt-10 pb-24 border-t-0" />
     </div>
   );
 };

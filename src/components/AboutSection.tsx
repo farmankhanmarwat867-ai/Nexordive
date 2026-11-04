@@ -49,7 +49,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   const heading = content?.mission?.heading || 'Why work with Nexordive?';
   const description =
     content?.mission?.description ||
-    'NexorDive helps startups, growing businesses, and creators design, build, automate, and market practical digital experiences. From fast business websites and custom software to SaaS MVPs, Shopify e-commerce, and targeted digital marketing, we deliver outcomes-oriented solutions with dedicated craft and zero fluff.';
+    'Nexordive provides web development, graphic design, digital marketing, AI automation, mobile app development, SaaS and Shopify services for startups and growing businesses.';
   const readMoreLabel = content?.mission?.readMoreLabel || 'Explore Our Story';
   const readMoreAction = content?.mission?.readMoreAction || 'about';
 
