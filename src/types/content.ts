@@ -270,6 +270,7 @@ export interface TestimonialItem {
 }
 
 export interface TestimonialsContent {
+  sectionEyebrow?: string;
   sectionTitle: string;
   sectionDescription: string;
   testimonials: TestimonialItem[];
