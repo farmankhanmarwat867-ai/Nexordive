@@ -430,6 +430,7 @@ export interface PageHeadersContent {
   graphicDesign?: PageHeaderItem;
   digitalMarketing?: PageHeaderItem;
   aiAutomation?: PageHeaderItem;
+  mobileAppDevelopment?: PageHeaderItem;
   saas?: PageHeaderItem;
   shopify?: PageHeaderItem;
   streamerAssets: PageHeaderItem;

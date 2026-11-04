@@ -103,6 +103,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                     onNavigate('graphic-design');
                   } else if (title.includes('market') || title.includes('seo') || title.includes('social')) {
                     onNavigate('digital-marketing');
+                  } else if (title.includes('ai') || title.includes('auto') || title.includes('bot')) {
+                    onNavigate('ai-automation');
+                  } else if (title.includes('mobile') || title.includes('app') || title.includes('ios') || title.includes('android')) {
+                    onNavigate('mobile-app-development');
                   } else if (title.includes('saas')) {
                     onNavigate('saas');
                   } else if (title.includes('shopify') || title.includes('commerce')) {

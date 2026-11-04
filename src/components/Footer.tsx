@@ -143,6 +143,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
               <button onClick={() => handleLink('graphic-design')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Graphic Design</button>
               <button onClick={() => handleLink('digital-marketing')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Digital Marketing</button>
               <button onClick={() => handleLink('ai-automation')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">AI Automation</button>
+              <button onClick={() => handleLink('mobile-app-development')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Mobile App Dev</button>
               <button onClick={() => handleLink('saas')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">SaaS Platform</button>
               <button onClick={() => handleLink('shopify')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Shopify E-Commerce</button>
             </div>

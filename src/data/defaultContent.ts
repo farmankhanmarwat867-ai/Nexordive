@@ -933,6 +933,12 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   aboutPage: DEFAULT_ABOUT_PAGE_CONTENT,
 
   pageHeaders: {
+    mobileAppDevelopment: {
+      badge: 'Mobile App Development Services',
+      title: 'Mobile App Development From Concept to Usable Product',
+      description:
+        'Bring your app idea into focus with clear user journeys, practical features and mobile-first interfaces. Nexordive supports mobile application planning and development for startups and businesses with defined product needs.',
+    },
     aiAutomation: {
       badge: 'AI Automation Services',
       title: 'AI Automation for Repetitive Business Workflows',

@@ -14,6 +14,7 @@ interface ServicesPageProps {
   onNavigateGraphicDesign?: () => void;
   onNavigateDigitalMarketing?: () => void;
   onNavigateAIAutomation?: () => void;
+  onNavigateMobileAppDevelopment?: () => void;
   onNavigateSaaS?: () => void;
   onNavigateShopify?: () => void;
   onOpenContactWithSummary: (summary: string) => void;
@@ -26,6 +27,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   onNavigateGraphicDesign,
   onNavigateDigitalMarketing,
   onNavigateAIAutomation,
+  onNavigateMobileAppDevelopment,
   onNavigateSaaS,
   onNavigateShopify,
   onOpenContactWithSummary,
@@ -42,6 +44,8 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
       onNavigateDigitalMarketing();
     } else if ((name.includes('ai') || name.includes('auto') || name.includes('bot')) && onNavigateAIAutomation) {
       onNavigateAIAutomation();
+    } else if ((name.includes('mobile') || name.includes('app') || name.includes('ios') || name.includes('android')) && onNavigateMobileAppDevelopment) {
+      onNavigateMobileAppDevelopment();
     } else if (name.includes('saas') && onNavigateSaaS) {
       onNavigateSaaS();
     } else if ((name.includes('shopify') || name.includes('commerce')) && onNavigateShopify) {

@@ -20,6 +20,7 @@ import { WebDevelopmentPage } from './pages/WebDevelopmentPage';
 import { GraphicDesignPage } from './pages/GraphicDesignPage';
 import { DigitalMarketingPage } from './pages/DigitalMarketingPage';
 import { AIAutomationPage } from './pages/AIAutomationPage';
+import { MobileAppDevelopmentPage } from './pages/MobileAppDevelopmentPage';
 import { StreamerAssetsPage } from './pages/StreamerAssetsPage';
 import { PricingPage } from './pages/PricingPage';
 import { PortfolioPage } from './pages/PortfolioPage';
@@ -37,6 +38,7 @@ export type AppPage =
   | 'graphic-design'
   | 'digital-marketing'
   | 'ai-automation'
+  | 'mobile-app-development'
   | 'saas'
   | 'shopify'
   | 'blog'
@@ -83,6 +85,14 @@ function parsePageFromLocation(): AppPage {
   ) {
     return 'ai-automation';
   }
+  if (
+    hash === 'mobile-app-development' ||
+    hash === 'services/mobile-app-development' ||
+    path === 'services/mobile-app-development' ||
+    path === 'mobile-app-development'
+  ) {
+    return 'mobile-app-development';
+  }
   if (hash === 'saas' || hash === 'services/saas' || path === 'services/saas' || path === 'saas') {
     return 'saas';
   }
@@ -103,6 +113,7 @@ function parsePageFromLocation(): AppPage {
       'graphic-design',
       'digital-marketing',
       'ai-automation',
+      'mobile-app-development',
       'saas',
       'shopify',
       'blog',
@@ -212,6 +223,11 @@ function MainAppContent() {
       description =
         'Discover AI chatbots, lead handling automation, workflow integrations and internal business automation solutions with Nexordive.';
       canonical = 'https://www.nexordive.com/services/ai-automation';
+    } else if (currentPage === 'mobile-app-development') {
+      title = 'Mobile App Development for Android & iOS | Nexordive';
+      description =
+        'Plan and build intuitive mobile app experiences with Nexordive. Explore Android and iOS application design, MVP development and app interface solutions.';
+      canonical = 'https://www.nexordive.com/services/mobile-app-development';
     } else if (currentPage === 'saas') {
       title = 'SaaS Development Services | Nexordive';
       description =
@@ -299,6 +315,7 @@ function MainAppContent() {
         'graphic-design',
         'digital-marketing',
         'ai-automation',
+        'mobile-app-development',
         'saas',
         'shopify',
         'blog',
@@ -466,6 +483,7 @@ function MainAppContent() {
                 onNavigateGraphicDesign={() => handleNavigate('graphic-design')}
                 onNavigateDigitalMarketing={() => handleNavigate('digital-marketing')}
                 onNavigateAIAutomation={() => handleNavigate('ai-automation')}
+                onNavigateMobileAppDevelopment={() => handleNavigate('mobile-app-development')}
                 onNavigateSaaS={() => handleNavigate('saas')}
                 onNavigateShopify={() => handleNavigate('shopify')}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
@@ -501,6 +519,15 @@ function MainAppContent() {
 
             {currentPage === 'ai-automation' && (
               <AIAutomationPage
+                onNavigateHome={() => handleNavigate('home')}
+                onNavigateServices={() => handleNavigate('services')}
+                onNavigatePricing={() => handleNavigate('pricing')}
+                onOpenContactWithSummary={handleOpenContactWithSummary}
+              />
+            )}
+
+            {currentPage === 'mobile-app-development' && (
+              <MobileAppDevelopmentPage
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}
