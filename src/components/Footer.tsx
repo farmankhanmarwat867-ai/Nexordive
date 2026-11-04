@@ -45,14 +45,24 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
           
           {/* Brand info (5 cols) */}
           <div className="md:col-span-5 space-y-6">
-            {/* Logo */}
-            <div className="flex items-center tracking-widest text-[#004d6a] font-extrabold text-2xl font-mono select-none">
-              <span className="text-cyan-600 font-light text-2xl mr-1">&lt;</span>
-              <span className="tracking-[0.18em] font-black">{logoPrefix}</span>
-              <span className="inline-block w-[1.5px] h-4.5 bg-slate-400 mx-2" />
-              <span className="tracking-[0.18em] font-black">{logoSuffix}</span>
-              <span className="text-cyan-600 font-light text-2xl ml-1">&gt;</span>
-            </div>
+            {/* Logo - Official Nexordive Visual Identity */}
+            <a
+              href="#home"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLink('home');
+              }}
+              className="inline-block select-none group cursor-pointer"
+              aria-label="Nexordive Home"
+            >
+              <img
+                src="/assets/nexordive_logo_footer.png"
+                alt="Nexordive Logo"
+                width={154}
+                height={44}
+                className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"
+              />
+            </a>
 
             <div className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#004d6a] font-bold">
               {categoryTagline}

@@ -90,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
         <div className="flex items-center justify-between gap-4">
           
-          {/* 1. Left Logo - Stylized Geometric `<NEXOR | DIVE>` */}
+          {/* 1. Left Logo - Official Nexordive 3D Visual Identity */}
           <a
             href="#home"
             onClick={(e) => {
@@ -98,15 +98,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               handleLinkClick('home');
             }}
             className="flex items-center select-none group cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-300 rounded-lg p-0.5"
-            aria-label="NexorDive Home"
+            aria-label="Nexordive Home"
           >
-            <div className="flex items-center text-white font-mono tracking-[0.18em] font-extrabold text-lg sm:text-2xl group-hover:opacity-95 transition-opacity">
-              <span className="text-cyan-300 font-light text-2xl mr-1 select-none transition-transform group-hover:-translate-x-0.5">&lt;</span>
-              <span className="tracking-[0.18em] font-black">{logoPrefix}</span>
-              <span className="inline-block w-[1.5px] h-4.5 bg-cyan-300/80 mx-2" />
-              <span className="tracking-[0.18em] font-black">{logoSuffix}</span>
-              <span className="text-cyan-300 font-light text-2xl ml-1 select-none transition-transform group-hover:translate-x-0.5">&gt;</span>
-            </div>
+            <img
+              src="/assets/nexordive_logo_navbar.png"
+              alt="Nexordive Logo"
+              width={148}
+              height={42}
+              className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105"
+            />
           </a>
 
           {/* 2. Center Nav Links - High-legibility Serif Uppercase Typography matching reference */}
