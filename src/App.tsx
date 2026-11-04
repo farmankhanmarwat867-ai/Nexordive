@@ -19,6 +19,7 @@ import { ServicesPage } from './pages/ServicesPage';
 import { WebDevelopmentPage } from './pages/WebDevelopmentPage';
 import { GraphicDesignPage } from './pages/GraphicDesignPage';
 import { DigitalMarketingPage } from './pages/DigitalMarketingPage';
+import { AIAutomationPage } from './pages/AIAutomationPage';
 import { StreamerAssetsPage } from './pages/StreamerAssetsPage';
 import { PricingPage } from './pages/PricingPage';
 import { PortfolioPage } from './pages/PortfolioPage';
@@ -35,6 +36,7 @@ export type AppPage =
   | 'web-development'
   | 'graphic-design'
   | 'digital-marketing'
+  | 'ai-automation'
   | 'saas'
   | 'shopify'
   | 'blog'
@@ -57,6 +59,30 @@ function parsePageFromLocation(): AppPage {
   ) {
     return 'web-development';
   }
+  if (
+    hash === 'graphic-design' ||
+    hash === 'services/graphic-design' ||
+    path === 'services/graphic-design' ||
+    path === 'graphic-design'
+  ) {
+    return 'graphic-design';
+  }
+  if (
+    hash === 'digital-marketing' ||
+    hash === 'services/digital-marketing' ||
+    path === 'services/digital-marketing' ||
+    path === 'digital-marketing'
+  ) {
+    return 'digital-marketing';
+  }
+  if (
+    hash === 'ai-automation' ||
+    hash === 'services/ai-automation' ||
+    path === 'services/ai-automation' ||
+    path === 'ai-automation'
+  ) {
+    return 'ai-automation';
+  }
   if (hash === 'saas' || hash === 'services/saas' || path === 'services/saas' || path === 'saas') {
     return 'saas';
   }
@@ -74,6 +100,9 @@ function parsePageFromLocation(): AppPage {
       'about',
       'services',
       'web-development',
+      'graphic-design',
+      'digital-marketing',
+      'ai-automation',
       'saas',
       'shopify',
       'blog',
@@ -178,6 +207,11 @@ function MainAppContent() {
       description =
         'Nexordive offers digital marketing strategy, SEO foundations, social media content, campaign creatives and lead generation planning for businesses.';
       canonical = 'https://www.nexordive.com/services/digital-marketing';
+    } else if (currentPage === 'ai-automation') {
+      title = 'AI Automation & Workflow Solutions | Nexordive';
+      description =
+        'Discover AI chatbots, lead handling automation, workflow integrations and internal business automation solutions with Nexordive.';
+      canonical = 'https://www.nexordive.com/services/ai-automation';
     } else if (currentPage === 'saas') {
       title = 'SaaS Development Services | Nexordive';
       description =
@@ -262,6 +296,9 @@ function MainAppContent() {
         'about',
         'services',
         'web-development',
+        'graphic-design',
+        'digital-marketing',
+        'ai-automation',
         'saas',
         'shopify',
         'blog',
@@ -428,6 +465,7 @@ function MainAppContent() {
                 onNavigateWebDevelopment={() => handleNavigate('web-development')}
                 onNavigateGraphicDesign={() => handleNavigate('graphic-design')}
                 onNavigateDigitalMarketing={() => handleNavigate('digital-marketing')}
+                onNavigateAIAutomation={() => handleNavigate('ai-automation')}
                 onNavigateSaaS={() => handleNavigate('saas')}
                 onNavigateShopify={() => handleNavigate('shopify')}
                 onOpenContactWithSummary={handleOpenContactWithSummary}
@@ -454,6 +492,15 @@ function MainAppContent() {
 
             {currentPage === 'digital-marketing' && (
               <DigitalMarketingPage
+                onNavigateHome={() => handleNavigate('home')}
+                onNavigateServices={() => handleNavigate('services')}
+                onNavigatePricing={() => handleNavigate('pricing')}
+                onOpenContactWithSummary={handleOpenContactWithSummary}
+              />
+            )}
+
+            {currentPage === 'ai-automation' && (
+              <AIAutomationPage
                 onNavigateHome={() => handleNavigate('home')}
                 onNavigateServices={() => handleNavigate('services')}
                 onNavigatePricing={() => handleNavigate('pricing')}

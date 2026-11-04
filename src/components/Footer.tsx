@@ -139,12 +139,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onStartProject, onOp
               Capabilities
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-600">
-              <button onClick={() => handleLink('services')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Web Engineering</button>
-              <button onClick={() => handleLink('saas')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">SaaS Architecture</button>
+              <button onClick={() => handleLink('web-development')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Web Development</button>
+              <button onClick={() => handleLink('graphic-design')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Graphic Design</button>
+              <button onClick={() => handleLink('digital-marketing')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Digital Marketing</button>
+              <button onClick={() => handleLink('ai-automation')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">AI Automation</button>
+              <button onClick={() => handleLink('saas')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">SaaS Platform</button>
               <button onClick={() => handleLink('shopify')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Shopify E-Commerce</button>
-              <button onClick={() => handleLink('services')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Applied AI Systems</button>
-              <button onClick={() => handleLink('services')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Mobile App Dev</button>
-              <button onClick={() => handleLink('streamer-assets')} className="text-left hover:text-[#004d6a] py-1.5 transition-colors cursor-pointer truncate block">Streamer Assets</button>
             </div>
 
             <div className="pt-4">

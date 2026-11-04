@@ -933,6 +933,12 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   aboutPage: DEFAULT_ABOUT_PAGE_CONTENT,
 
   pageHeaders: {
+    aiAutomation: {
+      badge: 'AI Automation Services',
+      title: 'AI Automation for Repetitive Business Workflows',
+      description:
+        'Spend less attention on repetitive steps and more on work that needs human judgment. Nexordive explores AI automation opportunities for inquiry handling, internal processes, data routing and business support workflows.',
+    },
     digitalMarketing: {
       badge: 'Digital Marketing Services',
       title: 'Digital Marketing Services That Connect Strategy With Action',
