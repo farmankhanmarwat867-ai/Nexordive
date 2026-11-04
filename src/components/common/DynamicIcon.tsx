@@ -34,6 +34,8 @@ import {
   Server,
   Star,
   FileCode,
+  ShoppingBag,
+  Database,
 } from 'lucide-react';
 
 export const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -71,6 +73,8 @@ export const ICON_MAP: Record<string, React.ComponentType<{ className?: string }
   Server,
   Star,
   FileCode,
+  ShoppingBag,
+  Database,
 };
 
 interface DynamicIconProps {

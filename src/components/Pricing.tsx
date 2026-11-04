@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, ArrowUpRight, CheckCircle2, Sparkles, Shield } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle2, Sparkles, Shield, DollarSign } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { PricingPlanItem } from '../types/content';
 import { executeAction } from '../utils/actionHandler';
@@ -36,12 +36,12 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
 
   return (
     <section id="pricing" className="py-24 md:py-32 relative bg-white">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-2xl">
-            <div className="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-3 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-4">
+              <DollarSign className="w-3.5 h-3.5 text-[#0d5363]" />
               <span>{pricingData?.sectionEyebrow || 'Transparent Investment'}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight text-balance">
@@ -58,7 +58,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
                 <button
                   type="button"
                   onClick={onViewAll}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#004d6a] hover:text-[#006f94] transition-colors group cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#004d6a] hover:text-[#093c47] transition-colors group cursor-pointer"
                 >
                   <span>View All Prices</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
@@ -69,23 +69,23 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`rounded-3xl p-8 flex flex-col justify-between relative transition-all duration-300 ${
+              transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className={`rounded-3xl p-7 sm:p-8 flex flex-col justify-between relative transition-all duration-300 ${
                 plan.popular
-                  ? 'bg-gradient-to-b from-indigo-50/50 via-white to-white border-2 border-indigo-600 shadow-xl shadow-indigo-500/10 scale-100 lg:-translate-y-2'
-                  : 'bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300'
+                  ? 'bg-gradient-to-b from-teal-50/50 via-white to-white border-2 border-[#004d6a] shadow-2xl shadow-[#004d6a]/15 scale-100 lg:-translate-y-2'
+                  : 'bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#0d5363]/40'
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-indigo-600 text-white text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-md shadow-indigo-600/30">
-                  <Sparkles className="w-3 h-3" />
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#004d6a] text-white text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-md shadow-[#004d6a]/30">
+                  <Sparkles className="w-3 h-3 text-cyan-300" />
                   <span>{plan.badge || 'Most Popular'}</span>
                 </div>
               )}
@@ -95,7 +95,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
                   <span
                     className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                       plan.popular
-                        ? 'bg-indigo-100/70 text-indigo-700'
+                        ? 'bg-teal-100/70 text-[#004d6a] font-bold'
                         : 'bg-slate-100 text-slate-600'
                     }`}
                   >
@@ -103,12 +103,12 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 font-display mb-2">
+                <h3 className="text-xl font-bold text-slate-900 font-serif mb-2">
                   {plan.name}
                 </h3>
 
                 <div className="mb-6">
-                  <div className="text-3xl font-extrabold text-slate-950 font-display tracking-tight">
+                  <div className="text-3xl font-extrabold text-slate-950 font-mono tracking-tight">
                     {plan.price}
                   </div>
                   <div className="text-xs text-slate-500 font-medium mt-1">
@@ -126,7 +126,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
                     >
                       <CheckCircle2
                         className={`w-4 h-4 shrink-0 mt-0.5 ${
-                          plan.popular ? 'text-indigo-600' : 'text-slate-400'
+                          plan.popular ? 'text-teal-600' : 'text-slate-400'
                         }`}
                       />
                       <span>{feature}</span>
@@ -139,16 +139,16 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
                 {plan.turnaround && (
                   <div className="mb-4 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-600 flex items-center justify-between">
                     <span className="text-slate-500">Turnaround:</span>
-                    <span className="font-semibold text-slate-900">{plan.turnaround}</span>
+                    <span className="font-semibold text-slate-900 font-mono">{plan.turnaround}</span>
                   </div>
                 )}
 
                 <button
                   onClick={() => handleDiscuss(plan.name, plan.price)}
-                  className={`w-full py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+                  className={`w-full py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95 ${
                     plan.popular
-                      ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20 hover:shadow-indigo-600/30'
-                      : 'bg-slate-900 text-white hover:bg-slate-800'
+                      ? 'bg-[#004d6a] text-white hover:bg-[#093c47] shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:-translate-y-0.5'
+                      : 'bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-0.5'
                   }`}
                 >
                   <span>{plan.buttonText || 'Discuss Package'}</span>
@@ -165,20 +165,20 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
             <button
               type="button"
               onClick={onViewAll}
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-[#004d6a] hover:bg-[#003d54] text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-cyan-400/20 group"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer border border-cyan-400/20 group"
             >
-              <span>View All Pricing Plans</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span>Explore All Pricing Tiers</span>
+              <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         )}
 
         {/* Reassurance Banner */}
         {pricingData?.reassuranceBanner?.visible !== false && (
-          <div className="mt-14 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-600">
+          <div className="mt-14 p-6 sm:p-7 rounded-3xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-600">
             <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-indigo-600 shrink-0" />
-              <span>
+              <Shield className="w-5 h-5 text-[#004d6a] shrink-0" />
+              <span className="leading-relaxed">
                 {pricingData?.reassuranceBanner?.text ||
                   'All packages include a mutual non-disclosure agreement (NDA), clean source code repository handover, and post-launch bug warranty.'}
               </span>
@@ -192,7 +192,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPackage, onViewAll }) 
                   handleDiscuss('Custom Scope / Tailored Plan', 'Custom');
                 }
               }}
-              className="text-indigo-600 hover:text-indigo-700 font-semibold whitespace-nowrap inline-flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-[#004d6a] hover:text-[#093c47] font-bold whitespace-nowrap inline-flex items-center gap-1 transition-colors cursor-pointer"
             >
               <span>{pricingData?.reassuranceBanner?.ctaLabel || 'Need Custom Scope?'}</span>
               <ArrowUpRight className="w-3.5 h-3.5" />

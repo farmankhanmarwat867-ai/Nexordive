@@ -55,49 +55,49 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
   };
 
   return (
-    <section id="estimator" className="py-24 md:py-32 relative border-t border-slate-200/80 bg-[#FAFBFD]">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
+    <section id="estimator" className="py-24 md:py-32 relative border-t border-slate-200/80 bg-[#f8fafc]">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
         {/* Header */}
         <div className="max-w-3xl mb-16">
-          <div className="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-3 flex items-center gap-2">
-            <Calculator className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-4">
+            <Calculator className="w-3.5 h-3.5 text-[#0d5363]" />
             <span>Interactive Project Estimator</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 font-display tracking-tight text-balance">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-950 font-serif tracking-tight text-balance">
             Transparent scope, timeline, and investment planning.
           </h2>
-          <p className="text-slate-600 text-sm sm:text-base mt-4 leading-relaxed">
-            Configure your product requirements to receive a realistic estimate modeled after our production delivery sprints. Zero surprises.
+          <p className="text-slate-600 text-sm sm:text-base mt-4 leading-relaxed font-normal">
+            Configure your technical requirements to receive a realistic estimate modeled after our production engineering sprints. Zero surprises.
           </p>
         </div>
 
         {/* 2-Column Interactive Workspace */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Controls Column (7 cols) */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-6 sm:space-y-8">
             {/* Step 1: Project Type */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-800 block mb-4">
+            <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 block mb-4">
                 1. Project Category
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
                   { id: 'mvp', label: 'MVP Build', desc: 'Kickoff to Live' },
                   { id: 'saas', label: 'Enterprise SaaS', desc: 'High concurrency' },
-                  { id: 'redesign', label: 'Web Redesign', desc: 'Brand & UX overhaul' },
+                  { id: 'redesign', label: 'Web Overhaul', desc: 'Brand & UX refresh' },
                   { id: 'ai', label: 'AI Integration', desc: 'Agents & pipelines' },
                 ].map((type) => (
                   <button
                     key={type.id}
                     type="button"
                     onClick={() => setProjectType(type.id as EstimatorOptions['projectType'])}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                       projectType === type.id
-                        ? 'bg-indigo-50 border-indigo-500 text-indigo-950 shadow-xs'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300'
+                        ? 'bg-teal-50/80 border-[#004d6a] text-slate-950 shadow-sm ring-1 ring-[#004d6a]'
+                        : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <div className="text-xs font-bold font-display">{type.label}</div>
+                    <div className="text-xs font-bold font-serif">{type.label}</div>
                     <div className="text-[11px] text-slate-500 mt-1">{type.desc}</div>
                   </button>
                 ))}
@@ -105,15 +105,15 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
             </div>
 
             {/* Step 2: Platforms & System Modules */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-800 block mb-4">
+            <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 block mb-4">
                 2. Target Platforms & Architectural Modules
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
-                  { id: 'web', label: 'Web Application', desc: 'Next.js 15+ Core (Required)', locked: true },
+                  { id: 'web', label: 'Web Application', desc: 'React 19 / Next.js (Required)', locked: true },
                   { id: 'backend', label: 'Cloud Backend / API', desc: 'Microservices & Database' },
-                  { id: 'mobile', label: 'Mobile App', desc: 'React Native iOS/Android' },
+                  { id: 'mobile', label: 'Mobile App', desc: 'Flutter / Native Mobile' },
                   { id: 'ai-agent', label: 'Custom AI Agents', desc: 'LLM tools & orchestration' },
                   { id: 'design-system', label: 'Figma Design System', desc: 'Coded tokens & Storybook' },
                 ].map((p) => {
@@ -124,17 +124,17 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
                       type="button"
                       disabled={p.locked}
                       onClick={() => togglePlatform(p.id)}
-                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                         p.locked
-                          ? 'bg-indigo-50/60 border-indigo-200 text-slate-700 cursor-default'
+                          ? 'bg-teal-50/40 border-teal-200 text-slate-700 cursor-default'
                           : isSelected
-                          ? 'bg-indigo-50 border-indigo-500 text-indigo-950 shadow-xs'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300'
+                          ? 'bg-teal-50/80 border-[#004d6a] text-slate-950 shadow-sm ring-1 ring-[#004d6a]'
+                          : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:border-slate-300'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold font-display">{p.label}</span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-indigo-600" />}
+                        <span className="text-xs font-bold font-serif">{p.label}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-teal-600" />}
                       </div>
                       <div className="text-[11px] text-slate-500 mt-1">{p.desc}</div>
                     </button>
@@ -144,27 +144,27 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
             </div>
 
             {/* Step 3: Design Fidelity */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-800 block mb-4">
+            <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 block mb-4">
                 3. Design Fidelity & Motion Engineering
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { id: 'clean', label: 'Production Minimalist', desc: 'Fast, clean, ultra-legible typography' },
                   { id: 'bespoke', label: 'Bespoke Kinetics', desc: 'Micro-interactions & custom componentry' },
-                  { id: 'award', label: 'Award-Winning Studio', desc: '3D spatial WebGL, bespoke physics' },
+                  { id: 'award', label: 'Award-Winning Studio', desc: '3D spatial WebGL, bespoke kinetics' },
                 ].map((f) => (
                   <button
                     key={f.id}
                     type="button"
                     onClick={() => setFidelity(f.id as EstimatorOptions['fidelity'])}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                       fidelity === f.id
-                        ? 'bg-indigo-50 border-indigo-500 text-indigo-950 shadow-xs'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300'
+                        ? 'bg-teal-50/80 border-[#004d6a] text-slate-950 shadow-sm ring-1 ring-[#004d6a]'
+                        : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <div className="text-xs font-bold font-display">{f.label}</div>
+                    <div className="text-xs font-bold font-serif">{f.label}</div>
                     <div className="text-[11px] text-slate-500 mt-1">{f.desc}</div>
                   </button>
                 ))}
@@ -172,8 +172,8 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
             </div>
 
             {/* Step 4: Velocity & Timeline */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-800 block mb-4">
+            <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-sm">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 block mb-4">
                 4. Execution Cadence
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -186,13 +186,13 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
                     key={t.id}
                     type="button"
                     onClick={() => setTimeline(t.id as EstimatorOptions['timeline'])}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                       timeline === t.id
-                        ? 'bg-indigo-50 border-indigo-500 text-indigo-950 shadow-xs'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300'
+                        ? 'bg-teal-50/80 border-[#004d6a] text-slate-950 shadow-sm ring-1 ring-[#004d6a]'
+                        : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <div className="text-xs font-bold font-display">{t.label}</div>
+                    <div className="text-xs font-bold font-serif">{t.label}</div>
                     <div className="text-[11px] text-slate-500 mt-1">{t.desc}</div>
                   </button>
                 ))}
@@ -202,51 +202,51 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
 
           {/* Real-Time Calculation Sticky Summary (5 cols) */}
           <div className="lg:col-span-5 sticky top-28">
-            <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-xl relative overflow-hidden">
+            <div className="p-7 sm:p-9 rounded-3xl bg-white border border-slate-200/90 shadow-xl relative overflow-hidden">
               <div className="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
                 <div>
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-indigo-600 font-semibold block">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#004d6a] font-bold block">
                     Real-Time Model
                   </span>
-                  <div className="text-xl font-bold text-slate-950 font-display">
+                  <div className="text-xl font-bold text-slate-950 font-serif">
                     Scope Calculation
                   </div>
                 </div>
-                <div className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                  <span>Verified Sprint Rates</span>
+                <div className="px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-[#004d6a] text-xs font-bold flex items-center gap-1.5 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-600 animate-pulse" />
+                  <span>Sprint Rates</span>
                 </div>
               </div>
 
               {/* Price Range Display */}
               <div className="mb-6">
                 <span className="text-xs text-slate-500 block mb-1">Estimated Investment Range</span>
-                <div className="text-3xl sm:text-4xl font-extrabold text-slate-950 font-display tracking-tight tabular-nums">
+                <div className="text-3xl sm:text-4xl font-extrabold text-slate-950 font-mono tracking-tight tabular-nums">
                   ${estimate.minBudget.toLocaleString()} – ${estimate.maxBudget.toLocaleString()}
                 </div>
-                <span className="text-[11px] text-slate-500 mt-1 block">
-                  Milestone-based billing. Includes 100% IP transfer & post-launch warranty.
+                <span className="text-[11px] text-slate-500 mt-1.5 block leading-relaxed">
+                  Milestone-based delivery sprints. Includes full IP transfer and post-launch bug warranty.
                 </span>
               </div>
 
               {/* Delivery Cadence */}
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 mb-6 grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 mb-6 grid grid-cols-2 gap-4">
                 <div>
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-                    <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                    <Clock className="w-3.5 h-3.5 text-[#004d6a]" />
                     <span>Estimated Timeline</span>
                   </div>
-                  <div className="text-lg font-bold text-slate-950 font-display">
+                  <div className="text-base sm:text-lg font-bold text-slate-950 font-mono">
                     {estimate.minWeeks} – {estimate.maxWeeks} Weeks
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-                    <Users className="w-3.5 h-3.5 text-indigo-600" />
+                    <Users className="w-3.5 h-3.5 text-[#004d6a]" />
                     <span>Squad Size</span>
                   </div>
-                  <div className="text-lg font-bold text-slate-950 font-display">
+                  <div className="text-base sm:text-lg font-bold text-slate-950 font-mono">
                     {estimate.recommendedTeam.length} Specialists
                   </div>
                 </div>
@@ -254,13 +254,13 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
 
               {/* Highlights */}
               <div className="space-y-2 mb-8 text-xs">
-                <span className="font-bold uppercase tracking-wider text-slate-500 block text-[11px]">
+                <span className="font-bold uppercase tracking-wider text-slate-400 block text-[11px] font-mono">
                   Sprint Deliverables & Guarantees:
                 </span>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {estimate.highlights.map((item, idx) => (
                     <div key={idx} className="flex items-start gap-2 text-slate-700 text-xs">
-                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                      <Check className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </div>
                   ))}
@@ -271,10 +271,10 @@ export const ProjectEstimator: React.FC<ProjectEstimatorProps> = ({ onApplyEstim
               <button
                 type="button"
                 onClick={handleApply}
-                className="w-full flex items-center justify-center gap-2 py-4 px-6 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 active:scale-98 rounded-xl shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-4 px-6 text-xs sm:text-sm font-bold uppercase tracking-wider text-white bg-[#004d6a] hover:bg-[#093c47] active:scale-95 rounded-2xl shadow-xl shadow-[#004d6a]/20 hover:shadow-2xl hover:-translate-y-0.5 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#004d6a]"
               >
                 <span>Lock In Scope & Discuss Project</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <ArrowUpRight className="w-4 h-4 text-cyan-300" />
               </button>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-slate-500">

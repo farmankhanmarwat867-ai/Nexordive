@@ -78,7 +78,7 @@ export const Contact: React.FC<ContactProps> = ({
   const heading = contactContent?.sectionTitle || "Let's start your project.";
   const description =
     contactContent?.sectionDescription ||
-    'Have an idea for high-performance software, modern web platforms, mobile apps, or custom AI automation? Connect directly below for guaranteed 24-hour turnaround.';
+    'Have an idea for high-performance software, modern web platforms, mobile apps, or custom AI automation? Connect directly below for prompt 24-hour scoping turnaround.';
 
   const directHeading = contactContent?.directHeading || 'Direct Communication';
   const directDescription =
@@ -106,8 +106,8 @@ export const Contact: React.FC<ContactProps> = ({
       ? `mailto:${emailAgencyResult.sanitizedEmail}?subject=Project%20Inquiry%20via%20NexorDive`
       : undefined;
 
-  const responseGuarantee = contactContent?.responseGuarantee || '24-Hour Technical Review Guarantee';
-  const ndaGuarantee = contactContent?.ndaGuarantee || 'Strict NDA & IP Protection Included';
+  const responseGuarantee = contactContent?.responseGuarantee || 'Prompt 24-Hour Scoping Turnaround';
+  const ndaGuarantee = contactContent?.ndaGuarantee || 'Mutual NDA & IP Protection Included';
   const successMessage =
     contactContent?.successMessage ||
     'Thank you for reaching out! Your inquiry has been registered locally in this prototype. Our engineering squad will review your scope and follow up within 24 hours.';

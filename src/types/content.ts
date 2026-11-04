@@ -8,6 +8,7 @@ export interface NavLinkItem {
   destination: string; // e.g. 'home', 'services', 'streamer-assets', 'pricing', 'portfolio', 'contact'
   visible: boolean;
   order: number;
+  linkText?: string;
 }
 
 export interface SocialLinkItem {
@@ -67,6 +68,7 @@ export interface HeroContent {
 export interface ServiceCardItem {
   id: string;
   title: string;
+  linkText?: string;
   iconName: string;
   isTealHighlight: boolean;
   description: string;
@@ -156,6 +158,8 @@ export interface PortfolioProjectItem {
   order: number;
   countryBadge?: string;
   liveUrl?: string;
+  statusBadge?: string;
+  isConcept?: boolean;
 }
 
 export interface PortfolioContent {
@@ -421,6 +425,11 @@ export interface PageHeaderItem {
 
 export interface PageHeadersContent {
   services: PageHeaderItem;
+  webDevelopment?: PageHeaderItem;
+  graphicDesign?: PageHeaderItem;
+  digitalMarketing?: PageHeaderItem;
+  saas?: PageHeaderItem;
+  shopify?: PageHeaderItem;
   streamerAssets: PageHeaderItem;
   pricing: PageHeaderItem;
   portfolio: PageHeaderItem;
@@ -436,6 +445,23 @@ export interface SectionOrderItem {
 
 export interface SectionsManagerContent {
   landingPageSections: SectionOrderItem[];
+}
+
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+  visible?: boolean;
+  order?: number;
+}
+
+export interface FaqContent {
+  sectionEyebrow?: string;
+  sectionTitle?: string;
+  sectionDescription?: string;
+  items: FaqItem[];
 }
 
 export interface SeoSettings {
@@ -461,6 +487,7 @@ export interface SiteContent {
   blog: BlogContent;
   partners: PartnersContent;
   ctaBanner: CtaBannerContent;
+  faq?: FaqContent;
   contact: ContactContent;
   aboutPage?: AboutPageContent;
   pageHeaders: PageHeadersContent;

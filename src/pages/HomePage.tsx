@@ -4,13 +4,14 @@ import React from 'react';
 import { Hero } from '../components/Hero';
 import { AboutSection } from '../components/AboutSection';
 import { Services } from '../components/Services';
+import { ProcessTimeline } from '../components/ProcessTimeline';
 import { FeaturedProjects } from '../components/FeaturedProjects';
 import { Testimonials } from '../components/Testimonials';
-
+import { HomeFAQ } from '../components/HomeFAQ';
 import { PartnersMarquee } from '../components/PartnersMarquee';
 import { StreamerAssets } from '../components/StreamerAssets';
 import { Pricing } from '../components/Pricing';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles, MessageCircle, Mail } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
 
@@ -30,28 +31,34 @@ export const HomePage: React.FC<HomePageProps> = ({
   const { content } = useAdmin();
   const defaultSections = [
     { id: 'hero', label: 'Hero Section', visible: true, order: 1 },
-    { id: 'about', label: 'About NexorDive', visible: true, order: 2 },
-    { id: 'services', label: 'Services Grid', visible: true, order: 3 },
-    { id: 'portfolio', label: 'Projects & Case Studies', visible: true, order: 4 },
-    { id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 5 },
-    { id: 'pricing', label: 'Pricing Packages', visible: true, order: 6 },
-    { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 7 },
+    { id: 'services', label: 'Services Grid', visible: true, order: 2 },
+    { id: 'about', label: 'Why NexorDive & Who We Support', visible: true, order: 3 },
+    { id: 'process', label: 'Our Process (Idea to Launch)', visible: true, order: 4 },
+    { id: 'portfolio', label: 'Selected Work & Concepts', visible: true, order: 5 },
+    { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 6 },
+    { id: 'faq', label: 'Home FAQ', visible: true, order: 7 },
     { id: 'partners', label: 'Partners Marquee', visible: true, order: 8 },
-    { id: 'ctaBanner', label: 'Bottom CTA Banner', visible: true, order: 9 },
+    { id: 'ctaBanner', label: 'Bottom Conversion Banner', visible: true, order: 9 },
   ];
 
   const rawSections = content?.sectionsManager?.landingPageSections || defaultSections;
 
-  // Ensure portfolio, streamer-assets, and pricing are present even if older localStorage data lacked them
+  // Ensure all key sections are present even if older localStorage data lacked them
   let workingSections = [...rawSections];
+  if (!workingSections.some((s) => s.id === 'process')) {
+    workingSections.push({ id: 'process', label: 'Our Process', visible: true, order: 4 });
+  }
   if (!workingSections.some((s) => s.id === 'portfolio' || s.id === 'work')) {
-    workingSections.push({ id: 'portfolio', label: 'Projects & Case Studies', visible: true, order: 4 });
+    workingSections.push({ id: 'portfolio', label: 'Selected Work & Concepts', visible: true, order: 5 });
+  }
+  if (!workingSections.some((s) => s.id === 'faq')) {
+    workingSections.push({ id: 'faq', label: 'Home FAQ', visible: true, order: 7 });
   }
   if (!workingSections.some((s) => s.id === 'streamer-assets' || s.id === 'streamer')) {
-    workingSections.push({ id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 5 });
+    workingSections.push({ id: 'streamer-assets', label: 'Streamer Assets Hub', visible: false, order: 8 });
   }
   if (!workingSections.some((s) => s.id === 'pricing')) {
-    workingSections.push({ id: 'pricing', label: 'Pricing Packages', visible: true, order: 6 });
+    workingSections.push({ id: 'pricing', label: 'Pricing Packages', visible: false, order: 9 });
   }
 
   const sections = workingSections
@@ -88,9 +95,28 @@ export const HomePage: React.FC<HomePageProps> = ({
             return (
               <Services
                 key="services"
-                onSelectService={(_serviceTitle) => onNavigate('services')}
+                onSelectService={(serviceTitle) => {
+                  const title = serviceTitle.toLowerCase();
+                  if (title.includes('web')) {
+                    onNavigate('web-development');
+                  } else if (title.includes('graphic') || title.includes('design') || title.includes('brand')) {
+                    onNavigate('graphic-design');
+                  } else if (title.includes('market') || title.includes('seo') || title.includes('social')) {
+                    onNavigate('digital-marketing');
+                  } else if (title.includes('saas')) {
+                    onNavigate('saas');
+                  } else if (title.includes('shopify') || title.includes('commerce')) {
+                    onNavigate('shopify');
+                  } else if (title.includes('streamer')) {
+                    onNavigate('streamer-assets');
+                  } else {
+                    onNavigate('services');
+                  }
+                }}
               />
             );
+          case 'process':
+            return <ProcessTimeline key="process" />;
           case 'portfolio':
           case 'work':
             return (
@@ -102,6 +128,8 @@ export const HomePage: React.FC<HomePageProps> = ({
                 }
               />
             );
+          case 'faq':
+            return <HomeFAQ key="faq" onOpenContact={onOpenContact} />;
           case 'streamer-assets':
           case 'streamer':
             return (
@@ -127,35 +155,35 @@ export const HomePage: React.FC<HomePageProps> = ({
           case 'testimonials':
             return <Testimonials key="testimonials" />;
 
-
           case 'partners':
             return <PartnersMarquee key="partners" />;
           case 'ctaBanner': {
             const banner = content?.ctaBanner;
-            const eyebrow = banner?.eyebrow || 'Ready to Scale Your Brand?';
-            const heading = banner?.heading || "Let's Engineer Your Next Big Digital Milestone.";
+            const eyebrow = banner?.eyebrow || "Let's Build Together";
+            const heading = banner?.heading || 'Tell Us What You Want to Build';
             const description =
               banner?.description ||
-              'From modern web applications and AI automation to high-voltage streamer graphics, NexorDive brings world-class craft to your vision.';
-            const primaryLabel = banner?.primaryButtonLabel || 'Start a Project';
-            const primaryAction = banner?.primaryButtonAction || 'start-project';
-            const secondaryLabel = banner?.secondaryButtonLabel || 'Explore All Services';
-            const secondaryAction = banner?.secondaryButtonAction || 'services';
+              'Have a website, design, marketing, automation, mobile app, SaaS or Shopify project in mind? Tell us about your goals and we will discuss a suitable approach and scope.';
+            const primaryLabel = banner?.primaryButtonLabel || 'Request a Project Consultation';
+            const primaryAction = banner?.primaryButtonAction || 'contact';
 
             return (
               <section
                 key="ctaBanner"
-                className="py-20 bg-[#0d5363] text-white relative overflow-hidden"
+                className="py-24 sm:py-32 bg-gradient-to-br from-[#004d6a] via-[#093c47] to-[#06242c] text-white relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="max-w-7xl mx-auto px-6 sm:px-8 text-center relative z-10 space-y-6">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold uppercase tracking-wider text-cyan-200">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
+                
+                <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 text-center relative z-10 space-y-6">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold uppercase tracking-wider text-cyan-200 backdrop-blur-md">
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
                     <span>{eyebrow}</span>
                   </div>
-                  <h2 className="text-3xl sm:text-5xl font-serif font-bold text-white max-w-3xl mx-auto leading-tight">
+                  <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-white max-w-3xl mx-auto leading-tight text-balance">
                     {heading}
                   </h2>
-                  <p className="text-sm sm:text-base text-slate-200 max-w-xl mx-auto">
+                  <p className="text-sm sm:text-base text-slate-200/90 max-w-xl mx-auto font-normal leading-relaxed">
                     {description}
                   </p>
                   <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
@@ -168,24 +196,29 @@ export const HomePage: React.FC<HomePageProps> = ({
                           onOpenContactWithSummary,
                         })
                       }
-                      className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white text-[#0d5363] hover:bg-slate-100 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl transition-all cursor-pointer"
+                      className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-[#4ee1d6] to-[#38bdf8] text-slate-950 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl hover:shadow-cyan-400/30 hover:scale-105 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white group"
                     >
                       <span>{primaryLabel}</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
                     </button>
-                    <button
-                      onClick={() =>
-                        executeAction(secondaryAction, {
-                          onNavigate,
-                          onStartProject,
-                          onOpenContact,
-                          onOpenContactWithSummary,
-                        })
-                      }
-                      className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-black/25 hover:bg-black/40 text-white font-semibold text-xs sm:text-sm tracking-wide border border-white/20 transition-all cursor-pointer"
+                    <a
+                      href="https://wa.me/923146009810?text=Hello%20Nexordive%2C%20I%20would%20like%20to%20discuss%20a%20project"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm tracking-wide border border-white/20 hover:border-white/40 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
                     >
-                      <span>{secondaryLabel}</span>
-                    </button>
+                      <MessageCircle className="w-4 h-4 text-emerald-400" />
+                      <span>Contact via WhatsApp (+92 314 600 9810)</span>
+                    </a>
+                  </div>
+                  <div className="pt-2">
+                    <a
+                      href="mailto:hello@nexordive.com"
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm text-cyan-200/90 hover:text-white transition-colors underline underline-offset-4"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-cyan-300" />
+                      <span>hello@nexordive.com</span>
+                    </a>
                   </div>
                 </div>
               </section>

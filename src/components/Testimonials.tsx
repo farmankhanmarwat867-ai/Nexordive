@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Quote, ChevronLeft, ChevronRight, MessageSquareQuote } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { TestimonialItem } from '../types/content';
 
-// Distinct border accents matching the reference screenshot design
+// Distinct border accents matching the reference design
 const CARD_COLOR_STYLES = [
   {
     border: 'border-2 border-rose-300 hover:border-rose-400',
@@ -117,12 +117,17 @@ export const Testimonials: React.FC = () => {
         
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center mb-16 space-y-3">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-sans text-slate-900 tracking-tight">
-            {testData?.sectionTitle || "Patient Testimonials"}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-2">
+            <MessageSquareQuote className="w-3.5 h-3.5 text-[#0d5363]" />
+            <span>{testData?.sectionEyebrow || 'Client Reviews & Endorsements'}</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-900 tracking-tight">
+            {testData?.sectionTitle || "What Our Clients Say"}
           </h2>
-          <p className="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
             {testData?.sectionDescription ||
-              'Read authentic reviews from thousands of patients who booked their clinic visits through our platform.'}
+              'Read authentic feedback from founders, businesses, and creators who have built and grown with Nexordive.'}
           </p>
         </div>
 
@@ -197,7 +202,7 @@ export const Testimonials: React.FC = () => {
                       {/* Bottom Section: Divider + Author Profile */}
                       <div className="pt-5 mt-6 border-t border-slate-100">
                         <div className="flex items-center gap-3.5">
-                          <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100">
+                          <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
                             <img
                               src={t.avatar || '/assets/khyber/avatar1.png'}
                               alt={t.author}
@@ -213,8 +218,8 @@ export const Testimonials: React.FC = () => {
                             <h4 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate leading-snug">
                               {t.author}
                             </h4>
-                            <p className="text-xs text-slate-400 font-normal truncate mt-0.5 leading-normal">
-                              {t.role || t.company || 'United States'}
+                            <p className="text-xs text-slate-500 font-normal truncate mt-0.5 leading-normal">
+                              {t.role || t.company || 'Client'}
                             </p>
                           </div>
                         </div>

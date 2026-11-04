@@ -1,7 +1,12 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Menu, X, ArrowUpRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAdmin } from '../context/AdminStore';
 
@@ -23,12 +28,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { content } = useAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Exact 6 navigation links matching user's reference image
+  // Exact navigation links matching user's reference image & site IA
   const defaultNavLinks = [
     { id: 'home', label: 'HOME' },
     { id: 'about', label: 'ABOUT' },
     { id: 'services', label: 'SERVICES' },
-    { id: 'blog', label: 'BLOG' },
+    { id: 'saas', label: 'SAAS' },
+    { id: 'shopify', label: 'SHOPIFY' },
+    { id: 'streamer-assets', label: 'STREAMER ASSETS' },
+    { id: 'pricing', label: 'PRICING' },
     { id: 'portfolio', label: 'PROJECTS' },
     { id: 'contact', label: 'CONTACT' },
   ];
@@ -67,9 +75,19 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  const handleCtaClick = () => {
+    if (onStartProject) {
+      onStartProject();
+    } else if (onOpenContact) {
+      onOpenContact();
+    } else if (onNavigate) {
+      onNavigate('contact');
+    }
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#004d6a] py-3.5 sm:py-4 shadow-md shadow-black/15 border-b border-white/5 transition-all">
-      <div className="max-w-7xl mx-auto px-6 sm:px-10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#004d6a]/95 backdrop-blur-md py-3.5 sm:py-4 shadow-md shadow-black/15 border-b border-white/10 transition-all">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
         <div className="flex items-center justify-between gap-4">
           
           {/* 1. Left Logo - Stylized Geometric `<NEXOR | DIVE>` */}
@@ -79,22 +97,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               e.preventDefault();
               handleLinkClick('home');
             }}
-            className="flex items-center select-none group cursor-pointer shrink-0"
+            className="flex items-center select-none group cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-300 rounded-lg p-0.5"
             aria-label="NexorDive Home"
           >
-            <div className="flex items-center text-white font-mono tracking-[0.18em] font-extrabold text-lg sm:text-2xl">
-              <span className="text-white font-light text-2xl mr-1 select-none">&lt;</span>
+            <div className="flex items-center text-white font-mono tracking-[0.18em] font-extrabold text-lg sm:text-2xl group-hover:opacity-95 transition-opacity">
+              <span className="text-cyan-300 font-light text-2xl mr-1 select-none transition-transform group-hover:-translate-x-0.5">&lt;</span>
               <span className="tracking-[0.18em] font-black">{logoPrefix}</span>
-              <span className="inline-block w-[1.5px] h-4.5 bg-white/70 mx-2" />
+              <span className="inline-block w-[1.5px] h-4.5 bg-cyan-300/80 mx-2" />
               <span className="tracking-[0.18em] font-black">{logoSuffix}</span>
-              <span className="text-white font-light text-2xl ml-1 select-none">&gt;</span>
+              <span className="text-cyan-300 font-light text-2xl ml-1 select-none transition-transform group-hover:translate-x-0.5">&gt;</span>
             </div>
           </a>
 
-          {/* 2. Center Nav Links - Exact Serif Uppercase Typography matching user reference */}
-          <nav className="hidden lg:flex items-center gap-4 lg:gap-5 xl:gap-8 2xl:gap-10 shrink-0">
+          {/* 2. Center Nav Links - High-legibility Serif Uppercase Typography matching reference */}
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-7 2xl:gap-8 shrink-0" aria-label="Main Navigation">
             {navLinks.map((link) => {
-              const isActive = currentPage === link.id || (link.id === 'portfolio' && currentPage === 'portfolio');
+              const isActive = currentPage === link.id || (link.id === 'services' && (currentPage === 'web-development' || currentPage === 'graphic-design' || currentPage === 'digital-marketing')) || (link.id === 'portfolio' && currentPage === 'portfolio');
 
               return (
                 <a
@@ -104,30 +122,47 @@ export const Navbar: React.FC<NavbarProps> = ({
                     e.preventDefault();
                     handleLinkClick(link.id);
                   }}
-                  className={`font-serif uppercase text-[12px] xl:text-[13.5px] tracking-[0.14em] xl:tracking-[0.16em] whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                  className={`relative font-serif uppercase text-[12px] xl:text-[13px] tracking-[0.16em] whitespace-nowrap shrink-0 transition-all duration-200 py-1.5 px-2 rounded-md cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300 ${
                     isActive
-                      ? 'text-white font-semibold'
-                      : 'text-white/85 hover:text-white'
+                      ? 'text-white font-bold'
+                      : 'text-white/80 hover:text-white'
                   }`}
+                  aria-current={isActive ? 'page' : undefined}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="navActivePill"
+                      className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-cyan-400 to-[#4ee1d6] rounded-full"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </a>
               );
             })}
           </nav>
 
-          {/* 3. Right Action Icons (Facebook + LinkedIn white rounded square buttons) */}
+          {/* 3. Right Action Group (CTA button + Social Icons + Mobile Menu Toggle) */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Quick Start Project CTA (Desktop) */}
+            <button
+              onClick={handleCtaClick}
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#4ee1d6] to-[#38bdf8] text-slate-950 font-sans font-bold text-xs uppercase tracking-wider shadow-sm hover:shadow-cyan-400/25 hover:brightness-105 active:scale-95 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+              <span>Let's Talk</span>
+            </button>
+
             {/* Facebook White Button */}
             {showFacebook && (
               <a
                 href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="w-[34px] h-[34px] rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#004d6a] transition-all hover:scale-105 shadow-sm cursor-pointer"
+                aria-label="Visit NexorDive on Facebook"
+                className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#004d6a] transition-all hover:scale-105 active:scale-95 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300"
               >
-                <svg className="w-4 h-4 fill-[#004d6a]" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 fill-[#004d6a]" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.667 5H18V0h-3.808C10.595 0 9 1.583 9 4.615V8z" />
                 </svg>
               </a>
@@ -139,10 +174,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="w-[34px] h-[34px] rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#004d6a] transition-all hover:scale-105 shadow-sm cursor-pointer"
+                aria-label="Visit NexorDive on LinkedIn"
+                className="w-9 h-9 rounded-lg bg-white hover:bg-slate-100 flex items-center justify-center text-[#004d6a] transition-all hover:scale-105 active:scale-95 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300"
               >
-                <svg className="w-4 h-4 fill-[#004d6a]" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 fill-[#004d6a]" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
                 </svg>
               </a>
@@ -151,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Hamburger Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-1.5 rounded-lg text-white hover:bg-white/10 transition-colors cursor-pointer ml-1"
+              className="lg:hidden w-10 h-10 rounded-lg text-white hover:bg-white/10 active:scale-95 flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -169,10 +204,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="lg:hidden border-b border-white/10 bg-[#004d6a] px-6 py-6 shadow-2xl overflow-hidden"
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="lg:hidden border-b border-white/10 bg-[#004d6a]/98 backdrop-blur-xl px-6 py-6 shadow-2xl overflow-hidden"
           >
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {navLinks.map((link) => {
                 const isActive = currentPage === link.id || (link.id === 'portfolio' && currentPage === 'portfolio');
                 return (
@@ -183,28 +218,41 @@ export const Navbar: React.FC<NavbarProps> = ({
                       e.preventDefault();
                       handleLinkClick(link.id);
                     }}
-                    className={`font-serif uppercase text-sm tracking-[0.18em] whitespace-nowrap py-2.5 border-b border-white/10 transition-colors ${
-                      isActive ? 'text-cyan-200 font-bold' : 'text-white hover:text-cyan-200'
+                    className={`font-serif uppercase text-sm tracking-[0.18em] whitespace-nowrap py-3 px-3 rounded-lg border-b border-white/5 transition-all flex items-center justify-between ${
+                      isActive ? 'bg-white/10 text-cyan-200 font-bold' : 'text-white/90 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    {link.label}
+                    <span>{link.label}</span>
+                    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />}
                   </a>
                 );
               })}
 
-              {onOpenAdmin && (
-                <div className="pt-3">
+              {/* Mobile CTA */}
+              <div className="pt-4 flex flex-col gap-2.5">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleCtaClick();
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#4ee1d6] via-[#38bdf8] to-[#818cf8] text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-transform"
+                >
+                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <span>Start a Project</span>
+                </button>
+
+                {onOpenAdmin && (
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
                       onOpenAdmin();
                     }}
-                    className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all cursor-pointer"
+                    className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white/80 bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer"
                   >
-                    <span>Admin Dashboard</span>
+                    <span>Admin Access</span>
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </motion.div>
         )}
