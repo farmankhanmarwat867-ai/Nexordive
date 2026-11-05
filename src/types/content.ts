@@ -52,6 +52,12 @@ export interface HeroContent {
   headingLine3: string;
   headingLine4: string;
   description: string;
+  headingSize?: string;
+  line1Size?: string;
+  line2Size?: string;
+  line3Size?: string;
+  line4Size?: string;
+  descriptionSize?: string;
   image: string;
   imageAlt: string;
   secondaryShapeImage?: string;
@@ -82,6 +88,8 @@ export interface ServicesContent {
   sectionEyebrow: string;
   sectionTitle: string;
   sectionDescription: string;
+  titleSize?: string;
+  descriptionSize?: string;
   highlightedWord: string;
   ctaText: string;
   ctaAction: string;
@@ -105,6 +113,8 @@ export interface MissionContent {
   preheading?: string;
   heading: string;
   description: string;
+  headingSize?: string;
+  descriptionSize?: string;
   readMoreLabel?: string;
   readMoreAction?: string;
   ceoBadgeName: string;
@@ -335,6 +345,8 @@ export interface CtaBannerContent {
   eyebrow: string;
   heading: string;
   description: string;
+  headingSize?: string;
+  descriptionSize?: string;
   primaryButtonLabel: string;
   primaryButtonAction: string;
   secondaryButtonLabel: string;

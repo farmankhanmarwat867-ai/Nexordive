@@ -5,6 +5,12 @@ import { motion } from 'motion/react';
 import { ArrowRight, CheckCircle2, ChevronRight, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { DynamicIcon } from './common/DynamicIcon';
+import {
+  getHeadlineSizeClass,
+  getHeadlineStyle,
+  getParagraphSizeClass,
+  getParagraphStyle,
+} from '../utils/typography';
 
 interface ServicesProps {
   onSelectService?: (serviceTitle: string) => void;
@@ -250,12 +256,18 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
             </div>
 
             {/* Big Serif Heading */}
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-serif text-slate-900 tracking-tight leading-[1.15] text-balance">
+            <h2
+              className={`font-bold font-serif text-slate-900 tracking-tight leading-[1.15] text-balance ${getHeadlineSizeClass(servicesData?.titleSize, 'text-4xl sm:text-5xl lg:text-6xl')}`}
+              style={getHeadlineStyle(servicesData?.titleSize)}
+            >
               {servicesData?.sectionTitle || 'One digital partner. Seven focused solutions.'}
             </h2>
 
             {/* Paragraph */}
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+            <p
+              className={`text-slate-600 leading-relaxed font-normal ${getParagraphSizeClass(servicesData?.descriptionSize, 'text-sm sm:text-base')}`}
+              style={getParagraphStyle(servicesData?.descriptionSize)}
+            >
               {servicesData?.sectionDescription ||
                 'Whether you are launching a business, improving an online store or building a new software product, our services can be planned around your goals, audience and technical requirements.'}
             </p>

@@ -4,6 +4,12 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, CheckCircle2, Users2, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
+import {
+  getHeadlineSizeClass,
+  getHeadlineStyle,
+  getParagraphSizeClass,
+  getParagraphStyle,
+} from '../utils/typography';
 import { executeAction } from '../utils/actionHandler';
 
 interface AboutSectionProps {
@@ -99,12 +105,18 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
             </div>
 
             {/* Main Headline */}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-slate-900 tracking-tight leading-[1.18] mb-5 text-balance">
+            <h2
+              className={`font-serif font-bold text-slate-900 tracking-tight leading-[1.18] mb-5 text-balance ${getHeadlineSizeClass(content?.mission?.headingSize, 'text-3xl sm:text-4xl lg:text-5xl')}`}
+              style={getHeadlineStyle(content?.mission?.headingSize)}
+            >
               {heading}
             </h2>
 
             {/* Description Text */}
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl font-normal">
+            <p
+              className={`text-slate-600 leading-relaxed mb-6 max-w-2xl font-normal ${getParagraphSizeClass(content?.mission?.descriptionSize, 'text-sm sm:text-base')}`}
+              style={getParagraphStyle(content?.mission?.descriptionSize)}
+            >
               {description}
             </p>
 

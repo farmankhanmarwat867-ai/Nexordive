@@ -6,6 +6,12 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
 import { trackCtaClick } from '../utils/analytics';
+import {
+  getHeadlineSizeClass,
+  getHeadlineStyle,
+  getParagraphSizeClass,
+  getParagraphStyle,
+} from '../utils/typography';
 
 interface HeroProps {
   onOpenContact?: () => void;
@@ -105,12 +111,23 @@ export const Hero: React.FC<HeroProps> = ({
             )}
 
             {/* Main Heading */}
-            <h1 className="text-4xl sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem] font-extrabold text-white font-sans tracking-tight leading-[1.08] text-balance">
-              {hero.headingLine1 || 'Digital Solutions for'}
+            <h1
+              className={`font-extrabold text-white font-sans tracking-tight leading-[1.08] text-balance ${getHeadlineSizeClass(hero.headingSize, 'text-4xl sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem]')}`}
+              style={getHeadlineStyle(hero.headingSize)}
+            >
+              <span
+                className={getHeadlineSizeClass(hero.line1Size)}
+                style={getHeadlineStyle(hero.line1Size)}
+              >
+                {hero.headingLine1 || 'Digital Solutions for'}
+              </span>
               {hero.headingLine2 && (
                 <>
                   <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-100">
+                  <span
+                    className={`text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-100 ${getHeadlineSizeClass(hero.line2Size)}`}
+                    style={getHeadlineStyle(hero.line2Size)}
+                  >
                     {hero.headingLine2}
                   </span>
                 </>
@@ -118,7 +135,10 @@ export const Hero: React.FC<HeroProps> = ({
               {hero.headingLine3 && (
                 <>
                   <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-[#4ee1d6]">
+                  <span
+                    className={`text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-[#4ee1d6] ${getHeadlineSizeClass(hero.line3Size)}`}
+                    style={getHeadlineStyle(hero.line3Size)}
+                  >
                     {hero.headingLine3}
                   </span>
                 </>
@@ -126,7 +146,10 @@ export const Hero: React.FC<HeroProps> = ({
               {hero.headingLine4 && (
                 <>
                   {' '}
-                  <span className="text-white">
+                  <span
+                    className={`text-white ${getHeadlineSizeClass(hero.line4Size)}`}
+                    style={getHeadlineStyle(hero.line4Size)}
+                  >
                     {hero.headingLine4}
                   </span>
                 </>
@@ -134,7 +157,10 @@ export const Hero: React.FC<HeroProps> = ({
             </h1>
 
             {/* Sub-text */}
-            <p className="text-sm sm:text-base lg:text-[17px] text-slate-200/90 font-normal leading-relaxed max-w-xl">
+            <p
+              className={`text-slate-200/90 font-normal leading-relaxed max-w-xl ${getParagraphSizeClass(hero.descriptionSize, 'text-sm sm:text-base lg:text-[17px]')}`}
+              style={getParagraphStyle(hero.descriptionSize)}
+            >
               {hero.description}
             </p>
 

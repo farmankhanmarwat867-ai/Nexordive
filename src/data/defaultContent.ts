@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NexorDive - Default Content Source of Truth
  * Exactly matches all hardcoded text, images, and structure from existing public components.
  */
@@ -224,6 +224,12 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     headingLine2: 'for Businesses',
     headingLine3: 'Ready to Build',
     headingLine4: 'and Grow',
+    headingSize: 'default',
+    line1Size: 'default',
+    line2Size: 'default',
+    line3Size: 'default',
+    line4Size: 'default',
+    descriptionSize: 'default',
     description:
       'Build your digital presence with Nexordive. We bring web development, graphic design, digital marketing, AI automation, mobile app development, SaaS solutions and Shopify services together to help turn business ideas into useful digital products and experiences.',
     image: '/assets/khyber/hero_main_tech.png',

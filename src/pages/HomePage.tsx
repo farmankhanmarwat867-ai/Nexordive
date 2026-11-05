@@ -15,6 +15,12 @@ import { DynamicCustomBlock } from '../components/common/DynamicCustomBlock';
 import { ArrowRight, Sparkles, MessageCircle, Mail } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
+import {
+  getHeadlineSizeClass,
+  getHeadlineStyle,
+  getParagraphSizeClass,
+  getParagraphStyle,
+} from '../utils/typography';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -203,10 +209,16 @@ export const HomePage: React.FC<HomePageProps> = ({
                     <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
                     <span>{eyebrow}</span>
                   </div>
-                  <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-white max-w-3xl mx-auto leading-tight text-balance">
+                  <h2
+                    className={`font-serif font-bold text-white max-w-3xl mx-auto leading-tight text-balance ${getHeadlineSizeClass(banner?.headingSize, 'text-3xl sm:text-5xl lg:text-6xl')}`}
+                    style={getHeadlineStyle(banner?.headingSize)}
+                  >
                     {heading}
                   </h2>
-                  <p className="text-sm sm:text-base text-slate-200/90 max-w-xl mx-auto font-normal leading-relaxed">
+                  <p
+                    className={`text-slate-200/90 max-w-xl mx-auto font-normal leading-relaxed ${getParagraphSizeClass(banner?.descriptionSize, 'text-sm sm:text-base')}`}
+                    style={getParagraphStyle(banner?.descriptionSize)}
+                  >
                     {description}
                   </p>
                   <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
