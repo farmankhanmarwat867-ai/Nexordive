@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NexorDive - Default Content Source of Truth
  * Exactly matches all hardcoded text, images, and structure from existing public components.
  */
@@ -245,7 +245,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
 
   services: {
     sectionEyebrow: 'Services',
-    sectionTitle: 'One digital partner. Seven focused solutions.',
+    sectionTitle: 'We Are Here To Provide Our Services',
     sectionDescription:
       'Whether you are launching a business, improving an online store or building a new software product, our services can be planned around your goals, audience and technical requirements.',
     highlightedWord: 'solutions',
