@@ -5,6 +5,7 @@ import {
   Users,
   Briefcase,
   DollarSign,
+  Radio,
   ArrowUpRight,
   ExternalLink,
   MessageCircle,
@@ -29,7 +30,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigateTab, onBac
   const totalMessages = leads.length;
   const newMessagesCount = leads.filter((l) => l.status === 'New').length;
   const totalProjects = content.portfolio.projects.length;
-  const totalPackages = content.pricing.plans.length + content.streamer.startingCards.length;
+  const totalStreamerPacks = content.streamer.startingCards.length;
+  const totalPricingPlans = content.pricing.plans.length;
   const activeSectionsCount = content.sectionsManager.landingPageSections.filter((s) => s.visible).length;
 
   const recentMessages = leads.slice(0, 4);
@@ -58,8 +60,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigateTab, onBac
         </div>
       </div>
 
-      {/* 4 Real Local Counts */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* 5 Real Local Counts */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Card 1: Customer Inquiries */}
         <div
           onClick={() => onNavigateTab('messages')}
@@ -87,7 +89,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigateTab, onBac
           className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-indigo-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Portfolio Projects</span>
+            <span className="text-xs font-semibold text-slate-500">Portfolio</span>
             <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
               <Briefcase className="w-4 h-4" />
             </div>
@@ -102,34 +104,55 @@ export const OverviewView: React.FC<OverviewViewProps> = ({ onNavigateTab, onBac
           </div>
         </div>
 
-        {/* Card 3: Packages & Pricing */}
+        {/* Card 3: Streamer Assets */}
+        <div
+          onClick={() => onNavigateTab('streamer')}
+          className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-rose-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500">Streamer Assets</span>
+            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <Radio className="w-4 h-4 animate-pulse" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+              {totalStreamerPacks}
+            </div>
+            <div className="text-[11px] text-rose-600 font-semibold mt-1">
+              Platform packs
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Packages & Pricing */}
         <div
           onClick={() => onNavigateTab('pricing')}
           className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-indigo-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Pricing Packages</span>
+            <span className="text-xs font-semibold text-slate-500">Pricing Plans</span>
             <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
             <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
-              {totalPackages}
+              {totalPricingPlans}
             </div>
             <div className="text-[11px] text-slate-500 mt-1">
-              Web & streamer tiers
+              Web service tiers
             </div>
           </div>
         </div>
 
-        {/* Card 4: Home Sections */}
+        {/* Card 5: Home Sections */}
         <div
           onClick={() => onNavigateTab('pages')}
           className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-indigo-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500">Homepage Sections</span>
+            <span className="text-xs font-semibold text-slate-500">Home Sections</span>
             <div className="w-9 h-9 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
               <Layout className="w-4 h-4" />
             </div>

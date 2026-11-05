@@ -13,7 +13,7 @@ export interface NavLinkItem {
 
 export interface SocialLinkItem {
   id: string;
-  platform: 'facebook' | 'linkedin' | 'twitter' | 'instagram' | 'github' | 'custom';
+  platform: 'facebook' | 'linkedin' | 'twitter' | 'instagram' | 'github' | 'x' | 'custom';
   label: string;
   url: string;
   visible: boolean;
@@ -443,11 +443,70 @@ export interface PageHeadersContent {
   contact: PageHeaderItem;
 }
 
+export type CustomBlockType = 'faq' | 'features' | 'banner' | 'stats' | 'rich-text' | 'video';
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+export interface FeatureBlockItem {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+  badge?: string;
+}
+
+export interface StatBlockItem {
+  id: string;
+  value: string;
+  label: string;
+  subtext?: string;
+}
+
+export interface CustomSectionBlock {
+  id: string;
+  type: CustomBlockType;
+  title: string;
+  eyebrow?: string;
+  description?: string;
+  visible: boolean;
+  order: number;
+  backgroundColor?: 'white' | 'slate' | 'dark' | 'teal';
+  faqItems?: FaqItem[];
+  featureItems?: FeatureBlockItem[];
+  statItems?: StatBlockItem[];
+  bannerData?: {
+    buttonLabel?: string;
+    buttonAction?: string;
+    secondaryButtonLabel?: string;
+    secondaryButtonAction?: string;
+    alignment?: 'center' | 'left';
+  };
+  richTextData?: {
+    paragraph1?: string;
+    paragraph2?: string;
+    image?: string;
+    imagePosition?: 'left' | 'right';
+    ctaLabel?: string;
+    ctaAction?: string;
+  };
+  videoData?: {
+    videoUrl?: string;
+    thumbnailImage?: string;
+    caption?: string;
+  };
+}
+
 export interface SectionOrderItem {
   id: string;
   label: string;
   visible: boolean;
   order: number;
+  isCustom?: boolean;
+  customType?: CustomBlockType;
 }
 
 export interface SectionsManagerContent {
@@ -500,4 +559,5 @@ export interface SiteContent {
   pageHeaders: PageHeadersContent;
   sectionsManager: SectionsManagerContent;
   seo: SeoSettings;
+  customSections?: CustomSectionBlock[];
 }

@@ -6,6 +6,7 @@ import {
   Layout,
   Briefcase,
   DollarSign,
+  Radio,
   MessageSquare,
   Settings,
   ArrowLeft,
@@ -23,6 +24,7 @@ import { OverviewView } from './OverviewView';
 import { LeadsView } from './LeadsView';
 import { PagesSectionsView } from './editors/PagesSectionsView';
 import { PortfolioEditorView } from './editors/PortfolioEditorView';
+import { StreamerEditorView } from './editors/StreamerEditorView';
 import { PricingEditorView } from './editors/PricingEditorView';
 import { SettingsEditorView } from './editors/SettingsEditorView';
 import { UnsavedChangesModal } from './UnsavedChangesModal';
@@ -35,6 +37,7 @@ export type AdminTab =
   | 'overview'
   | 'pages'
   | 'portfolio'
+  | 'streamer'
   | 'pricing'
   | 'messages'
   | 'settings';
@@ -153,6 +156,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
     { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'pages', label: 'Website Pages', icon: Layout },
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase },
+    { id: 'streamer', label: 'Streamer Assets', icon: Radio },
     { id: 'pricing', label: 'Packages & Pricing', icon: DollarSign },
     { id: 'messages', label: 'Messages', icon: MessageSquare, badge: newMessagesCount },
     { id: 'settings', label: 'Website Settings', icon: Settings },
@@ -363,6 +367,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
           )}
           {activeTab === 'pages' && <PagesSectionsView onDirtyChange={handleDirtyChange} />}
           {activeTab === 'portfolio' && <PortfolioEditorView onDirtyChange={handleDirtyChange} />}
+          {activeTab === 'streamer' && <StreamerEditorView onDirtyChange={handleDirtyChange} />}
           {activeTab === 'pricing' && <PricingEditorView onDirtyChange={handleDirtyChange} />}
           {activeTab === 'messages' && <LeadsView />}
           {activeTab === 'settings' && <SettingsEditorView onDirtyChange={handleDirtyChange} />}

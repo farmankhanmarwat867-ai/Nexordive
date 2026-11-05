@@ -45,7 +45,7 @@ export const PortfolioPage: React.FC<PortfolioPageProps> = ({
       {/* 3. Endorsements from Leaders */}
       <Testimonials />
 
-      {/* 4. Partners Banner */}
+      {/* 4. Strategic Enterprise Marquee */}
       <PartnersMarquee />
     </div>
   );

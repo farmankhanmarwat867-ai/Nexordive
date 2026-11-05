@@ -11,6 +11,7 @@ import { HomeFAQ } from '../components/HomeFAQ';
 import { PartnersMarquee } from '../components/PartnersMarquee';
 import { StreamerAssets } from '../components/StreamerAssets';
 import { Pricing } from '../components/Pricing';
+import { DynamicCustomBlock } from '../components/common/DynamicCustomBlock';
 import { ArrowRight, Sparkles, MessageCircle, Mail } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
@@ -37,8 +38,10 @@ export const HomePage: React.FC<HomePageProps> = ({
     { id: 'portfolio', label: 'Selected Work & Concepts', visible: true, order: 5 },
     { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 6 },
     { id: 'faq', label: 'Home FAQ', visible: true, order: 7 },
-    { id: 'partners', label: 'Partners Marquee', visible: true, order: 8 },
-    { id: 'ctaBanner', label: 'Bottom Conversion Banner', visible: true, order: 9 },
+    { id: 'streamer-assets', label: 'Streamer Assets Hub', visible: false, order: 8 },
+    { id: 'pricing', label: 'Pricing Packages', visible: false, order: 9 },
+    { id: 'partners', label: 'Partners Marquee', visible: true, order: 10 },
+    { id: 'ctaBanner', label: 'Bottom Conversion Banner', visible: true, order: 11 },
   ];
 
   const rawSections = content?.sectionsManager?.landingPageSections || defaultSections;
@@ -59,6 +62,22 @@ export const HomePage: React.FC<HomePageProps> = ({
   }
   if (!workingSections.some((s) => s.id === 'pricing')) {
     workingSections.push({ id: 'pricing', label: 'Pricing Packages', visible: false, order: 9 });
+  }
+
+  // Ensure all custom sections are registered in working sections
+  if (Array.isArray(content?.customSections)) {
+    for (const c of content.customSections) {
+      if (!workingSections.some((s) => s.id === c.id)) {
+        workingSections.push({
+          id: c.id,
+          label: c.title,
+          visible: c.visible,
+          order: c.order ?? workingSections.length + 1,
+          isCustom: true,
+          customType: c.type,
+        });
+      }
+    }
   }
 
   const sections = workingSections
@@ -127,8 +146,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               <FeaturedProjects
                 key="featured-projects"
                 onViewAll={() => onNavigate('portfolio')}
-                onSelectProject={(project) =>
-                  onOpenContactWithSummary(`Project Inquiry: ${project.title}`)
+                onInquireProject={(projectName) =>
+                  onOpenContactWithSummary(`Project Inquiry: ${projectName}`)
                 }
               />
             );
@@ -178,7 +197,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               >
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
-                
+
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 text-center relative z-10 space-y-6">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold uppercase tracking-wider text-cyan-200 backdrop-blur-md">
                     <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
@@ -228,8 +247,23 @@ export const HomePage: React.FC<HomePageProps> = ({
               </section>
             );
           }
-          default:
+          default: {
+            // Render custom block if matches an active custom section
+            const customBlock = content?.customSections?.find((c) => c.id === section.id);
+            if (customBlock && customBlock.visible !== false) {
+              return (
+                <DynamicCustomBlock
+                  key={customBlock.id}
+                  block={customBlock}
+                  onNavigate={onNavigate}
+                  onStartProject={onStartProject}
+                  onOpenContact={onOpenContact}
+                  onOpenContactWithSummary={onOpenContactWithSummary}
+                />
+              );
+            }
             return null;
+          }
         }
       })}
     </div>
