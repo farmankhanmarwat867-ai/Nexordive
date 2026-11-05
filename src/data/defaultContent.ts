@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NexorDive - Default Content Source of Truth
  * Exactly matches all hardcoded text, images, and structure from existing public components.
  */
@@ -219,33 +219,27 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   },
 
   hero: {
-    badge: 'WEB • DESIGN • MARKETING • SOFTWARE • AUTOMATION',
-    headingLine1: 'Digital Solutions',
-    headingLine2: 'for Businesses',
-    headingLine3: 'Ready to Build',
-    headingLine4: 'and Grow',
-    headingSize: 'default',
-    line1Size: 'default',
-    line2Size: 'default',
-    line3Size: 'default',
-    line4Size: 'default',
-    descriptionSize: 'default',
+    badge: '',
+    headingLine1: 'Deep Digital',
+    headingLine2: 'Solutions for',
+    headingLine3: 'Modern',
+    headingLine4: 'Businesses',
     description:
-      'Build your digital presence with Nexordive. We bring web development, graphic design, digital marketing, AI automation, mobile app development, SaaS solutions and Shopify services together to help turn business ideas into useful digital products and experiences.',
+      'NexorDive builds websites, software systems, digital marketing assets, AI automation and premium streamer graphics for brands and creators who want to grow online.',
     image: '/assets/khyber/hero_main_tech.png',
     imageAlt: 'NexorDive Digital Solutions Visual',
     secondaryShapeImage: '/assets/khyber/hero_accent_blob.png',
     secondaryShapeAlt: 'White Organic Accent Backdrop Shape',
     outlineGraphic: '/assets/khyber/hero_orbit_ring.png',
     outlineGraphicAlt: 'White Orbital Outline Contour Line',
-    primaryButtonLabel: 'Discuss Your Project',
+    primaryButtonLabel: 'Start a Project',
     primaryButtonAction: 'contact',
-    secondaryButtonLabel: 'Explore Our Services',
-    secondaryButtonAction: 'services',
+    secondaryButtonLabel: 'Explore Streamer Assets',
+    secondaryButtonAction: 'streamer-assets',
     statCards: [
-      { id: 'stat-1', value: '7 Core Areas', label: 'Focused Digital Solutions' },
-      { id: 'stat-2', value: 'Sub-100ms', label: 'Core Web Vitals Target' },
-      { id: 'stat-3', value: '100% IP', label: 'Sanitized Repository Handover' },
+      { id: 'stat-1', value: '7+', label: 'Core Digital Services' },
+      { id: 'stat-2', value: 'Global', label: 'Remote Delivery Process' },
+      { id: 'stat-3', value: 'Mobile', label: 'SaaS & Web Platforms' },
     ],
   },
 
