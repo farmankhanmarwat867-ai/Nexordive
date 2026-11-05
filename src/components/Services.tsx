@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { DynamicIcon } from './common/DynamicIcon';
 import {
@@ -31,6 +31,14 @@ const getServiceUrl = (title: string): { href: string; anchorText: string } => {
   if (t.includes('shopify') || t.includes('store') || t.includes('commerce')) return { href: '/services/shopify-development', anchorText: 'Explore Shopify Store Development' };
   return { href: '/services', anchorText: `Explore ${title}` };
 };
+
+// Rhythmic vertical stagger for the horizontal cards (kuch ooper neechy organic wave)
+const STAGGER_OFFSETS = [
+  'lg:mt-5',   // Card 1: slightly lowered (+20px)
+  'lg:-mt-3',  // Card 2: elevated pillar (-12px)
+  'lg:mt-7',   // Card 3: lower wave (+28px)
+  'lg:mt-1',   // Card 4: balanced rise (+4px)
+];
 
 export const Services: React.FC<ServicesProps> = ({
   limit,
@@ -86,14 +94,15 @@ export const Services: React.FC<ServicesProps> = ({
   if (isHorizontal) {
     return (
       <section id="services" className="py-20 sm:py-28 lg:py-32 bg-[#f8fafc] relative overflow-hidden">
-        {/* Background ambient accents */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-100/30 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-50/50 rounded-full blur-3xl pointer-events-none translate-y-1/3 -translate-x-1/3" />
+        {/* Background ambient lighting accents */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-100/30 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-50/60 rounded-full blur-3xl pointer-events-none translate-y-1/3 -translate-x-1/3" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-50/40 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 relative z-10">
           
           {/* Top: Eyebrow, Heading & Paragraph */}
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-18">
             {/* Tag pill with white circle dot */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-3.5">
               <span className="w-2 h-2 rounded-full bg-[#0d5363]" />
@@ -118,40 +127,66 @@ export const Services: React.FC<ServicesProps> = ({
             </p>
           </div>
 
-          {/* Middle: 4 Cards Horizontally side-by-side */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch mb-12 sm:mb-14">
+          {/* Middle: 4 Cards Horizontally with organic vertical wave offsets */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6 items-stretch mb-16 sm:mb-20">
             {displayedCards.map((card, idx) => {
               const isHighlight = !!card.isTealHighlight;
               const serviceLink = getServiceUrl(card.title);
+              const staggerClass = STAGGER_OFFSETS[idx % STAGGER_OFFSETS.length];
+
               return (
                 <motion.div
                   key={card.id}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 35 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.55, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => handleAction(card.title)}
-                  className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 group cursor-pointer flex flex-col justify-between ${
+                  className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 group cursor-pointer flex flex-col justify-between ${staggerClass} ${
                     isHighlight
-                      ? 'bg-[#004d6a] text-white shadow-xl shadow-[#004d6a]/20 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#004d6a]/30 border border-cyan-400/30'
-                      : 'bg-white border border-slate-200/90 shadow-sm hover:shadow-2xl hover:border-[#0d5363]/40 hover:-translate-y-1.5'
+                      ? 'bg-gradient-to-b from-[#004d6a] via-[#00455f] to-[#013549] text-white shadow-2xl shadow-[#004d6a]/25 hover:-translate-y-2.5 hover:shadow-cyan-500/20 border-2 border-cyan-400/50 relative overflow-hidden'
+                      : 'bg-gradient-to-b from-white to-slate-50/70 border border-slate-200/90 shadow-md hover:shadow-2xl hover:border-[#0d5363]/40 hover:-translate-y-2.5'
                   }`}
                 >
+                  {/* Subtle decorative glow orb on highlight card */}
+                  {isHighlight && (
+                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-400/15 rounded-full blur-2xl pointer-events-none" />
+                  )}
+
                   <div>
-                    {/* Icon */}
-                    <div
-                      className={`w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-5 shadow-sm group-hover:scale-105 transition-transform ${
-                        isHighlight
-                          ? 'bg-white/10 text-cyan-300 border border-white/20'
-                          : 'bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363]'
-                      }`}
-                    >
-                      <DynamicIcon name={card.iconName} className="w-6 h-6 sm:w-7 sm:h-7" />
+                    {/* Top Row: Icon + Index/Popular Pill */}
+                    <div className="flex items-center justify-between mb-5">
+                      <div
+                        className={`w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-300 ${
+                          isHighlight
+                            ? 'bg-white/10 text-cyan-300 border border-white/20'
+                            : 'bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363]'
+                        }`}
+                      >
+                        <DynamicIcon name={card.iconName} className="w-6 h-6 sm:w-7 sm:h-7" />
+                      </div>
+
+                      {/* Numbered Pill / Popular Badge */}
+                      {isHighlight ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 shadow-xs">
+                            <Sparkles className="w-2.5 h-2.5 text-cyan-300" />
+                            <span>Featured</span>
+                          </span>
+                          <span className="text-xs font-mono font-bold text-cyan-200/50">
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs font-mono font-bold text-slate-400 group-hover:text-[#0d5363] transition-colors">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                      )}
                     </div>
 
                     {/* Title */}
                     <h3
-                      className={`text-lg sm:text-xl font-serif font-bold mb-2.5 ${
+                      className={`text-lg sm:text-xl font-serif font-bold mb-2.5 tracking-tight ${
                         isHighlight ? 'text-white' : 'text-slate-900 group-hover:text-[#0d5363] transition-colors'
                       }`}
                     >
@@ -161,7 +196,7 @@ export const Services: React.FC<ServicesProps> = ({
                     {/* Short Description */}
                     <p
                       className={`text-xs sm:text-sm mb-4 leading-relaxed line-clamp-3 ${
-                        isHighlight ? 'text-slate-200' : 'text-slate-600'
+                        isHighlight ? 'text-slate-200/90' : 'text-slate-600'
                       }`}
                     >
                       {card.description}
@@ -171,7 +206,7 @@ export const Services: React.FC<ServicesProps> = ({
                     {card.features && card.features.length > 0 && (
                       <ul
                         className={`space-y-2 text-xs mb-6 ${
-                          isHighlight ? 'text-slate-200' : 'text-slate-600'
+                          isHighlight ? 'text-slate-200/85' : 'text-slate-600'
                         }`}
                       >
                         {card.features.slice(0, 3).map((item: string, i: number) => (
@@ -189,7 +224,11 @@ export const Services: React.FC<ServicesProps> = ({
                   </div>
 
                   {/* Bottom Link */}
-                  <div className="pt-4 border-t border-slate-100/80">
+                  <div
+                    className={`pt-3.5 border-t ${
+                      isHighlight ? 'border-white/15' : 'border-slate-100'
+                    }`}
+                  >
                     <a
                       href={serviceLink.href}
                       onClick={(e) => {
@@ -203,7 +242,7 @@ export const Services: React.FC<ServicesProps> = ({
                         {serviceLink.anchorText.replace(/^Explore\s+/i, '')}
                       </span>
                       <ChevronRight
-                        className={`w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform ${
+                        className={`w-3.5 h-3.5 group-hover/link:translate-x-1.5 transition-transform ${
                           isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'
                         }`}
                       />
@@ -219,7 +258,7 @@ export const Services: React.FC<ServicesProps> = ({
             <button
               type="button"
               onClick={handleViewAll}
-              className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/25 hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
+              className="inline-flex items-center gap-3 px-9 py-4 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/25 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
               aria-label="Read more services"
             >
               <span>{servicesData?.ctaText || 'Read More'}</span>
