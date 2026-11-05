@@ -20,7 +20,7 @@ export interface CaseStudy {
   id: string;
   title: string;
   client: string;
-  category: 'ai' | 'fintech' | 'saas' | 'spatial';
+  category: 'ai' | 'fintech' | 'saas' | 'spatial' | 'ecommerce' | 'web' | string;
   year: string;
   summary: string;
   impactMetric: string;
@@ -32,6 +32,8 @@ export interface CaseStudy {
   outcome: string;
   previewGradient: string;
   accentColor: string;
+  statusBadge?: string;
+  isConcept?: boolean;
 }
 
 export interface ProcessPhase {

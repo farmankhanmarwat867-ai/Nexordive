@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Briefcase } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { CASE_STUDIES } from '../data/agencyData';
 import { PortfolioProjectItem } from '../types/content';
@@ -11,15 +11,17 @@ import { CaseStudyModal } from './common/CaseStudyModal';
 import { getAvailableTabs, matchesCategory } from '../utils/portfolioFilter';
 
 interface ProjectShowcaseProps {
+  limit?: number;
+  onSelectProject?: (project: PortfolioProjectItem) => void;
   onInquireProject?: (projectName: string) => void;
   onViewAll?: () => void;
-  limit?: number;
 }
 
 export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({
+  limit,
+  onSelectProject,
   onInquireProject,
   onViewAll,
-  limit,
 }) => {
   const { content } = useAdmin();
   const portfolioData = content?.portfolio;
@@ -72,28 +74,36 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({
   const displayedProjects =
     limit && limit > 0 ? filteredProjects.slice(0, limit) : filteredProjects;
 
+  const handleInquire = (projectName: string) => {
+    setSelectedCaseStudy(null);
+    if (onInquireProject) {
+      onInquireProject(projectName);
+    } else if (onSelectProject && selectedCaseStudy) {
+      onSelectProject(selectedCaseStudy);
+    }
+  };
+
   return (
     <section id="work" className="py-20 sm:py-28 relative bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 relative z-10 text-center">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 relative z-10 text-center">
         {/* Eyebrow Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200/90 text-xs font-semibold text-slate-800 shadow-xs mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-[#2563eb]" />
-          <span>{portfolioData?.sectionEyebrow || 'Selected Works & Case Studies'}</span>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-3">
+          <Briefcase className="w-3.5 h-3.5 text-[#0d5363]" />
+          <span>{portfolioData?.sectionEyebrow || 'Selected Works & Proof'}</span>
         </div>
 
         {/* Section Title */}
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-slate-950 tracking-tight mb-3">
-          Our Portfolio of{' '}
-          <span className="text-[#2563eb]">Digital Engineering</span>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight mb-3">
+          {portfolioData?.sectionTitle || 'Transformative Systems with Measurable Impact'}
         </h2>
 
         {/* Subtitle */}
-        <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-10">
+        <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
           {portfolioData?.sectionSubtitle ||
             'Explore premium applications developed by NexorDive. We solve core concurrency challenges and craft seamless interfaces that generate revenue or simplify operations.'}
         </p>
 
-        {/* Category Filter Tabs Bar matching reference design */}
+        {/* Category Filter Tabs Bar */}
         <div className="flex items-center justify-center mb-12 px-2">
           <div className="inline-flex items-center p-1.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm gap-1 flex-wrap justify-center">
             {filterTabs.map((tab) => {
@@ -148,10 +158,10 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({
             <button
               type="button"
               onClick={onViewAll}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs sm:text-sm tracking-wide shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/20 hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#004d6a]"
             >
               <span>View Full Portfolio</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-cyan-300" />
             </button>
           </div>
         )}
@@ -161,7 +171,7 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({
       <CaseStudyModal
         project={selectedCaseStudy}
         onClose={() => setSelectedCaseStudy(null)}
-        onInquire={onInquireProject}
+        onInquire={handleInquire}
       />
     </section>
   );

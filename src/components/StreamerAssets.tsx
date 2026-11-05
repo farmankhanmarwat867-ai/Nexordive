@@ -41,12 +41,12 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
   };
 
   return (
-    <section id="streamer-assets" className="py-24 md:py-32 relative bg-[#F8FAFC]">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
+    <section id="streamer-assets" className="py-24 md:py-32 relative bg-[#f8fafc]">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
           <div className="max-w-2xl">
-            <div className="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-3 flex items-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-semibold uppercase tracking-[0.18em] text-[#0d5363] shadow-xs mb-4">
               <Radio className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
               <span>{streamerData?.sectionEyebrow || 'Dedicated to Gamers & Creators'}</span>
             </div>
@@ -64,7 +64,7 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
                 <button
                   type="button"
                   onClick={onViewAll}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#004d6a] hover:text-[#006f94] transition-colors group cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#004d6a] hover:text-[#093c47] transition-colors group cursor-pointer"
                 >
                   <span>View All Assets</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
@@ -79,37 +79,37 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
           {startingPriceCards.map((card: StreamerStartingCard, index: number) => (
             <motion.div
               key={card.id}
-              initial={{ opacity: 0, y: 35 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{
-                duration: 0.55,
-                delay: index * 0.1,
+                duration: 0.5,
+                delay: index * 0.08,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="group relative rounded-2xl p-6 bg-white border border-slate-200 hover:border-slate-300 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1"
+              className="group relative rounded-3xl p-6 sm:p-7 bg-white border border-slate-200/90 hover:border-[#0d5363]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1.5"
             >
               <div>
                 {/* Platform Badge & Icon Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm"
-                    style={{ backgroundColor: card.accentColor || '#9333EA' }}
+                    className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform"
+                    style={{ backgroundColor: card.accentColor || '#004d6a' }}
                   >
                     <DynamicIcon name={card.iconName} className="w-5 h-5" />
                   </div>
                   {card.badge && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200/60">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200/60">
                       {card.badge}
                     </span>
                   )}
                 </div>
 
                 {/* Platform Name & Price */}
-                <h3 className="text-lg font-bold text-slate-950 font-display mb-1">
+                <h3 className="text-lg font-bold text-slate-900 font-serif mb-1">
                   {card.platform}
                 </h3>
-                <div className="text-xl font-extrabold text-slate-950 font-display tracking-tight mb-3">
+                <div className="text-2xl font-extrabold text-slate-950 font-mono tracking-tight mb-3">
                   {card.startingPrice}
                 </div>
 
@@ -124,8 +124,7 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
                     {card.features.map((feature: string, i: number) => (
                       <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
                         <CheckCircle2
-                          className="w-3.5 h-3.5 shrink-0 mt-0.5"
-                          style={{ color: card.accentColor || '#9333EA' }}
+                          className="w-3.5 h-3.5 shrink-0 mt-0.5 text-teal-600"
                         />
                         <span>{feature}</span>
                       </div>
@@ -137,7 +136,7 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
               {/* Action Button */}
               <button
                 onClick={() => handleAction(`${card.platform} (${card.startingPrice})`)}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                className="w-full py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-900 hover:bg-[#004d6a] text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
               >
                 <span>Customize Pack</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -152,10 +151,10 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
             <button
               type="button"
               onClick={onViewAll}
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-[#004d6a] hover:bg-[#003d54] text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-cyan-400/20 group"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer border border-cyan-400/20 group"
             >
               <span>View All Streamer Assets</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         )}
@@ -164,22 +163,22 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
         {showSuites && suites.length > 0 && (
           <div>
             <div className="mb-8">
-              <span className="text-xs font-mono uppercase tracking-wider text-indigo-600 font-semibold block mb-1">
+              <span className="text-xs font-mono uppercase tracking-wider text-[#004d6a] font-bold block mb-1">
                 {streamerData?.suitesSectionEyebrow || 'Full Production'}
               </span>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-display">
+              <h3 className="text-2xl sm:text-3xl font-bold font-serif text-slate-950">
                 {streamerData?.suitesSectionTitle || 'All-Inclusive Broadcast Suites'}
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               {suites.map((suite: StreamerSuite) => (
                 <div
                   key={suite.id}
-                  className={`p-8 rounded-2xl bg-white border transition-all flex flex-col justify-between ${
+                  className={`p-7 sm:p-8 rounded-3xl bg-white border transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 ${
                     suite.popular
-                      ? 'border-2 border-indigo-500 shadow-lg shadow-indigo-500/5'
-                      : 'border-slate-200 shadow-sm'
+                      ? 'border-2 border-[#004d6a] shadow-xl shadow-[#004d6a]/10'
+                      : 'border-slate-200/90 shadow-sm hover:shadow-md'
                   }`}
                 >
                   <div>
@@ -188,17 +187,17 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
                         Turnaround: {suite.turnaround}
                       </span>
                       {suite.popular && (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
+                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-[#004d6a] flex items-center gap-1 font-mono">
+                          <Sparkles className="w-3 h-3 text-[#004d6a]" />
                           <span>Staff Pick</span>
                         </span>
                       )}
                     </div>
 
-                    <h4 className="text-xl font-bold text-slate-950 font-display mb-2">
+                    <h4 className="text-xl font-bold font-serif text-slate-900 mb-2">
                       {suite.name}
                     </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed mb-6">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
                       {suite.description}
                     </p>
 
@@ -206,7 +205,7 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
                       <div className="space-y-2.5 mb-8">
                         {suite.items.map((item: string, idx: number) => (
                           <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-700">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
                             <span>{item}</span>
                           </div>
                         ))}
@@ -222,10 +221,10 @@ export const StreamerAssets: React.FC<StreamerAssetsProps> = ({ onInquirePackage
                         handleAction(suite.name);
                       }
                     }}
-                    className="w-full py-3.5 px-6 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-950 hover:bg-slate-800 text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full py-3.5 px-6 rounded-2xl text-xs font-bold uppercase tracking-wider bg-[#004d6a] hover:bg-[#093c47] text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#004d6a]/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
                   >
                     <span>{suite.buttonLabel || 'Inquire Broadcast Suite'}</span>
-                    <ArrowUpRight className="w-4 h-4" />
+                    <ArrowUpRight className="w-4 h-4 text-cyan-300" />
                   </button>
                 </div>
               ))}

@@ -18,17 +18,24 @@ import {
   ChevronDown,
   Lock,
   AlertCircle,
+  Calendar,
+  Target,
 } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { normalizeWhatsAppNumber, validateEmail } from '../utils/inquiryReplies';
+import { trackLeadSubmission, trackContactClick } from '../utils/analytics';
 
 export interface ContactFormData {
   name: string;
   email: string;
-  whatsapp: string;
+  whatsapp?: string;
   service: string;
-  budget: string;
-  message: string;
+  projectGoals: string;
+  requiredFeatures?: string;
+  budget?: string;
+  preferredTimeline?: string;
+  consent: boolean;
+  message?: string;
 }
 
 export interface ContactProps {
@@ -36,6 +43,7 @@ export interface ContactProps {
   onSuccessSubmit?: (data: ContactFormData) => Promise<{ success: boolean; id?: string; error?: string } | void> | { success: boolean; id?: string; error?: string } | void;
   className?: string;
   isModal?: boolean;
+  hideHeader?: boolean;
 }
 
 export const Contact: React.FC<ContactProps> = ({
@@ -43,6 +51,7 @@ export const Contact: React.FC<ContactProps> = ({
   onSuccessSubmit,
   className = '',
   isModal = false,
+  hideHeader = false,
 }) => {
   const { content, addLead } = useAdmin();
 
@@ -51,13 +60,21 @@ export const Contact: React.FC<ContactProps> = ({
     email: '',
     whatsapp: '',
     service: 'Web Development',
-    budget: '$300 – $699 (Growth Kit)',
+    projectGoals: initialSummary || '',
+    requiredFeatures: '',
+    budget: 'Exploring / Open to recommendation',
+    preferredTimeline: 'Flexible / Planning Phase',
+    consent: false,
     message: initialSummary,
   });
 
   useEffect(() => {
     if (initialSummary) {
-      setFormData((prev) => ({ ...prev, message: initialSummary }));
+      setFormData((prev) => ({
+        ...prev,
+        projectGoals: prev.projectGoals ? prev.projectGoals : initialSummary,
+        message: initialSummary,
+      }));
     }
   }, [initialSummary]);
 
@@ -72,13 +89,13 @@ export const Contact: React.FC<ContactProps> = ({
   const globalContent = content?.global;
 
   const eyebrow = isModal
-    ? (contactContent?.modalEyebrow || 'Quick Scoping & Inquiry')
-    : (contactContent?.sectionEyebrow || 'Get In Touch');
+    ? (contactContent?.modalEyebrow || 'Discuss Your Digital Project')
+    : (contactContent?.sectionEyebrow || 'Contact Nexordive');
 
-  const heading = contactContent?.sectionTitle || "Let's start your project.";
+  const heading = contactContent?.sectionTitle || "Let’s Discuss Your Digital Project";
   const description =
     contactContent?.sectionDescription ||
-    'Have an idea for high-performance software, modern web platforms, mobile apps, or custom AI automation? Connect directly below for guaranteed 24-hour turnaround.';
+    'Tell us what you want to create or improve. Whether you need a website, online store, brand identity, marketing support, business automation or custom software, a clear project brief helps us discuss the right next steps.';
 
   const directHeading = contactContent?.directHeading || 'Direct Communication';
   const directDescription =
@@ -93,7 +110,7 @@ export const Contact: React.FC<ContactProps> = ({
   const waAgencyResult = normalizeWhatsAppNumber(displayPhone);
   const whatsappUrl =
     waAgencyResult.valid && waAgencyResult.normalized
-      ? `https://wa.me/${waAgencyResult.normalized}?text=Hello%20NexorDive,%20I%20would%20like%20to%20discuss%20a%20new%20project.`
+      ? `https://wa.me/${waAgencyResult.normalized}?text=Hello%20Nexordive,%20I%20would%20like%20to%20discuss%20a%20new%20project.`
       : undefined;
 
   const displayEmail =
@@ -103,20 +120,26 @@ export const Contact: React.FC<ContactProps> = ({
   const emailAgencyResult = validateEmail(displayEmail);
   const emailUrl =
     emailAgencyResult.valid && emailAgencyResult.sanitizedEmail
-      ? `mailto:${emailAgencyResult.sanitizedEmail}?subject=Project%20Inquiry%20via%20NexorDive`
+      ? `mailto:${emailAgencyResult.sanitizedEmail}?subject=Project%20Inquiry%20via%20Nexordive`
       : undefined;
 
-  const responseGuarantee = contactContent?.responseGuarantee || '24-Hour Technical Review Guarantee';
-  const ndaGuarantee = contactContent?.ndaGuarantee || 'Strict NDA & IP Protection Included';
+  const responseGuarantee = contactContent?.responseGuarantee || 'Prompt Scoping Turnaround';
+  const ndaGuarantee = contactContent?.ndaGuarantee || 'Mutual Confidentiality & IP Protection';
   const successMessage =
     contactContent?.successMessage ||
-    'Thank you for reaching out! Your inquiry has been registered locally in this prototype. Our engineering squad will review your scope and follow up within 24 hours.';
+    'Thank you for reaching out. Your project inquiry has been received. We will review the information provided and respond using your selected contact details.';
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     if (errors[name as keyof ContactFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -131,21 +154,27 @@ export const Contact: React.FC<ContactProps> = ({
     const newErrors: Partial<Record<keyof ContactFormData, string>> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Full name is required';
+      newErrors.name = 'Your name is required';
     }
 
     const emailCheck = validateEmail(formData.email);
     if (!emailCheck.valid) {
-      newErrors.email = emailCheck.error || 'Valid work email is required';
+      newErrors.email = emailCheck.error || 'Valid business email is required';
     }
 
-    if (!formData.whatsapp.trim()) {
-      newErrors.whatsapp = 'WhatsApp number is required';
-    } else {
+    if (!formData.projectGoals.trim() && !formData.message?.trim()) {
+      newErrors.projectGoals = 'Please briefly outline what you want to create or improve';
+    }
+
+    if (formData.whatsapp && formData.whatsapp.trim()) {
       const waCheck = normalizeWhatsAppNumber(formData.whatsapp);
       if (!waCheck.valid) {
-        newErrors.whatsapp = waCheck.error || 'Valid international WhatsApp number with country code is required';
+        newErrors.whatsapp = waCheck.error || 'Valid phone number with country code is required';
       }
+    }
+
+    if (!formData.consent) {
+      newErrors.consent = 'Please confirm your consent to be contacted regarding this inquiry';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -159,7 +188,7 @@ export const Contact: React.FC<ContactProps> = ({
       if (onSuccessSubmit) {
         const result = await onSuccessSubmit(formData);
         if (result && typeof result === 'object' && result.success === false) {
-          setSubmitError(result.error || 'Failed to submit inquiry. Please check your storage settings and try again.');
+          setSubmitError(result.error || 'Failed to submit inquiry. Please check your network and try again.');
           setIsSubmitting(false);
           return;
         }
@@ -171,22 +200,40 @@ export const Contact: React.FC<ContactProps> = ({
         setIsSubmitted(true);
       } else {
         // Fallback: save directly via AdminStore
+        const notesCompiled = [
+          formData.projectGoals ? `Project Goals: ${formData.projectGoals}` : '',
+          formData.requiredFeatures ? `Required Features: ${formData.requiredFeatures}` : '',
+          formData.preferredTimeline ? `Timeline: ${formData.preferredTimeline}` : '',
+          formData.message && formData.message !== formData.projectGoals ? `Notes: ${formData.message}` : '',
+        ]
+          .filter(Boolean)
+          .join(' | ');
+
         const result = addLead({
           name: formData.name,
-          whatsapp: formData.whatsapp,
+          whatsapp: formData.whatsapp || 'Not provided',
           email: formData.email,
           service: formData.service,
-          budget: formData.budget,
+          budget: formData.budget || 'Exploring',
           status: 'New',
-          notes: formData.message || 'Direct lead captured from website contact form.',
+          notes: notesCompiled || 'Direct lead captured from website contact form.',
+          projectGoals: formData.projectGoals,
+          requiredFeatures: formData.requiredFeatures,
+          preferredTimeline: formData.preferredTimeline,
         });
+
         if (result && !result.success) {
-          setSubmitError(result.error || 'Failed to persist inquiry locally. Please try again.');
+          setSubmitError(result.error || 'Failed to record inquiry locally. Please try again.');
           setIsSubmitting(false);
           return;
         }
         setSubmittedId(result?.id || `NXD-${Math.floor(100000 + Math.random() * 900000)}`);
         setIsSubmitted(true);
+        trackLeadSubmission({
+          service: formData.service,
+          budget: formData.budget,
+          preferredTimeline: formData.preferredTimeline,
+        });
       }
     } catch (err: any) {
       console.error('Submission error:', err);
@@ -204,7 +251,11 @@ export const Contact: React.FC<ContactProps> = ({
       email: '',
       whatsapp: '',
       service: 'Web Development',
-      budget: '$300 – $699 (Growth Kit)',
+      projectGoals: '',
+      requiredFeatures: '',
+      budget: 'Exploring / Open to recommendation',
+      preferredTimeline: 'Flexible / Planning Phase',
+      consent: false,
       message: '',
     });
     setErrors({});
@@ -213,18 +264,20 @@ export const Contact: React.FC<ContactProps> = ({
   const contentElement = (
     <div className="w-full">
       {/* Section Header */}
-      <div className={`max-w-2xl ${isModal ? 'mb-8' : 'mb-14'}`}>
-        <div className="text-xs font-semibold uppercase tracking-wider text-[#0d5363] mb-2 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#0d5363]" />
-          <span>{eyebrow}</span>
+      {!hideHeader && (
+        <div className={`max-w-2xl ${isModal ? 'mb-8' : 'mb-14'}`}>
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#0d5363] mb-2 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#0d5363]" />
+            <span>{eyebrow}</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-slate-900 tracking-tight text-balance">
+            {heading}
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base mt-3 leading-relaxed font-normal">
+            {description}
+          </p>
         </div>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-slate-900 tracking-tight text-balance">
-          {heading}
-        </h2>
-        <p className="text-slate-600 text-sm sm:text-base mt-3 leading-relaxed font-normal">
-          {description}
-        </p>
-      </div>
+      )}
 
       {/* 2-Column Responsive Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
@@ -247,10 +300,16 @@ export const Contact: React.FC<ContactProps> = ({
               {/* WhatsApp */}
               <a
                 href={whatsappUrl || '#'}
-                onClick={!whatsappUrl ? (e) => e.preventDefault() : undefined}
+                onClick={(e) => {
+                  if (!whatsappUrl) {
+                    e.preventDefault();
+                  } else {
+                    trackContactClick('whatsapp', displayPhone);
+                  }
+                }}
                 aria-disabled={!whatsappUrl}
-                target={whatsappUrl ? "_blank" : undefined}
-                rel={whatsappUrl ? "noopener noreferrer" : undefined}
+                target={whatsappUrl ? '_blank' : undefined}
+                rel={whatsappUrl ? 'noopener noreferrer' : undefined}
                 className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl bg-emerald-50/80 hover:bg-emerald-100/80 border border-emerald-200/80 hover:border-emerald-300 transition-all group ${!whatsappUrl ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
                 <div className="w-11 h-11 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
@@ -271,7 +330,13 @@ export const Contact: React.FC<ContactProps> = ({
               {/* Email */}
               <a
                 href={emailUrl || '#'}
-                onClick={!emailUrl ? (e) => e.preventDefault() : undefined}
+                onClick={(e) => {
+                  if (!emailUrl) {
+                    e.preventDefault();
+                  } else {
+                    trackContactClick('email', displayEmail);
+                  }
+                }}
                 aria-disabled={!emailUrl}
                 className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl bg-cyan-50/60 hover:bg-cyan-100/70 border border-cyan-200/80 hover:border-cyan-300 transition-all group ${!emailUrl ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
@@ -280,7 +345,7 @@ export const Contact: React.FC<ContactProps> = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-[#004d6a]">
-                    Official RFP & Inquiries
+                    Official Inquiries & RFP
                   </div>
                   <div className="text-xs sm:text-sm font-bold text-slate-950 font-mono tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
                     {displayEmail}
@@ -302,13 +367,13 @@ export const Contact: React.FC<ContactProps> = ({
               </div>
               <div className="flex items-center gap-2.5">
                 <Sparkles className="w-4 h-4 text-cyan-600 shrink-0" />
-                <span className="font-medium">Direct communication with principal engineers</span>
+                <span className="font-medium">Direct review with staff engineers and designers</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Side: Modern Form */}
+        {/* Right Side: Modern Brief Form */}
         <div className="lg:col-span-7">
           <div
             id="contact-form"
@@ -334,16 +399,24 @@ export const Contact: React.FC<ContactProps> = ({
 
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2 max-w-md mx-auto font-mono text-slate-600">
                   <div className="flex justify-between">
-                    <span>Service:</span>
+                    <span>Selected Service:</span>
                     <span className="text-slate-900 font-medium">{formData.service}</span>
                   </div>
+                  {formData.budget && (
+                    <div className="flex justify-between">
+                      <span>Estimated Budget:</span>
+                      <span className="text-slate-900 font-medium">{formData.budget}</span>
+                    </div>
+                  )}
+                  {formData.preferredTimeline && (
+                    <div className="flex justify-between">
+                      <span>Timeline:</span>
+                      <span className="text-slate-900 font-medium">{formData.preferredTimeline}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
-                    <span>Budget:</span>
-                    <span className="text-slate-900 font-medium">{formData.budget}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>WhatsApp:</span>
-                    <span className="text-emerald-700 font-bold">{formData.whatsapp}</span>
+                    <span>Contact Email:</span>
+                    <span className="text-[#004d6a] font-bold">{formData.email}</span>
                   </div>
                 </div>
 
@@ -352,7 +425,7 @@ export const Contact: React.FC<ContactProps> = ({
                     onClick={handleReset}
                     className="px-6 py-2.5 text-xs font-semibold text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
                   >
-                    Send Another Message
+                    Submit Another Inquiry
                   </button>
                 </div>
               </div>
@@ -365,12 +438,12 @@ export const Contact: React.FC<ContactProps> = ({
                   </div>
                 )}
 
+                {/* 1. Name & Business Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {/* Name */}
                   <div>
                     <label htmlFor="name" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
                       <User className="w-3.5 h-3.5 text-[#004d6a]" />
-                      <span>Your Name</span>
+                      <span>Name</span>
                       <span className="text-rose-500">*</span>
                     </label>
                     <input
@@ -379,7 +452,7 @@ export const Contact: React.FC<ContactProps> = ({
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="e.g. John Doe"
+                      placeholder="e.g. Alex Morgan"
                       className={`w-full px-4 py-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 transition-all ${
                         errors.name ? 'border-rose-500' : 'border-slate-200'
                       }`}
@@ -389,11 +462,10 @@ export const Contact: React.FC<ContactProps> = ({
                     )}
                   </div>
 
-                  {/* Email */}
                   <div>
                     <label htmlFor="email" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
                       <Mail className="w-3.5 h-3.5 text-[#004d6a]" />
-                      <span>Email Address</span>
+                      <span>Business Email</span>
                       <span className="text-rose-500">*</span>
                     </label>
                     <input
@@ -402,7 +474,7 @@ export const Contact: React.FC<ContactProps> = ({
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="john@example.com"
+                      placeholder="alex@company.com"
                       className={`w-full px-4 py-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 transition-all ${
                         errors.email ? 'border-rose-500' : 'border-slate-200'
                       }`}
@@ -413,35 +485,13 @@ export const Contact: React.FC<ContactProps> = ({
                   </div>
                 </div>
 
-                {/* WhatsApp */}
-                <div>
-                  <label htmlFor="whatsapp" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
-                    <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>WhatsApp / Phone Number</span>
-                    <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="whatsapp"
-                    type="text"
-                    name="whatsapp"
-                    value={formData.whatsapp}
-                    onChange={handleChange}
-                    placeholder="+92 314 600 9810 or international format"
-                    className={`w-full px-4 py-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 transition-all ${
-                      errors.whatsapp ? 'border-rose-500' : 'border-slate-200'
-                    }`}
-                  />
-                  {errors.whatsapp && (
-                    <p className="text-[11px] text-rose-500 mt-1 font-medium">{errors.whatsapp}</p>
-                  )}
-                </div>
-
+                {/* 2. Service & Estimated Budget */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {/* Service Dropdown */}
                   <div>
                     <label htmlFor="service" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
                       <Briefcase className="w-3.5 h-3.5 text-[#004d6a]" />
-                      <span>Service *</span>
+                      <span>Service</span>
+                      <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <select
@@ -451,13 +501,15 @@ export const Contact: React.FC<ContactProps> = ({
                         onChange={handleChange}
                         className="w-full appearance-none px-4 py-3 pr-10 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 text-sm text-slate-900 focus:outline-none transition-all cursor-pointer font-medium"
                       >
-                        <option value="Web Development">Web & Cloud Apps</option>
-                        <option value="Software Development">Custom Software</option>
-                        <option value="Mobile App Development">Mobile Apps (iOS & Android)</option>
-                        <option value="AI Automation">AI Agents & Automation</option>
-                        <option value="Branding">UI/UX & Brand Design</option>
-                        <option value="Streamer Assets">Streamer Graphics & Hub</option>
-                        <option value="Digital Marketing">Growth Marketing & SEO</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="Graphic Design & Branding">Graphic Design & Branding</option>
+                        <option value="Digital Marketing">Digital Marketing</option>
+                        <option value="AI Automation">AI Automation</option>
+                        <option value="Mobile App Development">Mobile App Development</option>
+                        <option value="SaaS Development">SaaS Development</option>
+                        <option value="Shopify Development">Shopify Development</option>
+                        <option value="Streamer Assets">Streamer Assets</option>
+                        <option value="Other Digital Solution">Other Digital Solution</option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
                         <ChevronDown className="w-4 h-4" />
@@ -465,11 +517,10 @@ export const Contact: React.FC<ContactProps> = ({
                     </div>
                   </div>
 
-                  {/* Budget Dropdown */}
                   <div>
                     <label htmlFor="budget" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
                       <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Budget Range *</span>
+                      <span>Estimated Budget (Optional)</span>
                     </label>
                     <div className="relative">
                       <select
@@ -479,12 +530,11 @@ export const Contact: React.FC<ContactProps> = ({
                         onChange={handleChange}
                         className="w-full appearance-none px-4 py-3 pr-10 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 text-sm text-slate-900 focus:outline-none transition-all cursor-pointer font-medium"
                       >
-                        <option value="$300 – $699 (Growth Kit)">$300 – $699 (Growth Kit)</option>
-                        <option value="$99 – $299 (Starter Website)">$99 – $299 (Starter Website)</option>
+                        <option value="Exploring / Open to recommendation">Exploring / Open to recommendation</option>
+                        <option value="$300 – $699 (Starter / Growth Kit)">$300 – $699 (Starter / Growth Kit)</option>
                         <option value="$700 – $1,500 (Pro Launch)">$700 – $1,500 (Pro Launch)</option>
-                        <option value="$1,500 – $5,000 (Standard MVP)">$1,500 – $5,000 (Standard MVP)</option>
+                        <option value="$1,500 – $5,000 (Standard MVP / Build)">$1,500 – $5,000 (Standard MVP / Build)</option>
                         <option value="$5,000+ (Custom Enterprise)">$5,000+ (Custom Enterprise)</option>
-                        <option value="$49 – $129 (Streamer Pack)">$49 – $129 (Streamer Pack)</option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
                         <ChevronDown className="w-4 h-4" />
@@ -493,25 +543,116 @@ export const Contact: React.FC<ContactProps> = ({
                   </div>
                 </div>
 
-                {/* Message (Optional / Notes) */}
+                {/* 3. Preferred Timeline & WhatsApp (Optional) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label htmlFor="preferredTimeline" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                      <Calendar className="w-3.5 h-3.5 text-[#004d6a]" />
+                      <span>Preferred Timeline</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="preferredTimeline"
+                        name="preferredTimeline"
+                        value={formData.preferredTimeline}
+                        onChange={handleChange}
+                        className="w-full appearance-none px-4 py-3 pr-10 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 text-sm text-slate-900 focus:outline-none transition-all cursor-pointer font-medium"
+                      >
+                        <option value="Flexible / Planning Phase">Flexible / Planning Phase</option>
+                        <option value="Within 1 Month">Within 1 Month</option>
+                        <option value="1 – 3 Months">1 – 3 Months</option>
+                        <option value="Urgent (< 2 weeks)">Urgent (&lt; 2 weeks)</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+                        <ChevronDown className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="whatsapp" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>WhatsApp / Phone (Optional)</span>
+                    </label>
+                    <input
+                      id="whatsapp"
+                      type="text"
+                      name="whatsapp"
+                      value={formData.whatsapp || ''}
+                      onChange={handleChange}
+                      placeholder="+92 314 600 9810 or international format"
+                      className={`w-full px-4 py-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 transition-all ${
+                        errors.whatsapp ? 'border-rose-500' : 'border-slate-200'
+                      }`}
+                    />
+                    {errors.whatsapp && (
+                      <p className="text-[11px] text-rose-500 mt-1 font-medium">{errors.whatsapp}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 4. Project Goals */}
                 <div>
-                  <label htmlFor="message" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
-                    <FileText className="w-3.5 h-3.5 text-[#004d6a]" />
-                    <span>Project Notes (Optional)</span>
+                  <label htmlFor="projectGoals" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                    <Target className="w-3.5 h-3.5 text-[#004d6a]" />
+                    <span>Project Goals</span>
+                    <span className="text-rose-500">*</span>
                   </label>
                   <textarea
-                    id="message"
-                    name="message"
+                    id="projectGoals"
+                    name="projectGoals"
                     rows={3}
-                    value={formData.message}
+                    value={formData.projectGoals}
                     onChange={handleChange}
-                    placeholder="Tell us any specific requirements, deadlines, or design preferences..."
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all resize-y min-h-[85px]"
+                    placeholder="Tell us what you want to create or improve: business objectives, target audience, or current problems..."
+                    className={`w-full px-4 py-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 transition-all resize-y min-h-[85px] ${
+                      errors.projectGoals ? 'border-rose-500' : 'border-slate-200'
+                    }`}
+                  />
+                  {errors.projectGoals && (
+                    <p className="text-[11px] text-rose-500 mt-1 font-medium">{errors.projectGoals}</p>
+                  )}
+                </div>
+
+                {/* 5. Required Features */}
+                <div>
+                  <label htmlFor="requiredFeatures" className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                    <FileText className="w-3.5 h-3.5 text-[#004d6a]" />
+                    <span>Required Features (Optional)</span>
+                  </label>
+                  <input
+                    id="requiredFeatures"
+                    type="text"
+                    name="requiredFeatures"
+                    value={formData.requiredFeatures || ''}
+                    onChange={handleChange}
+                    placeholder="e.g. Member login, Stripe subscriptions, multilingual, CRM sync..."
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#004d6a] focus:ring-4 focus:ring-[#004d6a]/10 transition-all"
                   />
                 </div>
 
+                {/* 6. Consent to be contacted */}
+                <div>
+                  <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      name="consent"
+                      checked={formData.consent}
+                      onChange={handleChange}
+                      className="mt-0.5 w-4 h-4 rounded text-[#004d6a] border-slate-300 focus:ring-[#004d6a] cursor-pointer"
+                    />
+                    <span>
+                      I agree to be contacted by Nexordive regarding this project inquiry.{' '}
+                      <span className="text-rose-500">*</span>
+                    </span>
+                  </label>
+                  {errors.consent && (
+                    <p className="text-[11px] text-rose-500 mt-1 font-medium pl-6">{errors.consent}</p>
+                  )}
+                </div>
+
                 {/* Submit CTA */}
-                <div className="pt-1">
+                <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -520,18 +661,18 @@ export const Contact: React.FC<ContactProps> = ({
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Submitting Request...</span>
+                        <span>Submitting Your Project Brief...</span>
                       </div>
                     ) : (
                       <>
-                        <span>Submit Project Request</span>
+                        <span>Discuss Your Digital Project</span>
                         <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
                   </button>
                   <div className="flex items-center justify-center gap-2 mt-3 text-[11px] text-slate-500 font-medium">
                     <Lock className="w-3 h-3 text-slate-400" />
-                    <span>Strictly confidential · We reply via WhatsApp or email within 24 hours</span>
+                    <span>Strictly confidential · We respond promptly using your selected contact details</span>
                   </div>
                 </div>
               </form>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Briefcase, ArrowRight, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { PortfolioProjectItem } from '../types/content';
 import { PortfolioCard } from './common/PortfolioCard';
@@ -62,26 +62,31 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({
       className="py-20 sm:py-28 relative bg-[#fcfdff] overflow-hidden"
     >
       {/* Background ambient accents */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-blue-100/40 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute top-1/2 right-0 w-80 h-80 bg-blue-50/60 rounded-full blur-3xl pointer-events-none translate-x-1/3" />
+      <div className="absolute top-0 left-0 w-80 h-80 bg-cyan-100/30 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute top-1/2 right-0 w-80 h-80 bg-teal-50/50 rounded-full blur-3xl pointer-events-none translate-x-1/3" />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 relative z-10 text-center">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 relative z-10 text-center">
         {/* Eyebrow Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/90 text-xs font-semibold text-slate-800 shadow-xs mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-[#2563eb]" />
-          <span>{portfolioData?.sectionEyebrow || 'Featured Work & Demos'}</span>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-semibold text-[#0d5363] shadow-xs mb-3">
+          <Briefcase className="w-3.5 h-3.5 text-[#0d5363]" />
+          <span>{portfolioData?.sectionEyebrow || 'Portfolio'}</span>
         </div>
 
         {/* Section Title */}
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-slate-950 tracking-tight mb-3">
-          Our Portfolio of{' '}
-          <span className="text-[#2563eb]">Digital Engineering</span>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif text-slate-950 tracking-tight mb-3">
+          {portfolioData?.sectionTitle ? (
+            portfolioData.sectionTitle
+          ) : (
+            <>
+              Selected work and <span className="text-[#0d5363]">project concepts</span>
+            </>
+          )}
         </h2>
 
         {/* Subtitle */}
         <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-10">
           {portfolioData?.sectionSubtitle ||
-            'Explore premium applications developed by NexorDive. We solve core concurrency challenges and craft seamless interfaces that generate revenue or simplify operations.'}
+            'Explore website layouts, interface concepts, branding directions and automation examples. Where work is a demonstration rather than commissioned client work, it is clearly labeled as a concept.'}
         </p>
 
         {/* Filter Tabs Bar matching reference design */}
@@ -136,14 +141,14 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({
 
         {/* View Full Portfolio Button */}
         {onViewAll && (
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center gap-3">
             <button
               type="button"
               onClick={onViewAll}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs sm:text-sm tracking-wide shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/20 hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-[#004d6a]"
             >
-              <span>View Full Portfolio</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>View Our Work</span>
+              <ArrowRight className="w-4 h-4 text-cyan-300" />
             </button>
           </div>
         )}

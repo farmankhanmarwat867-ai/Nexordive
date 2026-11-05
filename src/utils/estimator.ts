@@ -87,10 +87,10 @@ export function calculateProjectEstimate(
   recommendedTeam.push('Dedicated Technical Delivery Lead');
 
   const highlights: string[] = [
-    `Guaranteed production release within ${minWeeks} to ${maxWeeks} calendar weeks`,
+    `Targeted production release within ${minWeeks} to ${maxWeeks} calendar weeks`,
     'Complete IP assignment, zero vendor lock-in & full documentation',
     'Bi-weekly deployable review builds and private staging environment',
-    'Sub-100ms Core Web Vitals performance guarantee',
+    'Sub-100ms Core Web Vitals performance target',
   ];
 
   return {

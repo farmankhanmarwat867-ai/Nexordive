@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
+import { trackCtaClick } from '../utils/analytics';
 
 interface HeroProps {
   onOpenContact?: () => void;
@@ -20,31 +22,32 @@ export const Hero: React.FC<HeroProps> = ({
 }) => {
   const { content } = useAdmin();
   const hero = content?.hero || {
-    badge: '',
-    headingLine1: 'Deep Digital',
-    headingLine2: 'Solutions for',
-    headingLine3: 'Modern',
-    headingLine4: 'Businesses',
+    badge: 'WEB • DESIGN • MARKETING • SOFTWARE • AUTOMATION',
+    headingLine1: 'Digital Solutions for',
+    headingLine2: 'Businesses Ready to',
+    headingLine3: 'Build and Grow',
+    headingLine4: '',
     description:
-      'NexorDive builds websites, software systems, digital marketing assets, AI automation and premium streamer graphics for brands and creators who want to grow online.',
+      'Build your digital presence with Nexordive. We bring web development, graphic design, digital marketing, AI automation, mobile app development, SaaS solutions and Shopify services together to help turn business ideas into useful digital products and experiences.',
     image: '/assets/khyber/hero_main_tech.png',
-    imageAlt: 'NexorDive Digital & AI Solutions',
+    imageAlt: 'NexorDive Digital Solutions Visual',
     secondaryShapeImage: '/assets/khyber/hero_accent_blob.png',
     secondaryShapeAlt: 'White Organic Accent Backdrop Shape',
     outlineGraphic: '/assets/khyber/hero_orbit_ring.png',
     outlineGraphicAlt: 'White Orbital Outline Contour Line',
-    primaryButtonLabel: 'Start a Project',
+    primaryButtonLabel: 'Discuss Your Project',
     primaryButtonAction: 'contact',
-    secondaryButtonLabel: 'Explore Streamer Assets',
-    secondaryButtonAction: 'streamer-assets',
+    secondaryButtonLabel: 'Explore Our Services',
+    secondaryButtonAction: 'services',
     statCards: [
-      { id: 'stat-1', value: '7+', label: 'Service Areas' },
-      { id: 'stat-2', value: 'Global', label: 'Client Ready' },
-      { id: 'stat-3', value: 'Mobile', label: 'First Design' },
+      { id: 'stat-1', value: '7 Focused Solutions', label: 'One Digital Partner' },
+      { id: 'stat-2', value: 'Mobile-First', label: 'All Screen Sizes' },
+      { id: 'stat-3', value: 'Clear Scope', label: 'Milestones & Planning' },
     ],
   };
 
   const handlePrimaryClick = () => {
+    trackCtaClick(hero.primaryButtonLabel || 'Discuss Your Project', hero.primaryButtonAction || 'contact');
     executeAction(hero.primaryButtonAction || 'contact', {
       onStartProject,
       onOpenContact,
@@ -57,7 +60,8 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   const handleSecondaryClick = () => {
-    executeAction(hero.secondaryButtonAction || 'streamer-assets', {
+    trackCtaClick(hero.secondaryButtonLabel || 'Explore Our Services', hero.secondaryButtonAction || 'services');
+    executeAction(hero.secondaryButtonAction || 'services', {
       onStartProject,
       onOpenContact,
       onNavigate: (page) => {
@@ -77,67 +81,73 @@ export const Hero: React.FC<HeroProps> = ({
     >
       {/* Background ambient lighting */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#093c47] rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-[#093c47] rounded-full blur-2xl pointer-events-none" />
 
-      {/* Subtle Dot matrix grid on bottom left exactly like video */}
+      {/* Subtle Dot matrix grid on bottom left */}
       <div className="absolute bottom-4 left-6 sm:left-12 w-64 sm:w-80 h-28 sm:h-36 pattern-dots opacity-40 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 w-full relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 w-full relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* Left Text Column */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="lg:col-span-6 flex flex-col items-start text-left space-y-6 pt-4 lg:pt-0"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="lg:col-span-6 flex flex-col items-start text-left space-y-6 pt-2 lg:pt-0"
           >
             {/* Optional Badge */}
             {hero.badge && (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-400/15 border border-cyan-400/30 text-cyan-200 text-xs font-semibold tracking-wide">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-400/15 border border-cyan-400/30 text-cyan-200 text-xs font-semibold tracking-wide backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                 <span>{hero.badge}</span>
               </div>
             )}
 
             {/* Main Heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white font-sans tracking-tight leading-[1.08]">
-              {hero.headingLine1 || 'Deep Digital'}
+            <h1 className="text-4xl sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem] font-extrabold text-white font-sans tracking-tight leading-[1.08] text-balance">
+              {hero.headingLine1 || 'Digital Solutions for'}
               {hero.headingLine2 && (
                 <>
                   <br />
-                  {hero.headingLine2}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-100">
+                    {hero.headingLine2}
+                  </span>
                 </>
               )}
               {hero.headingLine3 && (
                 <>
                   <br />
-                  {hero.headingLine3}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-[#4ee1d6]">
+                    {hero.headingLine3}
+                  </span>
                 </>
               )}
               {hero.headingLine4 && (
                 <>
-                  <br />
-                  {hero.headingLine4}
+                  {' '}
+                  <span className="text-white">
+                    {hero.headingLine4}
+                  </span>
                 </>
               )}
             </h1>
 
             {/* Sub-text */}
-            <p className="text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-xl">
+            <p className="text-sm sm:text-base lg:text-[17px] text-slate-200/90 font-normal leading-relaxed max-w-xl">
               {hero.description}
             </p>
 
             {/* Action Buttons: Gradient Start a Project & Dark Secondary */}
-            <div className="pt-2 flex flex-wrap items-center gap-3.5 w-full">
+            <div className="pt-2 flex flex-wrap items-center gap-4 w-full">
               {/* Primary Gradient Pill Button */}
               {hero.primaryButtonLabel && (
                 <button
                   onClick={handlePrimaryClick}
-                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-[#4ee1d6] via-[#38bdf8] to-[#818cf8] hover:opacity-95 active:scale-95 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-500/20 transition-all cursor-pointer group"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#4ee1d6] via-[#38bdf8] to-[#818cf8] hover:shadow-xl hover:shadow-cyan-400/25 hover:-translate-y-0.5 active:scale-95 text-slate-950 font-bold text-xs sm:text-sm tracking-wide transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-white"
                 >
                   <span>{hero.primaryButtonLabel}</span>
-                  <span className="text-sm font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                  <ArrowRight className="w-4 h-4 text-slate-950 group-hover:translate-x-1 transition-transform" />
                 </button>
               )}
 
@@ -145,7 +155,7 @@ export const Hero: React.FC<HeroProps> = ({
               {hero.secondaryButtonLabel && (
                 <button
                   onClick={handleSecondaryClick}
-                  className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#122b3e]/80 hover:bg-[#16354d] text-white font-bold text-xs sm:text-sm tracking-wide border border-[#234b6b] active:scale-95 transition-all cursor-pointer shadow-md"
+                  className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-[#122b3e]/80 hover:bg-[#16354d] hover:border-cyan-400/40 text-white font-bold text-xs sm:text-sm tracking-wide border border-[#234b6b] active:scale-95 transition-all cursor-pointer shadow-md focus-visible:ring-2 focus-visible:ring-cyan-300"
                 >
                   <span>{hero.secondaryButtonLabel}</span>
                 </button>
@@ -155,7 +165,7 @@ export const Hero: React.FC<HeroProps> = ({
             {/* Stat / Feature Cards directly underneath */}
             {statCards.length > 0 && (
               <div
-                className={`pt-3 grid gap-3 w-full max-w-xl ${
+                className={`pt-4 grid gap-3 w-full max-w-xl ${
                   statCards.length === 1
                     ? 'grid-cols-1'
                     : statCards.length === 2
@@ -166,12 +176,12 @@ export const Hero: React.FC<HeroProps> = ({
                 {statCards.map((stat) => (
                   <div
                     key={stat.id}
-                    className="p-4 rounded-2xl bg-[#0f2438]/70 border border-[#1e405e]/70 backdrop-blur-sm"
+                    className="p-4 rounded-2xl bg-[#0f2438]/80 border border-[#1e405e]/80 backdrop-blur-md hover:border-cyan-400/40 transition-all duration-300 group"
                   >
-                    <div className="text-base sm:text-lg font-bold text-white font-sans">
+                    <div className="text-lg sm:text-xl font-bold text-cyan-300 font-mono tracking-tight group-hover:scale-105 transition-transform origin-left">
                       {stat.value}
                     </div>
-                    <div className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">
+                    <div className="text-[11px] sm:text-xs text-slate-300 font-medium mt-0.5">
                       {stat.label}
                     </div>
                   </div>
@@ -180,16 +190,16 @@ export const Hero: React.FC<HeroProps> = ({
             )}
           </motion.div>
 
-          {/* Right Column - Future Tech Holographic Visual (3 Managed Visual Elements) */}
+          {/* Right Column - Future Tech Holographic Visual */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
+            initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.15, ease: 'easeOut' }}
+            transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-6 relative flex justify-center lg:justify-end items-center"
           >
             <div className="relative w-full max-w-[560px] lg:max-w-[620px] aspect-[932/766] flex items-center justify-center select-none animate-float-slow">
               
-              {/* Image 2: Secondary Organic Accent Shape / Backdrop Blob (Layer 2 - Left Behind) */}
+              {/* Image 2: Secondary Organic Accent Shape / Backdrop Blob */}
               {hero.secondaryShapeImage && (
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -201,11 +211,12 @@ export const Hero: React.FC<HeroProps> = ({
                     src={hero.secondaryShapeImage}
                     alt={hero.secondaryShapeAlt || 'White Organic Accent Shape'}
                     className="w-full h-full object-contain pointer-events-none"
+                    loading="eager"
                   />
                 </motion.div>
               )}
 
-              {/* Image 1: Main Future Tech Graphic / Organic Visual (Layer 1 - Center) */}
+              {/* Image 1: Main Future Tech Graphic */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -215,11 +226,12 @@ export const Hero: React.FC<HeroProps> = ({
                 <img
                   src={hero.image || '/assets/khyber/hero_main_tech.png'}
                   alt={hero.imageAlt || 'NexorDive Futuristic Digital Technology Visual'}
-                  className="w-full h-full object-contain pointer-events-none drop-shadow-[0_20px_45px_rgba(0,0,0,0.35)]"
+                  className="w-full h-full object-contain pointer-events-none drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)]"
+                  loading="eager"
                 />
               </motion.div>
 
-              {/* Image 3: Orbital Loop Ring / Outline Graphic (Layer 3 - Surrounding Top & Right) */}
+              {/* Image 3: Orbital Loop Ring */}
               {hero.outlineGraphic && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -231,12 +243,13 @@ export const Hero: React.FC<HeroProps> = ({
                     src={hero.outlineGraphic}
                     alt={hero.outlineGraphicAlt || 'White Orbital Outline Loop'}
                     className="w-full h-full object-contain pointer-events-none"
+                    loading="eager"
                   />
                 </motion.div>
               )}
 
               {/* Ambient Glow Effects */}
-              <div className="absolute inset-10 bg-cyan-400/15 rounded-full blur-3xl pointer-events-none -z-10" />
+              <div className="absolute inset-10 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none -z-10" />
             </div>
           </motion.div>
         </div>

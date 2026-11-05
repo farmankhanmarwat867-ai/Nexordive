@@ -88,7 +88,7 @@ test('getStoredContent safely populates aboutPage defaults when missing in legac
 
   const retrieved = getStoredContent();
   assert.ok(retrieved.aboutPage);
-  assert.equal(retrieved.aboutPage.intro.heading, 'Choose NexorDive');
+  assert.equal(retrieved.aboutPage.intro.heading, 'About Nexordive: Practical Technology, Clear Digital Experiences');
   assert.equal(retrieved.aboutPage.consultation.heading, 'Start Project With Us ?');
   assert.equal(retrieved.aboutPage.teamMembers.length, 9);
   assert.equal(retrieved.aboutPage.corePillars.length, 4);
