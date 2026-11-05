@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { DynamicIcon } from './common/DynamicIcon';
 import {
@@ -132,7 +132,6 @@ export const Services: React.FC<ServicesProps> = ({
           {/* Middle: Cards Grid (Horizontal wave on landing page preview, clean grid on full services page) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6 items-stretch mb-16 sm:mb-20">
             {displayedCards.map((card, idx) => {
-              const isHighlight = !!card.isTealHighlight;
               const serviceLink = getServiceUrl(card.title);
               const staggerClass = isLandingPreview ? STAGGER_OFFSETS[idx % STAGGER_OFFSETS.length] : '';
 
@@ -142,113 +141,70 @@ export const Services: React.FC<ServicesProps> = ({
                   initial={{ opacity: 0, y: 35 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.55, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.55, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => handleAction(card.title)}
-                  className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 group cursor-pointer flex flex-col justify-between ${staggerClass} ${
-                    isHighlight
-                      ? 'bg-gradient-to-b from-[#004d6a] via-[#00455f] to-[#013549] text-white shadow-2xl shadow-[#004d6a]/25 hover:-translate-y-2.5 hover:shadow-cyan-500/20 border-2 border-cyan-400/50 relative overflow-hidden'
-                      : 'bg-gradient-to-b from-white to-slate-50/70 border border-slate-200/90 shadow-md hover:shadow-2xl hover:border-[#0d5363]/40 hover:-translate-y-2.5'
-                  }`}
+                  className={`p-6 sm:p-7 rounded-3xl transition-all duration-300 group cursor-pointer flex flex-col justify-between relative overflow-hidden bg-white border border-slate-200/90 shadow-sm hover:border-cyan-400/60 hover:shadow-2xl hover:shadow-[#004d6a]/25 hover:-translate-y-2.5 ${staggerClass}`}
                 >
-                  {/* Subtle decorative glow orb on highlight card */}
-                  {isHighlight && (
-                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-400/15 rounded-full blur-2xl pointer-events-none" />
-                  )}
+                  {/* Hover dark teal gradient layer (smooth fade-in on hover) */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#004d6a] via-[#00455f] to-[#013549] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-                  <div>
-                    {/* Top Row: Icon + Index/Popular Pill */}
-                    <div className="flex items-center justify-between mb-5">
-                      <div
-                        className={`w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-300 ${
-                          isHighlight
-                            ? 'bg-white/10 text-cyan-300 border border-white/20'
-                            : 'bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363]'
-                        }`}
-                      >
-                        <DynamicIcon name={card.iconName} className="w-6 h-6 sm:w-7 sm:h-7" />
-                      </div>
+                  {/* Subtle decorative glow orb on hover */}
+                  <div className="absolute -top-12 -right-12 w-36 h-36 bg-cyan-400/25 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-                      {/* Numbered Pill / Popular Badge */}
-                      {isHighlight ? (
-                        <div className="flex items-center gap-1.5">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-400/20 text-cyan-200 border border-cyan-400/40 shadow-xs">
-                            <Sparkles className="w-2.5 h-2.5 text-cyan-300" />
-                            <span>Featured</span>
-                          </span>
-                          <span className="text-xs font-mono font-bold text-cyan-200/50">
-                            {String(idx + 1).padStart(2, '0')}
-                          </span>
+                  <div className="relative z-10 flex flex-col justify-between h-full">
+                    <div>
+                      {/* Top Row: Icon + Numbered Badge */}
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-sm bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363] group-hover:bg-white/10 group-hover:text-cyan-300 group-hover:border-white/20 group-hover:scale-110 group-hover:rotate-[-2deg] transition-all duration-300">
+                          <DynamicIcon name={card.iconName} className="w-6 h-6 sm:w-7 sm:h-7" />
                         </div>
-                      ) : (
-                        <span className="text-xs font-mono font-bold text-slate-400 group-hover:text-[#0d5363] transition-colors">
+
+                        {/* Numbered Index Pill (glows cyan on hover) */}
+                        <span className="text-xs font-mono font-bold text-slate-400 group-hover:text-cyan-200 group-hover:bg-cyan-400/20 group-hover:border group-hover:border-cyan-400/40 px-2.5 py-0.5 rounded-full transition-all duration-300">
                           {String(idx + 1).padStart(2, '0')}
                         </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg sm:text-xl font-serif font-bold mb-2.5 tracking-tight text-slate-900 group-hover:text-white transition-colors duration-300">
+                        {card.title}
+                      </h3>
+
+                      {/* Short Description */}
+                      <p className="text-xs sm:text-sm mb-4 leading-relaxed line-clamp-3 text-slate-600 group-hover:text-slate-200/90 transition-colors duration-300">
+                        {card.description}
+                      </p>
+
+                      {/* Features list (top 3) */}
+                      {card.features && card.features.length > 0 && (
+                        <ul className="space-y-2 text-xs mb-6 text-slate-600 group-hover:text-slate-200/85 transition-colors duration-300">
+                          {card.features.slice(0, 3).map((item: string, i: number) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 bg-[#0d5363] group-hover:bg-cyan-300 transition-colors duration-300" />
+                              <span className="line-clamp-1">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
                       )}
                     </div>
 
-                    {/* Title */}
-                    <h3
-                      className={`text-lg sm:text-xl font-serif font-bold mb-2.5 tracking-tight ${
-                        isHighlight ? 'text-white' : 'text-slate-900 group-hover:text-[#0d5363] transition-colors'
-                      }`}
-                    >
-                      {card.title}
-                    </h3>
-
-                    {/* Short Description */}
-                    <p
-                      className={`text-xs sm:text-sm mb-4 leading-relaxed line-clamp-3 ${
-                        isHighlight ? 'text-slate-200/90' : 'text-slate-600'
-                      }`}
-                    >
-                      {card.description}
-                    </p>
-
-                    {/* Features list (top 3) */}
-                    {card.features && card.features.length > 0 && (
-                      <ul
-                        className={`space-y-2 text-xs mb-6 ${
-                          isHighlight ? 'text-slate-200/85' : 'text-slate-600'
-                        }`}
+                    {/* Bottom Link */}
+                    <div className="pt-3.5 border-t border-slate-100 group-hover:border-white/15 transition-colors duration-300">
+                      <a
+                        href={serviceLink.href}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAction(card.title);
+                        }}
+                        className="flex items-center justify-between text-xs font-bold uppercase tracking-wider group/link"
+                        aria-label={serviceLink.anchorText}
                       >
-                        {card.features.slice(0, 3).map((item: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                                isHighlight ? 'bg-cyan-300' : 'bg-[#0d5363]'
-                              }`}
-                            />
-                            <span className="line-clamp-1">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-
-                  {/* Bottom Link */}
-                  <div
-                    className={`pt-3.5 border-t ${
-                      isHighlight ? 'border-white/15' : 'border-slate-100'
-                    }`}
-                  >
-                    <a
-                      href={serviceLink.href}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAction(card.title);
-                      }}
-                      className="flex items-center justify-between text-xs font-bold uppercase tracking-wider group/link"
-                      aria-label={serviceLink.anchorText}
-                    >
-                      <span className={isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'}>
-                        {serviceLink.anchorText.replace(/^Explore\s+/i, '')}
-                      </span>
-                      <ChevronRight
-                        className={`w-3.5 h-3.5 group-hover/link:translate-x-1.5 transition-transform ${
-                          isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'
-                        }`}
-                      />
-                    </a>
+                        <span className="text-[#0d5363] group-hover:text-cyan-300 transition-colors duration-300">
+                          {serviceLink.anchorText.replace(/^Explore\s+/i, '')}
+                        </span>
+                        <ChevronRight className="w-3.5 h-3.5 text-[#0d5363] group-hover:text-cyan-300 group-hover/link:translate-x-1.5 transition-all duration-300" />
+                      </a>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -289,7 +245,6 @@ export const Services: React.FC<ServicesProps> = ({
             {/* Column 1 */}
             <div className="space-y-6">
               {col1.map((card, idx) => {
-                const isHighlight = !!card.isTealHighlight;
                 const serviceLink = getServiceUrl(card.title);
                 return (
                   <motion.div
@@ -299,71 +254,53 @@ export const Services: React.FC<ServicesProps> = ({
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: idx * 0.12, ease: [0.22, 1, 0.36, 1] }}
                     onClick={() => handleAction(card.title)}
-                    className={`p-7 sm:p-8 rounded-3xl transition-all duration-300 group cursor-pointer ${
-                      isHighlight
-                        ? 'bg-[#004d6a] text-white shadow-xl shadow-[#004d6a]/20 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#004d6a]/30 border border-cyan-400/30'
-                        : 'bg-white border border-slate-200/90 shadow-md hover:shadow-2xl hover:border-[#0d5363]/40 hover:-translate-y-1.5'
-                    }`}
+                    className="p-7 sm:p-8 rounded-3xl transition-all duration-300 group cursor-pointer flex flex-col justify-between relative overflow-hidden bg-white border border-slate-200/90 shadow-md hover:border-cyan-400/60 hover:shadow-2xl hover:shadow-[#004d6a]/25 hover:-translate-y-2"
                   >
-                    <div
-                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform ${
-                        isHighlight
-                          ? 'bg-white/10 text-cyan-300 border border-white/20'
-                          : 'bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363]'
-                      }`}
-                    >
-                      <DynamicIcon name={card.iconName} className="w-7 h-7 sm:w-8 sm:h-8" />
-                    </div>
+                    {/* Hover dark teal gradient layer */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#004d6a] via-[#00455f] to-[#013549] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-                    <h3
-                      className={`text-xl sm:text-2xl font-serif font-bold mb-3 ${
-                        isHighlight ? 'text-white' : 'text-slate-900 group-hover:text-[#0d5363] transition-colors'
-                      }`}
-                    >
-                      {card.title}
-                    </h3>
+                    {/* Decorative glow orb on hover */}
+                    <div className="absolute -top-12 -right-12 w-36 h-36 bg-cyan-400/25 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-                    <p
-                      className={`text-xs sm:text-sm mb-5 leading-relaxed ${
-                        isHighlight ? 'text-slate-200' : 'text-slate-600'
-                      }`}
-                    >
-                      {card.description}
-                    </p>
+                    <div className="relative z-10 flex flex-col justify-between h-full">
+                      <div>
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363] group-hover:bg-white/10 group-hover:text-cyan-300 group-hover:border-white/20 group-hover:scale-105 transition-all duration-300">
+                          <DynamicIcon name={card.iconName} className="w-7 h-7 sm:w-8 sm:h-8" />
+                        </div>
 
-                    {card.features && card.features.length > 0 && (
-                      <ul
-                        className={`space-y-2.5 text-xs sm:text-sm mb-6 ${
-                          isHighlight ? 'text-slate-200' : 'text-slate-600'
-                        }`}
+                        <h3 className="text-xl sm:text-2xl font-serif font-bold mb-3 text-slate-900 group-hover:text-white transition-colors duration-300">
+                          {card.title}
+                        </h3>
+
+                        <p className="text-xs sm:text-sm mb-5 leading-relaxed text-slate-600 group-hover:text-slate-200/90 transition-colors duration-300">
+                          {card.description}
+                        </p>
+
+                        {card.features && card.features.length > 0 && (
+                          <ul className="space-y-2.5 text-xs sm:text-sm mb-6 text-slate-600 group-hover:text-slate-200/85 transition-colors duration-300">
+                            {card.features.map((item: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2.5">
+                                <span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[#0d5363] group-hover:bg-cyan-300 transition-colors duration-300" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <a
+                        href={serviceLink.href}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAction(card.title);
+                        }}
+                        className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group/link text-[#0d5363] group-hover:text-cyan-300 transition-colors duration-300"
+                        aria-label={serviceLink.anchorText}
                       >
-                        {card.features.map((item: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2.5">
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${
-                                isHighlight ? 'bg-cyan-300' : 'bg-[#0d5363]'
-                              }`}
-                            />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    <a
-                      href={serviceLink.href}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAction(card.title);
-                      }}
-                      className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group/link"
-                      aria-label={serviceLink.anchorText}
-                    >
-                      <span className={isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'}>{serviceLink.anchorText}</span>
-                      <ChevronRight className={`w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform ${
-                        isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'
-                      }`} />
-                    </a>
+                        <span>{serviceLink.anchorText}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-[#0d5363] group-hover:text-cyan-300 group-hover/link:translate-x-1 transition-transform" />
+                      </a>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -372,7 +309,6 @@ export const Services: React.FC<ServicesProps> = ({
             {/* Column 2 (Offset Vertically) */}
             <div className="space-y-6 sm:mt-12">
               {col2.map((card, idx) => {
-                const isHighlight = !!card.isTealHighlight;
                 const serviceLink = getServiceUrl(card.title);
                 return (
                   <motion.div
@@ -382,71 +318,53 @@ export const Services: React.FC<ServicesProps> = ({
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: (idx + 1) * 0.12, ease: [0.22, 1, 0.36, 1] }}
                     onClick={() => handleAction(card.title)}
-                    className={`p-7 sm:p-8 rounded-3xl transition-all duration-300 group cursor-pointer ${
-                      isHighlight
-                        ? 'bg-[#004d6a] text-white shadow-xl shadow-[#004d6a]/20 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#004d6a]/30 border border-cyan-400/30'
-                        : 'bg-white border border-slate-200/90 shadow-md hover:shadow-2xl hover:border-[#0d5363]/40 hover:-translate-y-1.5'
-                    }`}
+                    className="p-7 sm:p-8 rounded-3xl transition-all duration-300 group cursor-pointer flex flex-col justify-between relative overflow-hidden bg-white border border-slate-200/90 shadow-md hover:border-cyan-400/60 hover:shadow-2xl hover:shadow-[#004d6a]/25 hover:-translate-y-2"
                   >
-                    <div
-                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform ${
-                        isHighlight
-                          ? 'bg-white/10 text-cyan-300 border border-white/20'
-                          : 'bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363]'
-                      }`}
-                    >
-                      <DynamicIcon name={card.iconName} className="w-7 h-7 sm:w-8 sm:h-8" />
-                    </div>
+                    {/* Hover dark teal gradient layer */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#004d6a] via-[#00455f] to-[#013549] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-                    <h3
-                      className={`text-xl sm:text-2xl font-serif font-bold mb-3 ${
-                        isHighlight ? 'text-white' : 'text-slate-900 group-hover:text-[#0d5363] transition-colors'
-                      }`}
-                    >
-                      {card.title}
-                    </h3>
+                    {/* Decorative glow orb on hover */}
+                    <div className="absolute -top-12 -right-12 w-36 h-36 bg-cyan-400/25 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-                    <p
-                      className={`text-xs sm:text-sm mb-5 leading-relaxed ${
-                        isHighlight ? 'text-slate-200' : 'text-slate-600'
-                      }`}
-                    >
-                      {card.description}
-                    </p>
+                    <div className="relative z-10 flex flex-col justify-between h-full">
+                      <div>
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm bg-[#0d5363]/10 border border-[#0d5363]/15 text-[#0d5363] group-hover:bg-white/10 group-hover:text-cyan-300 group-hover:border-white/20 group-hover:scale-105 transition-all duration-300">
+                          <DynamicIcon name={card.iconName} className="w-7 h-7 sm:w-8 sm:h-8" />
+                        </div>
 
-                    {card.features && card.features.length > 0 && (
-                      <ul
-                        className={`space-y-2.5 text-xs sm:text-sm mb-6 ${
-                          isHighlight ? 'text-slate-200' : 'text-slate-600'
-                        }`}
+                        <h3 className="text-xl sm:text-2xl font-serif font-bold mb-3 text-slate-900 group-hover:text-white transition-colors duration-300">
+                          {card.title}
+                        </h3>
+
+                        <p className="text-xs sm:text-sm mb-5 leading-relaxed text-slate-600 group-hover:text-slate-200/90 transition-colors duration-300">
+                          {card.description}
+                        </p>
+
+                        {card.features && card.features.length > 0 && (
+                          <ul className="space-y-2.5 text-xs sm:text-sm mb-6 text-slate-600 group-hover:text-slate-200/85 transition-colors duration-300">
+                            {card.features.map((item: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2.5">
+                                <span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[#0d5363] group-hover:bg-cyan-300 transition-colors duration-300" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <a
+                        href={serviceLink.href}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAction(card.title);
+                        }}
+                        className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group/link text-[#0d5363] group-hover:text-cyan-300 transition-colors duration-300"
+                        aria-label={serviceLink.anchorText}
                       >
-                        {card.features.map((item: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2.5">
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${
-                                isHighlight ? 'bg-cyan-300' : 'bg-[#0d5363]'
-                              }`}
-                            />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    <a
-                      href={serviceLink.href}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAction(card.title);
-                      }}
-                      className="pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider group/link"
-                      aria-label={serviceLink.anchorText}
-                    >
-                      <span className={isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'}>{serviceLink.anchorText}</span>
-                      <ChevronRight className={`w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform ${
-                        isHighlight ? 'text-cyan-300' : 'text-[#0d5363]'
-                      }`} />
-                    </a>
+                        <span>{serviceLink.anchorText}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-[#0d5363] group-hover:text-cyan-300 group-hover/link:translate-x-1 transition-transform" />
+                      </a>
+                    </div>
                   </motion.div>
                 );
               })}

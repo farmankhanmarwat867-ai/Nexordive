@@ -276,7 +276,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         title: 'SaaS Development',
         linkText: 'Explore SaaS Solutions',
         iconName: 'LineChart',
-        isTealHighlight: true,
+        isTealHighlight: false,
         description:
           'Turn a software idea into a structured SaaS roadmap, MVP, dashboard or subscription-based platform.',
         features: [
