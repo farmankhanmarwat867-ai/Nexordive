@@ -120,8 +120,14 @@ export const HomePage: React.FC<HomePageProps> = ({
             return (
               <Services
                 key="services"
+                limit={4}
+                onViewAllServices={() => onNavigate('services')}
                 onSelectService={(serviceTitle) => {
                   const title = serviceTitle.toLowerCase();
+                  if (title.includes('all') || title.includes('explore') || title.includes('read more')) {
+                    onNavigate('services');
+                    return;
+                  }
                   if (title.includes('web')) {
                     onNavigate('web-development');
                   } else if (title.includes('graphic') || title.includes('design') || title.includes('brand')) {

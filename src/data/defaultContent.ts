@@ -249,7 +249,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     sectionDescription:
       'Whether you are launching a business, improving an online store or building a new software product, our services can be planned around your goals, audience and technical requirements.',
     highlightedWord: 'solutions',
-    ctaText: 'Explore Our Services',
+    ctaText: 'Read More',
     ctaAction: 'services',
     cards: [
       {

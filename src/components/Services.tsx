@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, CheckCircle2, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { DynamicIcon } from './common/DynamicIcon';
 import {
@@ -13,7 +13,9 @@ import {
 } from '../utils/typography';
 
 interface ServicesProps {
+  limit?: number;
   onSelectService?: (serviceTitle: string) => void;
+  onViewAllServices?: () => void;
   searchFilter?: string;
 }
 
@@ -29,7 +31,12 @@ const getServiceUrl = (title: string): { href: string; anchorText: string } => {
   return { href: '/services', anchorText: `Explore ${title}` };
 };
 
-export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilter = '' }) => {
+export const Services: React.FC<ServicesProps> = ({
+  limit,
+  onSelectService,
+  onViewAllServices,
+  searchFilter = '',
+}) => {
   const { content } = useAdmin();
   const servicesData = content?.services;
 
@@ -43,6 +50,14 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
       } else {
         window.location.hash = '#contact';
       }
+    }
+  };
+
+  const handleViewAll = () => {
+    if (onViewAllServices) {
+      onViewAllServices();
+    } else {
+      handleAction('All Services Overview');
     }
   };
 
@@ -61,9 +76,11 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
     })
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
+  const displayedCards = limit && limit > 0 ? visibleCards.slice(0, limit) : visibleCards;
+
   // Distribute cards into 2 staggered columns like original design
-  const col1 = visibleCards.filter((_, idx) => idx % 2 === 0);
-  const col2 = visibleCards.filter((_, idx) => idx % 2 !== 0);
+  const col1 = displayedCards.filter((_, idx) => idx % 2 === 0);
+  const col2 = displayedCards.filter((_, idx) => idx % 2 !== 0);
 
   return (
     <section id="services" className="py-24 lg:py-32 bg-[#f8fafc] relative overflow-hidden">
@@ -239,6 +256,20 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
               })}
             </div>
 
+            {/* Mobile Read More Button */}
+            {limit && visibleCards.length > limit && (
+              <div className="sm:hidden col-span-1 pt-3 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleViewAll}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs uppercase tracking-wider shadow-xl active:scale-95 transition-all cursor-pointer"
+                >
+                  <span>{servicesData?.ctaText || 'Read More'}</span>
+                  <ArrowRight className="w-4 h-4 text-cyan-300" />
+                </button>
+              </div>
+            )}
+
           </div>
 
           {/* Right Side: Sticky Section Header & Description */}
@@ -278,12 +309,12 @@ export const Services: React.FC<ServicesProps> = ({ onSelectService, searchFilte
                 href="/services"
                 onClick={(e) => {
                   e.preventDefault();
-                  handleAction('All Services Overview');
+                  handleViewAll();
                 }}
                 className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/25 hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
-                aria-label="Explore all digital services"
+                aria-label="Read more services"
               >
-                <span>{servicesData?.ctaText || 'Explore Our Services'}</span>
+                <span>{servicesData?.ctaText || 'Read More'}</span>
                 <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
