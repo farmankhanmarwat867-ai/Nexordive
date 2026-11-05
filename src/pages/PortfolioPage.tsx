@@ -15,7 +15,7 @@ export const PortfolioPage: React.FC<PortfolioPageProps> = ({
 }) => {
   return (
     <div className="flex-1 bg-white pt-12 sm:pt-16">
-      {/* Case Studies Grid with Category Filters & Modal */}
+      {/* Case Studies Grid with Category Filters & Browser Cards */}
       <ProjectShowcase
         onInquireProject={(projectName) =>
           onOpenContactWithSummary(`Case Study Reference: ${projectName}`)

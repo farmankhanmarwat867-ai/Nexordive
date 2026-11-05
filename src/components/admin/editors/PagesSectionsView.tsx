@@ -31,6 +31,7 @@ import {
   Edit3,
   X,
   Check,
+  Radio,
 } from 'lucide-react';
 import {
   HeroContent,
@@ -39,6 +40,9 @@ import {
   SectionsManagerContent,
   ServicesContent,
   ServiceCardItem,
+  StreamerContent,
+  StreamerStartingCard,
+  StreamerSuite,
   ProcessContent,
   ProcessStepItem,
   TestimonialsContent,
@@ -53,15 +57,22 @@ import {
   AboutCorePillar,
   MarqueePlatformItem,
   MarqueePlatformKey,
+  CustomSectionBlock,
+  CustomBlockType,
 } from '../../../types/content';
 import { DEFAULT_ABOUT_PAGE_CONTENT } from '../../../data/defaultContent';
+import { CustomBlockBuilderModal } from './CustomBlockBuilderModal';
+import { CustomSectionsEditorView } from './CustomSectionsEditorView';
+import { SectionOrderItem } from '../../../types/content';
 
 export type PageSectionId =
   | 'home-layout'
+  | 'custom-sections'
   | 'hero'
   | 'about'
   | 'about-page'
   | 'services'
+  | 'streamer'
   | 'process'
   | 'testimonials'
   | 'blog'
@@ -95,6 +106,7 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   const [ctaBannerDraft, setCtaBannerDraft] = useState<CtaBannerContent>(() => structuredClone(content.ctaBanner));
   const [missionDraft, setMissionDraft] = useState<MissionContent>(() => structuredClone(content.mission));
   const [servicesDraft, setServicesDraft] = useState<ServicesContent>(() => structuredClone(content.services));
+  const [streamerDraft, setStreamerDraft] = useState<StreamerContent>(() => structuredClone(content.streamer));
   const [processDraft, setProcessDraft] = useState<ProcessContent>(() => structuredClone(content.process));
   const [testimonialsDraft, setTestimonialsDraft] = useState<TestimonialsContent>(() => structuredClone(content.testimonials));
   const [blogDraft, setBlogDraft] = useState<BlogContent>(() => structuredClone(content.blog));
@@ -119,9 +131,17 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   const [aboutPageDraft, setAboutPageDraft] = useState<AboutPageContent>(() =>
     structuredClone(content.aboutPage || DEFAULT_ABOUT_PAGE_CONTENT)
   );
+  const [customSectionsDraft, setCustomSectionsDraft] = useState<CustomSectionBlock[]>(() =>
+    structuredClone(content.customSections || [])
+  );
+
+  // Custom block builder modal state
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [activeCustomBlockId, setActiveCustomBlockId] = useState<string | null>(null);
 
   // Modal / focused edit item states
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [editingStreamerCardId, setEditingStreamerCardId] = useState<string | null>(null);
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
   const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
   const [editingTeamMemberId, setEditingTeamMemberId] = useState<string | null>(null);
@@ -133,6 +153,8 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
     switch (activeSection) {
       case 'home-layout':
         return JSON.stringify(sectionsDraft) !== JSON.stringify(content.sectionsManager);
+      case 'custom-sections':
+        return JSON.stringify(customSectionsDraft) !== JSON.stringify(content.customSections || []);
       case 'hero':
         return JSON.stringify(heroDraft) !== JSON.stringify(content.hero);
       case 'cta-banner':
@@ -143,6 +165,8 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         return JSON.stringify(aboutPageDraft) !== JSON.stringify(content.aboutPage || DEFAULT_ABOUT_PAGE_CONTENT);
       case 'services':
         return JSON.stringify(servicesDraft) !== JSON.stringify(content.services);
+      case 'streamer':
+        return JSON.stringify(streamerDraft) !== JSON.stringify(content.streamer);
       case 'process':
         return JSON.stringify(processDraft) !== JSON.stringify(content.process);
       case 'testimonials':
@@ -161,10 +185,12 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   }, [
     activeSection,
     sectionsDraft,
+    customSectionsDraft,
     heroDraft,
     missionDraft,
     aboutPageDraft,
     servicesDraft,
+    streamerDraft,
     processDraft,
     testimonialsDraft,
     blogDraft,
@@ -189,11 +215,13 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   // Section names mapping
   const sectionLabels: Record<PageSectionId, string> = {
     'home-layout': 'Home Layout & Sections',
+    'custom-sections': 'Custom Blocks & Builder',
     'cta-banner': 'Bottom CTA Banner',
     hero: 'Hero Section',
     about: 'About & Mission (Home)',
     'about-page': 'Dedicated About Page',
     services: 'Services Grid',
+    streamer: 'Streamer Assets Hub',
     process: 'Process Methodology',
     testimonials: 'Client Testimonials',
     blog: 'Blog Cards',
@@ -226,6 +254,15 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
           return { valid: false, error: 'Every service card must have a title.' };
         }
       }
+    } else if (activeSection === 'streamer') {
+      if (!streamerDraft.sectionTitle.trim()) {
+        return { valid: false, error: 'Streamer section title is required.' };
+      }
+      for (const card of streamerDraft.startingCards) {
+        if (!card.platform.trim()) {
+          return { valid: false, error: 'Every platform pack must have a platform name.' };
+        }
+      }
     } else if (activeSection === 'contact') {
       if (!contactDraft.sectionTitle.trim()) {
         return { valid: false, error: 'Contact heading is required.' };
@@ -250,6 +287,9 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         case 'home-layout':
           result = updateContentSection('sectionsManager', sectionsDraft);
           break;
+        case 'custom-sections':
+          result = updateContentSection('customSections', customSectionsDraft);
+          break;
         case 'hero':
           result = updateContentSection('hero', heroDraft);
           break;
@@ -264,6 +304,9 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
           break;
         case 'services':
           result = updateContentSection('services', servicesDraft);
+          break;
+        case 'streamer':
+          result = updateContentSection('streamer', streamerDraft);
           break;
         case 'process':
           result = updateContentSection('process', processDraft);
@@ -307,6 +350,9 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
       case 'home-layout':
         setSectionsDraft(structuredClone(content.sectionsManager));
         break;
+      case 'custom-sections':
+        setCustomSectionsDraft(structuredClone(content.customSections || []));
+        break;
       case 'hero':
         setHeroDraft(structuredClone(content.hero));
         break;
@@ -324,6 +370,10 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
       case 'services':
         setServicesDraft(structuredClone(content.services));
         setEditingServiceId(null);
+        break;
+      case 'streamer':
+        setStreamerDraft(structuredClone(content.streamer));
+        setEditingStreamerCardId(null);
         break;
       case 'process':
         setProcessDraft(structuredClone(content.process));
@@ -397,16 +447,19 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
   // Section buttons list
   const sectionNavList: { id: PageSectionId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'home-layout', label: 'Home Layout', icon: Layout },
+    { id: 'custom-sections', label: 'Custom Blocks', icon: Layers },
     { id: 'hero', label: 'Hero Section', icon: Sparkles },
     { id: 'about', label: 'About & Mission', icon: User },
     { id: 'about-page', label: 'About Page', icon: Users },
     { id: 'services', label: 'Services', icon: Code2 },
+    { id: 'streamer', label: 'Streamer Assets', icon: Radio },
     { id: 'process', label: 'Process Steps', icon: Clock },
     { id: 'testimonials', label: 'Testimonials', icon: Star },
     { id: 'blog', label: 'Blog Cards', icon: BookOpen },
     { id: 'partners', label: 'Platforms Marquee', icon: Award },
     { id: 'cta-banner', label: 'Bottom CTA Banner', icon: Zap },
     { id: 'contact', label: 'Contact Text', icon: Mail },
+    { id: 'page-headers', label: 'Page Banners', icon: Layers },
   ];
 
   return (
@@ -448,94 +501,182 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
 
       {/* 1. HOME LAYOUT & ORDER */}
       {activeSection === 'home-layout' && (
-        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <div>
-            <h2 className="text-base font-bold text-slate-900 font-display">
-              Home Page Sections Order & Visibility
-            </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Use Move Up and Move Down to change which section appears first on your homepage. You can also hide any optional section.
-            </p>
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 font-display">
+                Home Page Sections Order & Visibility
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Reorder sections with Move Up/Down, toggle visibility on the live site, or add brand new custom sections.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsCustomModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm shadow-indigo-600/30 transition-all cursor-pointer self-start sm:self-auto shrink-0 active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Custom Section</span>
+            </button>
           </div>
 
-          <div className="space-y-2 pt-2">
-            {sectionsDraft.landingPageSections.map((sec, idx) => (
-              <div
-                key={sec.id}
-                className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100/70 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <div>
-                    <span className="text-xs font-bold text-slate-800 block">
-                      {sec.label}
+          <div className="space-y-2 pt-1">
+            {sectionsDraft.landingPageSections.map((sec, idx) => {
+              const isCustom = sec.isCustom || sec.id.startsWith('custom-');
+
+              return (
+                <div
+                  key={sec.id}
+                  className={`flex items-center justify-between p-3.5 rounded-xl border transition-colors ${
+                    isCustom
+                      ? 'bg-indigo-50/40 border-indigo-200 hover:bg-indigo-50/70'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
+                      {idx + 1}
                     </span>
-                    <span className="text-[11px] text-slate-500">
-                      {sec.visible ? 'Visible on homepage' : 'Hidden from homepage'}
-                    </span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-slate-800 block truncate">
+                          {sec.label}
+                        </span>
+                        {isCustom && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 border border-indigo-200">
+                            Custom {sec.customType ? `· ${sec.customType}` : 'Block'}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-slate-500">
+                        {sec.visible ? 'Visible on homepage' : 'Hidden from homepage'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* If custom, allow direct editing jump */}
+                    {isCustom && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveCustomBlockId(sec.id);
+                          setActiveSection('custom-sections');
+                        }}
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 cursor-pointer shadow-xs"
+                      >
+                        Edit
+                      </button>
+                    )}
+
+                    {/* Move Up */}
+                    <button
+                      type="button"
+                      disabled={idx === 0}
+                      onClick={() => {
+                        const list = [...sectionsDraft.landingPageSections];
+                        const temp = list[idx];
+                        list[idx] = list[idx - 1];
+                        list[idx - 1] = temp;
+                        list.forEach((item, i) => {
+                          item.order = i + 1;
+                        });
+                        setSectionsDraft({ landingPageSections: list });
+                      }}
+                      className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-600 disabled:opacity-30 cursor-pointer"
+                      title="Move Up"
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Move Down */}
+                    <button
+                      type="button"
+                      disabled={idx === sectionsDraft.landingPageSections.length - 1}
+                      onClick={() => {
+                        const list = [...sectionsDraft.landingPageSections];
+                        const temp = list[idx];
+                        list[idx] = list[idx + 1];
+                        list[idx + 1] = temp;
+                        list.forEach((item, i) => {
+                          item.order = i + 1;
+                        });
+                        setSectionsDraft({ landingPageSections: list });
+                      }}
+                      className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-600 disabled:opacity-30 cursor-pointer"
+                      title="Move Down"
+                    >
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Toggle Visibility */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSectionsDraft({
+                          landingPageSections: sectionsDraft.landingPageSections.map((s) =>
+                            s.id === sec.id ? { ...s, visible: !s.visible } : s
+                          ),
+                        });
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                        sec.visible
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                          : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                      }`}
+                    >
+                      {sec.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                      <span>{sec.visible ? 'Visible' : 'Hidden'}</span>
+                    </button>
+
+                    {/* If custom, allow deleting */}
+                    {isCustom && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(`Delete custom section "${sec.label}"?`)) {
+                            const remainingCustom = customSectionsDraft.filter((c) => c.id !== sec.id);
+                            setCustomSectionsDraft(remainingCustom);
+                            const remainingLanding = sectionsDraft.landingPageSections.filter(
+                              (s) => s.id !== sec.id
+                            );
+                            setSectionsDraft({ landingPageSections: remainingLanding });
+                          }
+                        }}
+                        className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 cursor-pointer"
+                        title="Delete custom section"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    disabled={idx === 0}
-                    onClick={() => {
-                      const list = [...sectionsDraft.landingPageSections];
-                      const temp = list[idx];
-                      list[idx] = list[idx - 1];
-                      list[idx - 1] = temp;
-                      list.forEach((item, i) => { item.order = i + 1; });
-                      setSectionsDraft({ landingPageSections: list });
-                    }}
-                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-600 disabled:opacity-30 cursor-pointer"
-                    title="Move Up"
-                  >
-                    <ArrowUp className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={idx === sectionsDraft.landingPageSections.length - 1}
-                    onClick={() => {
-                      const list = [...sectionsDraft.landingPageSections];
-                      const temp = list[idx];
-                      list[idx] = list[idx + 1];
-                      list[idx + 1] = temp;
-                      list.forEach((item, i) => { item.order = i + 1; });
-                      setSectionsDraft({ landingPageSections: list });
-                    }}
-                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-600 disabled:opacity-30 cursor-pointer"
-                    title="Move Down"
-                  >
-                    <ArrowDown className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSectionsDraft({
-                        landingPageSections: sectionsDraft.landingPageSections.map((s) =>
-                          s.id === sec.id ? { ...s, visible: !s.visible } : s
-                        ),
-                      });
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                      sec.visible
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                    }`}
-                  >
-                    {sec.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                    <span>{sec.visible ? 'Visible' : 'Hidden'}</span>
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
+      )}
+
+      {/* 1.5. CUSTOM BLOCKS & BUILDER */}
+      {activeSection === 'custom-sections' && (
+        <CustomSectionsEditorView
+          customSections={customSectionsDraft}
+          onChange={(updated) => setCustomSectionsDraft(updated)}
+          onOpenCreateModal={() => setIsCustomModalOpen(true)}
+          activeBlockId={activeCustomBlockId}
+          onSetActiveBlockId={(id) => setActiveCustomBlockId(id)}
+          onDeleteBlock={(id) => {
+            if (window.confirm('Delete this custom section block?')) {
+              const remainingCustom = customSectionsDraft.filter((c) => c.id !== id);
+              setCustomSectionsDraft(remainingCustom);
+              const remainingLanding = sectionsDraft.landingPageSections.filter(
+                (s) => s.id !== id
+              );
+              setSectionsDraft({ landingPageSections: remainingLanding });
+            }
+          }}
+        />
       )}
 
       {/* BOTTOM CTA BANNER */}
@@ -2110,6 +2251,459 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         </div>
       )}
 
+      {/* 4.5. STREAMER ASSETS HUB */}
+      {activeSection === 'streamer' && (
+        <div className="space-y-6">
+          {/* Section Header Copy */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <h2 className="text-base font-bold text-slate-900 font-display">
+              Streamer Section Header
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Section Tag / Eyebrow
+                </label>
+                <input
+                  type="text"
+                  value={streamerDraft.sectionEyebrow}
+                  onChange={(e) =>
+                    setStreamerDraft({ ...streamerDraft, sectionEyebrow: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Main Heading
+                </label>
+                <input
+                  type="text"
+                  value={streamerDraft.sectionTitle}
+                  onChange={(e) =>
+                    setStreamerDraft({ ...streamerDraft, sectionTitle: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Description
+              </label>
+              <textarea
+                rows={2}
+                value={streamerDraft.sectionDescription}
+                onChange={(e) =>
+                  setStreamerDraft({ ...streamerDraft, sectionDescription: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 bg-white"
+              />
+            </div>
+          </div>
+
+          {/* Platform Starter Cards */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 font-display">
+                  Platform Starting Price Cards ({streamerDraft.startingCards.length})
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Twitch, Kick, YouTube, and VTuber creator cards displayed across the website.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const newId = `streamer-${Date.now()}`;
+                  const newCard: StreamerStartingCard = {
+                    id: newId,
+                    platform: 'New Platform Pack',
+                    startingPrice: 'From $49',
+                    priceNumeric: 49,
+                    iconName: 'Radio',
+                    accentColor: '#38BDF8',
+                    badge: 'New',
+                    description: 'Broadcast-grade overlays and alerts engineered for modern creators.',
+                    features: ['60fps Stinger Transition', 'Custom Chat Box CSS', 'Interactive Alert Box'],
+                    visible: true,
+                    order: streamerDraft.startingCards.length + 1,
+                  };
+                  setStreamerDraft({
+                    ...streamerDraft,
+                    startingCards: [...streamerDraft.startingCards, newCard],
+                  });
+                  setEditingStreamerCardId(newId);
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all cursor-pointer shadow-xs self-start sm:self-auto"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Platform</span>
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {streamerDraft.startingCards.map((card, idx) => {
+                const isExpanded = editingStreamerCardId === card.id;
+
+                return (
+                  <div
+                    key={card.id}
+                    className="rounded-2xl border border-slate-200 bg-slate-50/70 overflow-hidden transition-all"
+                  >
+                    <div className="p-4 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+                          style={{
+                            backgroundColor: `${card.accentColor || '#38BDF8'}20`,
+                            color: card.accentColor || '#38BDF8',
+                          }}
+                        >
+                          <DynamicIcon name={card.iconName} className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-bold text-slate-900">{card.platform}</span>
+                            <span className="text-xs font-mono font-bold text-slate-700">
+                              {card.startingPrice}
+                            </span>
+                            {card.badge && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white text-slate-700 border border-slate-200">
+                                {card.badge}
+                              </span>
+                            )}
+                            {!card.visible && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                                Hidden
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-slate-500 truncate block mt-0.5">
+                            {card.features.length} features · {card.description}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = streamerDraft.startingCards.map((c) =>
+                              c.id === card.id ? { ...c, visible: !c.visible } : c
+                            );
+                            setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                          }}
+                          title={card.visible ? 'Hide from live site' : 'Show on live site'}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 cursor-pointer"
+                        >
+                          {card.visible ? (
+                            <Eye className="w-4 h-4 text-emerald-600" />
+                          ) : (
+                            <EyeOff className="w-4 h-4 text-slate-400" />
+                          )}
+                        </button>
+
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => {
+                              const list = [...streamerDraft.startingCards];
+                              const temp = list[idx];
+                              list[idx] = list[idx - 1];
+                              list[idx - 1] = temp;
+                              list.forEach((item, i) => {
+                                item.order = i + 1;
+                              });
+                              setStreamerDraft({ ...streamerDraft, startingCards: list });
+                            }}
+                            title="Move Up"
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === streamerDraft.startingCards.length - 1}
+                            onClick={() => {
+                              const list = [...streamerDraft.startingCards];
+                              const temp = list[idx];
+                              list[idx] = list[idx + 1];
+                              list[idx + 1] = temp;
+                              list.forEach((item, i) => {
+                                item.order = i + 1;
+                              });
+                              setStreamerDraft({ ...streamerDraft, startingCards: list });
+                            }}
+                            title="Move Down"
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingStreamerCardId(isExpanded ? null : card.id)
+                          }
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                            isExpanded
+                              ? 'bg-indigo-600 text-white'
+                              : 'bg-white border border-slate-200 text-indigo-600 hover:bg-indigo-50'
+                          }`}
+                        >
+                          {isExpanded ? 'Done' : 'Edit'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm('Delete this streamer package?')) {
+                              const updated = streamerDraft.startingCards.filter(
+                                (c) => c.id !== card.id
+                              );
+                              setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                              if (editingStreamerCardId === card.id) {
+                                setEditingStreamerCardId(null);
+                              }
+                            }
+                          }}
+                          title="Delete card"
+                          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="p-5 border-t border-slate-200 bg-white space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Platform Name
+                            </label>
+                            <input
+                              type="text"
+                              value={card.platform}
+                              onChange={(e) => {
+                                const updated = streamerDraft.startingCards.map((c) =>
+                                  c.id === card.id ? { ...c, platform: e.target.value } : c
+                                );
+                                setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 font-semibold"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Price Display
+                            </label>
+                            <input
+                              type="text"
+                              value={card.startingPrice}
+                              onChange={(e) => {
+                                const updated = streamerDraft.startingCards.map((c) =>
+                                  c.id === card.id ? { ...c, startingPrice: e.target.value } : c
+                                );
+                                setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                              }}
+                              placeholder="From $29"
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 font-mono"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Badge (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              value={card.badge}
+                              onChange={(e) => {
+                                const updated = streamerDraft.startingCards.map((c) =>
+                                  c.id === card.id ? { ...c, badge: e.target.value } : c
+                                );
+                                setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                              }}
+                              placeholder="Popular, Trending, etc."
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900"
+                            />
+                          </div>
+
+                          <div>
+                            <IconPicker
+                              label="Platform Icon"
+                              value={card.iconName}
+                              onChange={(iconName) => {
+                                const updated = streamerDraft.startingCards.map((c) =>
+                                  c.id === card.id ? { ...c, iconName } : c
+                                );
+                                setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                          <div className="sm:col-span-3">
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Description
+                            </label>
+                            <input
+                              type="text"
+                              value={card.description}
+                              onChange={(e) => {
+                                const updated = streamerDraft.startingCards.map((c) =>
+                                  c.id === card.id ? { ...c, description: e.target.value } : c
+                                );
+                                setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                              }}
+                              className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                              Accent Color
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={card.accentColor || '#38BDF8'}
+                                onChange={(e) => {
+                                  const updated = streamerDraft.startingCards.map((c) =>
+                                    c.id === card.id ? { ...c, accentColor: e.target.value } : c
+                                  );
+                                  setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                                }}
+                                className="w-8 h-8 rounded-lg border border-slate-300 cursor-pointer p-0.5 bg-white"
+                              />
+                              <input
+                                type="text"
+                                value={card.accentColor || '#38BDF8'}
+                                onChange={(e) => {
+                                  const updated = streamerDraft.startingCards.map((c) =>
+                                    c.id === card.id ? { ...c, accentColor: e.target.value } : c
+                                  );
+                                  setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                                }}
+                                className="w-full px-2 py-1.5 text-xs font-mono rounded-lg border border-slate-300 bg-white text-slate-900 uppercase"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                            Features (one per line)
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={card.features.join('\n')}
+                            onChange={(e) => {
+                              const features = e.target.value
+                                .split('\n')
+                                .filter((l) => l.trim().length > 0);
+                              const updated = streamerDraft.startingCards.map((c) =>
+                                c.id === card.id ? { ...c, features } : c
+                              );
+                              setStreamerDraft({ ...streamerDraft, startingCards: updated });
+                            }}
+                            className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 font-mono"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Turnkey Production Suites */}
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 font-display">
+                Turnkey Broadcast Suites ({streamerDraft.suites.length} Suites)
+              </h2>
+              <p className="text-xs text-slate-500">
+                Comprehensive broadcast packages displayed on the Streamer Assets dedicated page.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {streamerDraft.suites.map((suite, idx) => (
+                <div
+                  key={suite.id}
+                  className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <input
+                      type="text"
+                      value={suite.name}
+                      onChange={(e) => {
+                        const updated = [...streamerDraft.suites];
+                        updated[idx].name = e.target.value;
+                        setStreamerDraft({ ...streamerDraft, suites: updated });
+                      }}
+                      className="font-bold text-sm text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg flex-1"
+                    />
+                    <input
+                      type="text"
+                      value={suite.turnaround}
+                      onChange={(e) => {
+                        const updated = [...streamerDraft.suites];
+                        updated[idx].turnaround = e.target.value;
+                        setStreamerDraft({ ...streamerDraft, suites: updated });
+                      }}
+                      className="text-xs font-mono text-slate-600 bg-white border border-slate-200 px-2.5 py-1.5 rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Suite Overview
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={suite.description}
+                      onChange={(e) => {
+                        const updated = [...streamerDraft.suites];
+                        updated[idx].description = e.target.value;
+                        setStreamerDraft({ ...streamerDraft, suites: updated });
+                      }}
+                      className="w-full text-xs text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Deliverables (one item per line)
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={suite.items.join('\n')}
+                      onChange={(e) => {
+                        const items = e.target.value.split('\n').filter((l) => l.trim().length > 0);
+                        const updated = [...streamerDraft.suites];
+                        updated[idx].items = items;
+                        setStreamerDraft({ ...streamerDraft, suites: updated });
+                      }}
+                      className="w-full text-xs font-mono text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 5. PROCESS TIMELINE */}
       {activeSection === 'process' && (
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
@@ -3049,6 +3643,37 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
         onSaveAndContinue={handleModalSaveAndContinue}
         onDiscardAndContinue={handleModalDiscardAndContinue}
         onKeepEditing={handleModalKeepEditing}
+      />
+
+      {/* Custom Block Builder Creation Modal */}
+      <CustomBlockBuilderModal
+        isOpen={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
+        onCreated={(newBlock) => {
+          const updatedCustom = [...customSectionsDraft, newBlock];
+          setCustomSectionsDraft(updatedCustom);
+
+          const newSectionItem: SectionOrderItem = {
+            id: newBlock.id,
+            label: `${newBlock.title} (Custom)`,
+            visible: true,
+            order: sectionsDraft.landingPageSections.length + 1,
+            isCustom: true,
+            customType: newBlock.type,
+          };
+
+          setSectionsDraft({
+            landingPageSections: [...sectionsDraft.landingPageSections, newSectionItem],
+          });
+
+          setActiveCustomBlockId(newBlock.id);
+          setActiveSection('custom-sections');
+          setFeedback({
+            type: 'success',
+            message: `"${newBlock.title}" created! Click Save below to publish live.`,
+          });
+        }}
+        existingCount={customSectionsDraft.length}
       />
     </div>
   );

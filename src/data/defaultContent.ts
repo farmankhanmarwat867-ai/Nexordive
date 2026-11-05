@@ -196,7 +196,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     socialLinks: [
       { id: 'fb', platform: 'facebook', label: 'Facebook', url: 'https://facebook.com', visible: true },
       { id: 'li', platform: 'linkedin', label: 'LinkedIn', url: 'https://linkedin.com', visible: true },
-      { id: 'x', platform: 'twitter', label: 'Twitter / X', url: 'https://twitter.com', visible: true },
+      { id: 'x', platform: 'twitter', label: 'X', url: 'https://x.com', visible: true },
       { id: 'gh', platform: 'github', label: 'GitHub', url: 'https://github.com', visible: true },
     ],
     whatsappNumber: '+92 314 600 9810',
@@ -360,15 +360,15 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   },
 
   portfolio: {
-    sectionEyebrow: 'My Work',
-    sectionTitle: 'Featured Projects',
-    sectionSubtitle: 'A glimpse of my recent work. Explore more projects in my portfolio.',
+    sectionEyebrow: 'SUCCESS CORNER & DEMOS',
+    sectionTitle: 'Our Portfolio of Digital Engineering',
+    sectionSubtitle: 'Explore premium applications developed by NexorDive. We solve core concurrency challenges and craft seamless interfaces that generate revenue or simplify operations.',
     projects: [
       {
         id: 'project-mmc-hospital',
         title: 'MMC Hospital: Healthcare Platform',
         client: 'Munir Medical Complex',
-        category: 'Web Development',
+        category: 'Business & Web',
         year: '2026',
         summary: 'Hospital and healthcare-network site with location-based navigation, service listings, and a patient-centered consultation portal.',
         impactMetric: '+120% Inquiries',
@@ -391,7 +391,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         id: 'project-digital-medical',
         title: 'Digital Medical',
         client: 'HealthTech Global',
-        category: 'Healthcare',
+        category: 'SaaS Platforms',
         year: '2026',
         summary: 'A modern healthcare SaaS platform for patients, doctors and clinics.',
         impactMetric: '99.9% Uptime',
@@ -405,7 +405,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         accentColor: '#2563eb',
         image: '/assets/projects/digital_medical.png',
         countryBadge: 'Global',
-        liveUrl: 'https://digitalmedical.io',
+        liveUrl: 'https://digital-medical-real-website.vercel.app',
         featured: true,
         visible: true,
         order: 2,
@@ -414,7 +414,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         id: 'project-academy-attendance',
         title: 'Academy Attendance',
         client: 'English Academy',
-        category: 'Education',
+        category: 'Educational LMS',
         year: '2026',
         summary: 'Teacher attendance management system for English Academy.',
         impactMetric: '+85% Efficiency',
@@ -437,7 +437,12 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         id: c.id,
         title: c.title,
         client: c.client,
-        category: c.category,
+        category:
+          c.category === 'fintech'
+            ? 'SaaS Platforms'
+            : c.category === 'ai'
+            ? 'AI Solutions'
+            : 'Business & Web',
         year: c.year,
         summary: c.summary,
         impactMetric: c.impactMetric,
@@ -449,6 +454,18 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
         outcome: c.outcome,
         previewGradient: c.previewGradient,
         accentColor: c.accentColor,
+        image:
+          c.id === 'aura-prime'
+            ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80'
+            : c.id === 'synthex-copilot'
+            ? 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80'
+            : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
+        liveUrl:
+          c.id === 'aura-prime'
+            ? 'https://auraprime.trade'
+            : c.id === 'synthex-copilot'
+            ? 'https://synthex.ai'
+            : 'https://vanguardtime.com',
         featured: false,
         visible: true,
         order: idx + 3,
@@ -857,9 +874,10 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       { id: 'streamer-assets', label: 'Streamer Assets Hub', visible: true, order: 5 },
       { id: 'pricing', label: 'Pricing Packages', visible: true, order: 6 },
       { id: 'testimonials', label: 'Client Testimonials', visible: true, order: 7 },
-      { id: 'blog', label: 'Latest From Blog', visible: false, order: 8 },
-      { id: 'partners', label: 'Partners Banner', visible: true, order: 9 },
-      { id: 'ctaBanner', label: 'Bottom Conversion Banner', visible: true, order: 10 },
+      { id: 'custom-faq-1', label: 'FAQ Accordion (Custom)', visible: true, order: 8, isCustom: true, customType: 'faq' },
+      { id: 'blog', label: 'Latest From Blog', visible: false, order: 9 },
+      { id: 'partners', label: 'Partners Banner', visible: true, order: 10 },
+      { id: 'ctaBanner', label: 'Bottom Conversion Banner', visible: true, order: 11 },
     ],
   },
 
@@ -870,4 +888,39 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     ogTitle: 'NexorDive Digital Agency | Next-Gen Product & Web Engineering',
     keywords: 'web development, react, nextjs, streamer assets, software development, ai automation',
   },
+
+  customSections: [
+    {
+      id: 'custom-faq-1',
+      type: 'faq',
+      title: 'Frequently Asked Questions',
+      eyebrow: 'CLEAR ANSWERS',
+      description: 'Everything you need to know about partnering with NexorDive for your digital engineering, web platforms, and creator assets.',
+      visible: true,
+      order: 8,
+      backgroundColor: 'white',
+      faqItems: [
+        {
+          id: 'faq-1',
+          question: 'What is your typical project kickoff turnaround time?',
+          answer: 'We typically initiate architectural discovery within 48 hours of contract execution, with initial interactive Figma blueprints delivered by sprint end.',
+        },
+        {
+          id: 'faq-2',
+          question: 'Do you offer ongoing post-launch maintenance and support?',
+          answer: 'Yes, every production tier includes 30 to 90 days of dedicated milestone warranty, plus optional monthly retainer support for continuous optimization.',
+        },
+        {
+          id: 'faq-3',
+          question: 'Can I request customized streamer graphics or bespoke VTuber assets?',
+          answer: 'Absolutely. In addition to our turnkey platform packs, our 3D motion design team builds tailored WebM stinger transitions, custom chat CSS, and reactive alert suites.',
+        },
+        {
+          id: 'faq-4',
+          question: 'Who owns the intellectual property and code upon delivery?',
+          answer: 'You retain 100% full intellectual property rights, code ownership, design assets, and deployment access immediately upon project sign-off.',
+        },
+      ],
+    },
+  ],
 };

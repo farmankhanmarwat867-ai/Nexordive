@@ -184,6 +184,9 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
       })(),
     },
     seo: { ...defaults.seo, ...(saved.seo || {}) },
+    customSections: Array.isArray(saved.customSections)
+      ? saved.customSections
+      : (defaults.customSections || []),
   };
 }
 

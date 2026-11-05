@@ -10,6 +10,7 @@ import { Testimonials } from '../components/Testimonials';
 import { PartnersMarquee } from '../components/PartnersMarquee';
 import { StreamerAssets } from '../components/StreamerAssets';
 import { Pricing } from '../components/Pricing';
+import { DynamicCustomBlock } from '../components/common/DynamicCustomBlock';
 import { ArrowRight } from 'lucide-react';
 import { useAdmin } from '../context/AdminStore';
 import { executeAction } from '../utils/actionHandler';
@@ -52,6 +53,22 @@ export const HomePage: React.FC<HomePageProps> = ({
   }
   if (!workingSections.some((s) => s.id === 'pricing')) {
     workingSections.push({ id: 'pricing', label: 'Pricing Packages', visible: true, order: 6 });
+  }
+
+  // Ensure all custom sections are registered in working sections
+  if (Array.isArray(content?.customSections)) {
+    for (const c of content.customSections) {
+      if (!workingSections.some((s) => s.id === c.id)) {
+        workingSections.push({
+          id: c.id,
+          label: c.title,
+          visible: c.visible,
+          order: c.order ?? workingSections.length + 1,
+          isCustom: true,
+          customType: c.type,
+        });
+      }
+    }
   }
 
   const sections = workingSections
@@ -97,8 +114,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               <FeaturedProjects
                 key="featured-projects"
                 onViewAll={() => onNavigate('portfolio')}
-                onSelectProject={(project) =>
-                  onOpenContactWithSummary(`Project Inquiry: ${project.title}`)
+                onInquireProject={(projectName) =>
+                  onOpenContactWithSummary(`Project Inquiry: ${projectName}`)
                 }
               />
             );
@@ -191,8 +208,23 @@ export const HomePage: React.FC<HomePageProps> = ({
               </section>
             );
           }
-          default:
+          default: {
+            // Render custom block if matches an active custom section
+            const customBlock = content?.customSections?.find((c) => c.id === section.id);
+            if (customBlock && customBlock.visible !== false) {
+              return (
+                <DynamicCustomBlock
+                  key={customBlock.id}
+                  block={customBlock}
+                  onNavigate={onNavigate}
+                  onStartProject={onStartProject}
+                  onOpenContact={onOpenContact}
+                  onOpenContactWithSummary={onOpenContactWithSummary}
+                />
+              );
+            }
             return null;
+          }
         }
       })}
     </div>
