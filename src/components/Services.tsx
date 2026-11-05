@@ -91,6 +91,8 @@ export const Services: React.FC<ServicesProps> = ({
   // Determine if we should use horizontal layout (heading top, cards in horizontal row, button bottom)
   const isHorizontal = layout === 'horizontal' || (limit !== undefined && limit <= 4 && layout !== 'split');
 
+  const isLandingPreview = limit !== undefined && limit <= 4;
+
   if (isHorizontal) {
     return (
       <section id="services" className="py-20 sm:py-28 lg:py-32 bg-[#f8fafc] relative overflow-hidden">
@@ -127,12 +129,12 @@ export const Services: React.FC<ServicesProps> = ({
             </p>
           </div>
 
-          {/* Middle: 4 Cards Horizontally with organic vertical wave offsets */}
+          {/* Middle: Cards Grid (Horizontal wave on landing page preview, clean grid on full services page) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6 items-stretch mb-16 sm:mb-20">
             {displayedCards.map((card, idx) => {
               const isHighlight = !!card.isTealHighlight;
               const serviceLink = getServiceUrl(card.title);
-              const staggerClass = STAGGER_OFFSETS[idx % STAGGER_OFFSETS.length];
+              const staggerClass = isLandingPreview ? STAGGER_OFFSETS[idx % STAGGER_OFFSETS.length] : '';
 
               return (
                 <motion.div
@@ -253,18 +255,20 @@ export const Services: React.FC<ServicesProps> = ({
             })}
           </div>
 
-          {/* Bottom: Read More Button Centered under cards */}
-          <div className="flex items-center justify-center">
-            <button
-              type="button"
-              onClick={handleViewAll}
-              className="inline-flex items-center gap-3 px-9 py-4 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/25 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
-              aria-label="Read more services"
-            >
-              <span>{servicesData?.ctaText || 'Read More'}</span>
-              <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+          {/* Bottom: Read More Button Centered under cards (Landing Page only) */}
+          {onViewAllServices && (
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                onClick={handleViewAll}
+                className="inline-flex items-center gap-3 px-9 py-4 rounded-full bg-[#004d6a] hover:bg-[#093c47] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-xl shadow-[#004d6a]/25 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-[#004d6a]"
+                aria-label="Read more services"
+              >
+                <span>{servicesData?.ctaText || 'Read More'}</span>
+                <ArrowRight className="w-4 h-4 text-cyan-300 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          )}
 
         </div>
       </section>
