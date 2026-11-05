@@ -75,7 +75,19 @@ function mergeWithDefaults(saved: Partial<SiteContent>, defaults: SiteContent): 
     services: {
       ...defaults.services,
       ...(saved.services || {}),
-      cards: Array.isArray(saved.services?.cards) ? saved.services.cards : defaults.services.cards,
+      cards: (() => {
+        if (!Array.isArray(saved.services?.cards) || saved.services.cards.length < defaults.services.cards.length) {
+          return defaults.services.cards;
+        }
+        const savedCards = saved.services.cards;
+        const missing = defaults.services.cards.filter(
+          (d) => !savedCards.some((c) => c.id === d.id)
+        );
+        if (missing.length > 0) {
+          return [...savedCards, ...missing].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        }
+        return savedCards;
+      })(),
     },
     mission: {
       ...defaults.mission,
