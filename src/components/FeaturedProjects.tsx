@@ -39,8 +39,8 @@ export const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({
     matchesCategory(p.category, activeTab)
   );
 
-  // For the homepage, display up to 6 projects in the selected category
-  const displayProjects = filteredProjects.slice(0, 6);
+  // For the homepage, display initially up to 3 projects in the selected category
+  const displayProjects = filteredProjects.slice(0, 3);
 
   // Open Case Study modal ONLY (do NOT open the contact inquiry form directly)
   const handleSelectCaseStudy = (project: PortfolioProjectItem) => {

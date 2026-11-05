@@ -8,6 +8,7 @@ import { ImageFieldEditor } from '../ImageFieldEditor';
 import { IconPicker } from '../IconPicker';
 import { DynamicIcon } from '../../common/DynamicIcon';
 import { ActionSelector } from '../common/ActionSelector';
+import { FontSizeSelector } from '../common/FontSizeSelector';
 import {
   Layout,
   Sparkles,
@@ -704,9 +705,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Main Heading *
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Main Heading *
+                </label>
+                <FontSizeSelector
+                  value={ctaBannerDraft.headingSize}
+                  onChange={(size) => setCtaBannerDraft({ ...ctaBannerDraft, headingSize: size })}
+                  type="headline"
+                />
+              </div>
               <input
                 type="text"
                 value={ctaBannerDraft.heading}
@@ -717,9 +725,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Description Paragraph
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700">
+                Description Paragraph
+              </label>
+              <FontSizeSelector
+                value={ctaBannerDraft.descriptionSize}
+                onChange={(size) => setCtaBannerDraft({ ...ctaBannerDraft, descriptionSize: size })}
+                type="paragraph"
+              />
+            </div>
             <textarea
               rows={3}
               value={ctaBannerDraft.description}
@@ -778,9 +793,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Headline Line 1 *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Headline Line 1 *
+                  </label>
+                  <FontSizeSelector
+                    value={heroDraft.line1Size}
+                    onChange={(size) => setHeroDraft({ ...heroDraft, line1Size: size })}
+                    type="headline"
+                  />
+                </div>
                 <input
                   type="text"
                   value={heroDraft.headingLine1}
@@ -790,9 +812,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Headline Line 2
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Headline Line 2
+                  </label>
+                  <FontSizeSelector
+                    value={heroDraft.line2Size}
+                    onChange={(size) => setHeroDraft({ ...heroDraft, line2Size: size })}
+                    type="headline"
+                  />
+                </div>
                 <input
                   type="text"
                   value={heroDraft.headingLine2}
@@ -802,9 +831,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Headline Line 3
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Headline Line 3
+                  </label>
+                  <FontSizeSelector
+                    value={heroDraft.line3Size}
+                    onChange={(size) => setHeroDraft({ ...heroDraft, line3Size: size })}
+                    type="headline"
+                  />
+                </div>
                 <input
                   type="text"
                   value={heroDraft.headingLine3}
@@ -814,9 +850,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Headline Line 4
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Headline Line 4
+                  </label>
+                  <FontSizeSelector
+                    value={heroDraft.line4Size}
+                    onChange={(size) => setHeroDraft({ ...heroDraft, line4Size: size })}
+                    type="headline"
+                  />
+                </div>
                 <input
                   type="text"
                   value={heroDraft.headingLine4}
@@ -827,9 +870,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Intro Paragraph
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Intro Paragraph
+                </label>
+                <FontSizeSelector
+                  value={heroDraft.descriptionSize}
+                  onChange={(size) => setHeroDraft({ ...heroDraft, descriptionSize: size })}
+                  type="paragraph"
+                />
+              </div>
               <textarea
                 rows={3}
                 value={heroDraft.description}
@@ -1099,9 +1149,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Main Headline *
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Main Headline *
+                </label>
+                <FontSizeSelector
+                  value={missionDraft.headingSize}
+                  onChange={(size) => setMissionDraft({ ...missionDraft, headingSize: size })}
+                  type="headline"
+                />
+              </div>
               <input
                 type="text"
                 value={missionDraft.heading}
@@ -1111,9 +1168,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Description Paragraph
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Description Paragraph
+                </label>
+                <FontSizeSelector
+                  value={missionDraft.descriptionSize}
+                  onChange={(size) => setMissionDraft({ ...missionDraft, descriptionSize: size })}
+                  type="paragraph"
+                />
+              </div>
               <textarea
                 rows={4}
                 value={missionDraft.description}
@@ -2037,9 +2101,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Main Heading
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Main Heading
+                </label>
+                <FontSizeSelector
+                  value={servicesDraft.titleSize}
+                  onChange={(size) => setServicesDraft({ ...servicesDraft, titleSize: size })}
+                  type="headline"
+                />
+              </div>
               <input
                 type="text"
                 value={servicesDraft.sectionTitle}
@@ -2048,9 +2119,16 @@ export const PagesSectionsView: React.FC<PagesSectionsViewProps> = ({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Description
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Description
+                </label>
+                <FontSizeSelector
+                  value={servicesDraft.descriptionSize}
+                  onChange={(size) => setServicesDraft({ ...servicesDraft, descriptionSize: size })}
+                  type="paragraph"
+                />
+              </div>
               <textarea
                 rows={2}
                 value={servicesDraft.sectionDescription}
