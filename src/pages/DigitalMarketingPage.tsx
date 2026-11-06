@@ -2,7 +2,7 @@
 import { RelatedServices } from '../components/common/RelatedServices';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import {
   Target,
   Sparkles,
@@ -10,9 +10,7 @@ import {
   Search,
   CheckCircle2,
   ArrowRight,
-  HelpCircle,
-  ChevronDown,
-  MessageCircle,
+MessageCircle,
   Mail,
   TrendingUp,
   Share2,
@@ -22,7 +20,6 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
-import { ProjectShowcase } from '../components/ProjectShowcase';
 import { useAdmin } from '../context/AdminStore';
 
 interface DigitalMarketingPageProps {
@@ -154,20 +151,6 @@ const APPROACH_STEPS = [
   },
 ];
 
-const SERVICE_FAQS = [
-  {
-    id: 'faq-seo-social',
-    question: 'Do you offer SEO and social media services?',
-    answer:
-      'Yes. Both can be discussed individually or together as part of a digital marketing plan. We tailor our recommendations based on your immediate priorities, whether that is organic search discoverability or social audience engagement.',
-  },
-  {
-    id: 'faq-guarantees',
-    question: 'Can marketing results be guaranteed?',
-    answer:
-      'No responsible agency can guarantee search rankings, leads or revenue. Results depend on competition, budgets, market conditions, execution and other external factors. We focus on transparent planning, rigorous testing, and continuous improvement.',
-  },
-];
 
 export const DigitalMarketingPage: React.FC<DigitalMarketingPageProps> = ({
   onNavigateHome,
@@ -179,7 +162,6 @@ export const DigitalMarketingPage: React.FC<DigitalMarketingPageProps> = ({
   const { content } = useAdmin();
   const pageHeader = content?.pageHeaders?.digitalMarketing;
   const [searchQuery, setSearchQuery] = useState('');
-  const [openFaqId, setOpenFaqId] = useState<string | null>(SERVICE_FAQS[0].id);
 
   const filteredCapabilities = MARKETING_CAPABILITIES.filter((cap) => {
     if (!searchQuery.trim()) return true;
@@ -192,10 +174,6 @@ export const DigitalMarketingPage: React.FC<DigitalMarketingPageProps> = ({
       cap.deliverables.some((d) => d.toLowerCase().includes(q))
     );
   });
-
-  const toggleFaq = (id: string) => {
-    setOpenFaqId((prev) => (prev === id ? null : id));
-  };
 
   return (
     <div className="flex-1 bg-white">
@@ -388,81 +366,6 @@ export const DigitalMarketingPage: React.FC<DigitalMarketingPageProps> = ({
                 </p>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Selected Marketing Case Studies & Showcase */}
-      <ProjectShowcase
-        limit={3}
-        onInquireProject={(project) =>
-          onOpenContactWithSummary(`Inquiring about Marketing Case Reference: ${project}`)
-        }
-      />
-
-      {/* 5. Service FAQ Section */}
-      <section className="py-20 lg:py-28 bg-[#f8fafc] border-b border-slate-200/80">
-        <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-10">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-xs font-semibold text-[#0d5363] shadow-xs mb-3">
-              <HelpCircle className="w-3.5 h-3.5 text-[#0d5363]" />
-              <span>Service FAQ</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold font-serif text-slate-950 tracking-tight mb-3">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-              Transparent answers regarding SEO and social media plans, execution scope, and realistic performance expectations.
-            </p>
-          </div>
-
-          <div className="space-y-3.5">
-            {SERVICE_FAQS.map((faq) => {
-              const isOpen = openFaqId === faq.id;
-              return (
-                <div
-                  key={faq.id}
-                  className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
-                    isOpen
-                      ? 'bg-white border-[#0d5363]/40 shadow-md shadow-[#004d6a]/5'
-                      : 'bg-white/80 hover:bg-white border-slate-200/90 hover:border-slate-300 shadow-xs'
-                  }`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleFaq(faq.id)}
-                    aria-expanded={isOpen}
-                    className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004d6a]"
-                  >
-                    <span className="text-base sm:text-lg font-serif font-bold text-slate-900 pr-2">
-                      {faq.question}
-                    </span>
-                    <span
-                      className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-                        isOpen ? 'bg-[#004d6a] text-white rotate-180' : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      <ChevronDown className="w-4 h-4 transition-transform" />
-                    </span>
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                      >
-                        <div className="px-6 pb-6 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
-                          {faq.answer}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>
