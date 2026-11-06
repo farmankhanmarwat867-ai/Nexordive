@@ -2,16 +2,14 @@
 import { RelatedServices } from '../components/common/RelatedServices';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import {
   Sparkles,
   Layers,
   Search,
   CheckCircle2,
   ArrowRight,
-  HelpCircle,
-  ChevronDown,
-  MessageCircle,
+MessageCircle,
   Mail,
   Zap,
   Compass,
@@ -21,7 +19,6 @@ import {
   FileCheck,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
-import { ProjectShowcase } from '../components/ProjectShowcase';
 import { useAdmin } from '../context/AdminStore';
 
 interface SaaSPageProps {
@@ -153,20 +150,6 @@ const APPROACH_STEPS = [
   },
 ];
 
-const SERVICE_FAQS = [
-  {
-    id: 'faq-saas-mvp',
-    question: 'What is a SaaS MVP?',
-    answer:
-      'It is an initial version of a software service built to test a focused value proposition with real users. By delivering core functionality first, you can validate market interest, collect qualitative feedback, and iterate based on actual usage rather than assumptions.',
-  },
-  {
-    id: 'faq-dashboard-tool',
-    question: 'Can I start with one dashboard or tool?',
-    answer:
-      'Yes. A smaller, well-defined software product can be a sensible starting point. Focusing on a single operational tool or customer dashboard reduces initial complexity and lets you test viability before expanding into a full platform.',
-  },
-];
 
 export const SaaSPage: React.FC<SaaSPageProps> = ({
   onNavigateHome,
@@ -178,7 +161,6 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
   const { content } = useAdmin();
   const pageHeader = content?.pageHeaders?.saas;
   const [searchQuery, setSearchQuery] = useState('');
-  const [openFaqId, setOpenFaqId] = useState<string | null>(SERVICE_FAQS[0].id);
 
   const filteredCapabilities = SAAS_CAPABILITIES.filter((cap) => {
     if (!searchQuery.trim()) return true;
@@ -191,10 +173,6 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
       cap.deliverables.some((d) => d.toLowerCase().includes(q))
     );
   });
-
-  const toggleFaq = (id: string) => {
-    setOpenFaqId((prev) => (prev === id ? null : id));
-  };
 
   return (
     <div className="flex-1 bg-white">
@@ -387,81 +365,6 @@ export const SaaSPage: React.FC<SaaSPageProps> = ({
                 </p>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Selected SaaS Platforms & Prototypes */}
-      <ProjectShowcase
-        limit={3}
-        onInquireProject={(project) =>
-          onOpenContactWithSummary(`Inquiring about SaaS Case Reference: ${project}`)
-        }
-      />
-
-      {/* 5. Service FAQ Section */}
-      <section className="py-20 lg:py-28 bg-[#f8fafc] border-b border-slate-200/80">
-        <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-10">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-xs font-semibold text-[#0d5363] shadow-xs mb-3">
-              <HelpCircle className="w-3.5 h-3.5 text-[#0d5363]" />
-              <span>Service FAQ</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold font-serif text-slate-950 tracking-tight mb-3">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-              Clear answers regarding SaaS MVP scoping, single-tool starts, and product delivery.
-            </p>
-          </div>
-
-          <div className="space-y-3.5">
-            {SERVICE_FAQS.map((faq) => {
-              const isOpen = openFaqId === faq.id;
-              return (
-                <div
-                  key={faq.id}
-                  className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
-                    isOpen
-                      ? 'bg-white border-[#0d5363]/40 shadow-md shadow-[#004d6a]/5'
-                      : 'bg-white/80 hover:bg-white border-slate-200/90 hover:border-slate-300 shadow-xs'
-                  }`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleFaq(faq.id)}
-                    aria-expanded={isOpen}
-                    className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004d6a]"
-                  >
-                    <span className="text-base sm:text-lg font-serif font-bold text-slate-900 pr-2">
-                      {faq.question}
-                    </span>
-                    <span
-                      className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-                        isOpen ? 'bg-[#004d6a] text-white rotate-180' : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      <ChevronDown className="w-4 h-4 transition-transform" />
-                    </span>
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                      >
-                        <div className="px-6 pb-6 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
-                          {faq.answer}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>
