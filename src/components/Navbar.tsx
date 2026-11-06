@@ -269,7 +269,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* 2. Center Nav Links - Capsule Pill Design Matching Reference Video */}
           <div className="flex-none">
             <nav
-              className="hidden lg:flex items-center gap-1 xl:gap-1.5 p-1 rounded-full bg-slate-50/90 border border-slate-200/80 shadow-xs shrink-0"
+              className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 p-1.5 rounded-full bg-slate-50/90 border border-slate-200/80 shadow-xs shrink-0"
               onMouseLeave={() => setHoveredLink(null)}
               aria-label="Main Navigation"
             >
@@ -299,7 +299,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         e.preventDefault();
                         handleLinkClick('services');
                       }}
-                      className={`relative font-sans text-[12.5px] xl:text-[13.5px] font-medium whitespace-nowrap py-1.5 xl:py-2 px-2.5 xl:px-3.5 rounded-full cursor-pointer flex items-center gap-1.5 z-10 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-sky-500 ${
+                      className={`relative font-sans text-[13px] xl:text-[14px] font-medium whitespace-nowrap py-2 xl:py-2.5 px-3.5 xl:px-4.5 rounded-full cursor-pointer flex items-center gap-2 z-10 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-sky-500 ${
                         isPillActive
                           ? 'text-[#004d6a] font-semibold'
                           : 'text-slate-700 hover:text-slate-950'
@@ -399,7 +399,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     e.preventDefault();
                     handleLinkClick(link.id);
                   }}
-                  className={`relative font-sans text-[12.5px] xl:text-[13.5px] font-medium whitespace-nowrap py-1.5 xl:py-2 px-2.5 xl:px-3.5 rounded-full cursor-pointer flex items-center gap-2 z-10 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-sky-500 ${
+                  className={`relative font-sans text-[13px] xl:text-[14px] font-medium whitespace-nowrap py-2 xl:py-2.5 px-3.5 xl:px-4.5 rounded-full cursor-pointer flex items-center gap-2 z-10 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-sky-500 ${
                     isPillActive
                       ? 'text-[#004d6a] font-semibold'
                       : 'text-slate-700 hover:text-slate-950'
@@ -425,22 +425,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
           </div>
 
-          {/* 3. Right Action Group (CTA button + Social Icons + Mobile Menu Toggle) */}
-          <div className="flex-1 flex items-center justify-end gap-2.5 sm:gap-3 shrink-0">
-            {/* Direct WhatsApp CTA Button */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Chat with NexorDive on WhatsApp at ${whatsappNumber}`}
-              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-sans font-semibold text-xs tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/25 active:scale-95 hover:scale-[1.03] transition-all cursor-pointer"
-            >
-              <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m-3.53 3.41c-.19 0-.41.07-.63.32-.22.25-.85.83-.85 2.02 0 1.19.87 2.34.99 2.5.12.16 1.7 2.6 4.12 3.65.58.25 1.02.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.47-.28-.25-.13-1.48-.73-1.71-.81-.23-.09-.4-.13-.56.12-.17.25-.65.81-.8 1-.15.19-.3.21-.55.09-.25-.13-1.07-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.12-.15.17-.25.25-.42.08-.17.04-.32-.02-.45-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48z" />
-              </svg>
-              <span>WhatsApp</span>
-            </a>
-
+          {/* 3. Right Space (Empty on Desktop for Clean Minimal Balance, Hamburger on Mobile) */}
+          <div className="flex-1 flex items-center justify-end shrink-0">
             {/* Mobile Menu Hamburger Toggle */}
 
             <button
