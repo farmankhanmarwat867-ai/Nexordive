@@ -186,6 +186,29 @@
   top: 1rem;
 }
 
+/* Visually hidden utility keeping content accessible to screen readers */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Non-intrusive post-interaction validation styles for manager auth forms */
+.nexor-auth-form input:is(:user-invalid, .user-invalid-fallback) {
+  border-color: #e11d48;
+  background-color: #fff1f2;
+}
+
+.nexor-auth-form input:is(:user-valid, .user-valid-fallback) {
+  border-color: #10b981;
+}
+
 /* Reduced motion preference support */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -18,6 +18,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminStore';
 import { OverviewView } from './OverviewView';
@@ -26,11 +27,13 @@ import { PagesSectionsView } from './editors/PagesSectionsView';
 import { PortfolioEditorView } from './editors/PortfolioEditorView';
 import { StreamerEditorView } from './editors/StreamerEditorView';
 import { PricingEditorView } from './editors/PricingEditorView';
-import { SettingsEditorView } from './editors/SettingsEditorView';
+import { SettingsEditorView, SettingsSectionTab } from './editors/SettingsEditorView';
 import { UnsavedChangesModal } from './UnsavedChangesModal';
 
 interface DashboardLayoutProps {
   onBackToSite: () => void;
+  adminEmail?: string;
+  onAdminEmailChange?: (email: string) => void;
 }
 
 export type AdminTab =
@@ -43,11 +46,17 @@ export type AdminTab =
   | 'settings';
 
 type PendingNavAction =
-  | { type: 'tab'; tab: AdminTab }
+  | { type: 'tab'; tab: AdminTab; settingsTab?: SettingsSectionTab }
   | { type: 'backToSite' };
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }) => {
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+  onBackToSite,
+  adminEmail,
+  onAdminEmailChange,
+}) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [settingsSubTab, setSettingsSubTab] = useState<SettingsSectionTab>('general');
+  const [settingsTabRequestKey, setSettingsTabRequestKey] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -72,19 +81,42 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
     []
   );
 
-  const handleNavigateTab = (targetTab: AdminTab) => {
+  const openSettingsTab = (subTab: SettingsSectionTab) => {
+    setSettingsSubTab(subTab);
+    setSettingsTabRequestKey((k) => k + 1);
+  };
+
+  const applyPendingNavigation = (action: PendingNavAction | null) => {
+    if (!action) return;
+    if (action.type === 'tab') {
+      if (action.tab === 'settings' && action.settingsTab) {
+        openSettingsTab(action.settingsTab);
+      }
+      setActiveTab(action.tab);
+    } else if (action.type === 'backToSite') {
+      onBackToSite();
+    }
+  };
+
+  const handleNavigateTab = (targetTab: AdminTab, settingsTab?: SettingsSectionTab) => {
     if (targetTab === activeTab) {
+      if (targetTab === 'settings' && settingsTab) {
+        openSettingsTab(settingsTab);
+      }
       setSidebarOpen(false);
       return;
     }
     if (isDirty) {
-      setPendingNav({ type: 'tab', tab: targetTab });
+      setPendingNav({ type: 'tab', tab: targetTab, settingsTab });
       setIsUnsavedModalOpen(true);
       return;
     }
     setIsDirty(false);
     saveHandlerRef.current = null;
     cancelHandlerRef.current = null;
+    if (targetTab === 'settings' && settingsTab) {
+      openSettingsTab(settingsTab);
+    }
     setActiveTab(targetTab);
     setSidebarOpen(false);
   };
@@ -111,12 +143,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
       }
       setIsDirty(false);
       setIsUnsavedModalOpen(false);
-
-      if (pendingNav?.type === 'tab') {
-        setActiveTab(pendingNav.tab);
-      } else if (pendingNav?.type === 'backToSite') {
-        onBackToSite();
-      }
+      applyPendingNavigation(pendingNav);
       setPendingNav(null);
       setSidebarOpen(false);
     } finally {
@@ -130,12 +157,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
     }
     setIsDirty(false);
     setIsUnsavedModalOpen(false);
-
-    if (pendingNav?.type === 'tab') {
-      setActiveTab(pendingNav.tab);
-    } else if (pendingNav?.type === 'backToSite') {
-      onBackToSite();
-    }
+    applyPendingNavigation(pendingNav);
     setPendingNav(null);
     setSidebarOpen(false);
   };
@@ -317,27 +339,59 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
             {/* Profile Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="flex items-center gap-2 p-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+                aria-expanded={userDropdownOpen}
+                aria-haspopup="menu"
               >
-                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                  A
+                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm uppercase">
+                  {adminEmail ? adminEmail.charAt(0) : 'A'}
                 </div>
-                <div className="text-left hidden sm:block">
+                <div className="text-left hidden sm:block max-w-[160px]">
                   <span className="text-xs font-bold block leading-none text-slate-900">
                     Website Manager
                   </span>
+                  {adminEmail && (
+                    <span className="text-[11px] text-slate-500 block truncate mt-0.5">
+                      {adminEmail}
+                    </span>
+                  )}
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
               {userDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl p-2 shadow-xl z-50 text-xs"
+                  role="menu"
+                  className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl p-2 shadow-xl z-50 text-xs"
                   onClick={() => setUserDropdownOpen(false)}
                 >
+                  {adminEmail && (
+                    <div className="px-3 py-2 mb-1 border-b border-slate-100">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block">
+                        Signed in as
+                      </span>
+                      <span className="text-xs font-bold text-slate-800 block truncate">
+                        {adminEmail}
+                      </span>
+                    </div>
+                  )}
+
                   <button
-                    onClick={() => handleNavigateTab('settings')}
+                    type="button"
+                    role="menuitem"
+                    onClick={() => handleNavigateTab('settings', 'security')}
+                    className="w-full text-left px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-2 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-indigo-600" />
+                    <span>Account &amp; Security</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => handleNavigateTab('settings', 'general')}
                     className="w-full text-left px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-2 cursor-pointer"
                   >
                     <Settings className="w-4 h-4 text-slate-400" />
@@ -345,6 +399,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
                   </button>
 
                   <button
+                    type="button"
+                    role="menuitem"
                     onClick={handleNavigateBack}
                     className="w-full text-left px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-semibold cursor-pointer"
                   >
@@ -370,7 +426,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ onBackToSite }
           {activeTab === 'streamer' && <StreamerEditorView onDirtyChange={handleDirtyChange} />}
           {activeTab === 'pricing' && <PricingEditorView onDirtyChange={handleDirtyChange} />}
           {activeTab === 'messages' && <LeadsView />}
-          {activeTab === 'settings' && <SettingsEditorView onDirtyChange={handleDirtyChange} />}
+          {activeTab === 'settings' && (
+            <SettingsEditorView
+              onDirtyChange={handleDirtyChange}
+              initialTab={settingsSubTab}
+              tabRequestKey={settingsTabRequestKey}
+              adminEmail={adminEmail}
+              onAdminEmailChange={onAdminEmailChange}
+              onSignOut={handleNavigateBack}
+            />
+          )}
         </main>
       </div>
 

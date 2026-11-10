@@ -11,20 +11,40 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
+  ShieldCheck,
 } from 'lucide-react';
 import { GlobalContent, SeoSettings } from '../../../types/content';
 import { DEFAULT_SITE_CONTENT } from '../../../data/defaultContent';
+import { AccountSecurityPanel } from '../AccountSecurityPanel';
+
+export type SettingsSectionTab = 'general' | 'navigation' | 'social' | 'security';
 
 interface SettingsEditorViewProps {
   onDirtyChange?: (dirty: boolean, saveFn: () => Promise<boolean>, discardFn: () => void) => void;
+  initialTab?: SettingsSectionTab;
+  tabRequestKey?: number;
+  adminEmail?: string;
+  onAdminEmailChange?: (email: string) => void;
+  onSignOut?: () => void;
 }
 
-export const SettingsEditorView: React.FC<SettingsEditorViewProps> = ({ onDirtyChange }) => {
+export const SettingsEditorView: React.FC<SettingsEditorViewProps> = ({
+  onDirtyChange,
+  initialTab = 'general',
+  tabRequestKey = 0,
+  adminEmail,
+  onAdminEmailChange,
+  onSignOut,
+}) => {
   const { content, updateContentSection } = useAdmin();
 
   // Active settings tab
-  const [activeTab, setActiveTab] = useState<'general' | 'navigation' | 'social'>('general');
+  const [activeTab, setActiveTab] = useState<SettingsSectionTab>(initialTab);
   const [showSearchAppearance, setShowSearchAppearance] = useState(false);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab, tabRequestKey]);
 
   // Deep-cloned drafts
   const [globalDraft, setGlobalDraft] = useState<GlobalContent>(() => structuredClone(content.global));
@@ -99,12 +119,12 @@ export const SettingsEditorView: React.FC<SettingsEditorViewProps> = ({ onDirtyC
           Website Settings
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Manage your agency branding, contact details, social links, navigation menu, and search appearance.
+          Manage your agency branding, contact details, social links, navigation menu, search appearance, and manager login credentials.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         <button
           type="button"
           onClick={() => setActiveTab('general')}
@@ -139,6 +159,19 @@ export const SettingsEditorView: React.FC<SettingsEditorViewProps> = ({ onDirtyC
           }`}
         >
           Social Media Links
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('security')}
+          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'security'
+              ? 'bg-indigo-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>Account &amp; Security</span>
         </button>
       </div>
 
@@ -548,10 +581,21 @@ export const SettingsEditorView: React.FC<SettingsEditorViewProps> = ({ onDirtyC
         </div>
       )}
 
+      {/* 4. ACCOUNT & SECURITY */}
+      {activeTab === 'security' && (
+        <AccountSecurityPanel
+          currentEmail={adminEmail}
+          onEmailUpdated={onAdminEmailChange}
+          onSignOut={onSignOut}
+        />
+      )}
+
       {/* Unobtrusive Single Notice */}
-      <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-center text-xs text-slate-500">
-        Demo mode: changes are saved in this browser only.
-      </div>
+      {activeTab !== 'security' && (
+        <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-center text-xs text-slate-500">
+          Demo mode: changes are saved in this browser only.
+        </div>
+      )}
 
       {/* Floating Bottom Action Bar */}
       <EditorActionBar
