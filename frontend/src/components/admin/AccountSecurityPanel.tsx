@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useId } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import {
   ShieldCheck,
   Mail,
@@ -9,10 +9,13 @@ import {
   AlertCircle,
   LogOut,
   Info,
+  AlertTriangle,
 } from 'lucide-react';
 import {
+  ensureAdminCredentials,
+  getDefaultAdminEmail,
   getStoredCredentials,
-  setupAdminCredentials,
+  isUsingDefaultCredentials,
   updateAdminEmail,
   updateAdminPassword,
   validateEmail,
@@ -34,7 +37,7 @@ interface FeedbackState {
 }
 
 function formatUpdatedDate(iso?: string): string {
-  if (!iso) return 'Not set yet';
+  if (!iso) return 'Just now';
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return 'Recently';
   return date.toLocaleString(undefined, {
@@ -49,15 +52,7 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
   onSignOut,
 }) => {
   const [stored, setStored] = useState<StoredAdminCredentials | null>(() => getStoredCredentials());
-
-  // Setup state (when signed in without stored credentials yet)
-  const [setupEmail, setSetupEmail] = useState(currentEmail || '');
-  const [setupPassword, setSetupPassword] = useState('');
-  const [setupEmailBlurred, setSetupEmailBlurred] = useState(false);
-  const [setupPassBlurred, setSetupPassBlurred] = useState(false);
-  const [setupSubmitted, setSetupSubmitted] = useState(false);
-  const [setupSaving, setSetupSaving] = useState(false);
-  const [setupFeedback, setSetupFeedback] = useState<FeedbackState | null>(null);
+  const [usingDefaults, setUsingDefaults] = useState<boolean>(() => isUsingDefaultCredentials());
 
   // Change Email state
   const [newEmail, setNewEmail] = useState('');
@@ -77,37 +72,35 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordFeedback, setPasswordFeedback] = useState<FeedbackState | null>(null);
 
-  // Refs for focus routing on failed validation
-  const setupEmailRef = useRef<HTMLInputElement>(null);
-  const setupPassRef = useRef<HTMLInputElement>(null);
   const newEmailRef = useRef<HTMLInputElement>(null);
   const emailConfirmPassRef = useRef<HTMLInputElement>(null);
   const currentPassRef = useRef<HTMLInputElement>(null);
   const newPassRef = useRef<HTMLInputElement>(null);
 
-  const setupFormTitleId = useId();
-  const setupRulesId = useId();
   const emailFormTitleId = useId();
   const passwordFormTitleId = useId();
   const passwordRulesId = useId();
 
-  const activeEmail = stored?.email || currentEmail || '';
+  useEffect(() => {
+    let active = true;
+    void ensureAdminCredentials().then((creds) => {
+      if (!active || !creds) return;
+      setStored(creds);
+      setUsingDefaults(creds.source !== 'custom');
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const refreshStored = () => {
-    setStored(getStoredCredentials());
+    const next = getStoredCredentials();
+    setStored(next);
+    setUsingDefaults(isUsingDefaultCredentials());
   };
 
-  // Setup validation errors
-  const setupEmailErr =
-    setupSubmitted || (setupEmailBlurred && setupEmail.length > 0)
-      ? validateEmail(setupEmail)
-      : null;
-  const setupPassErr =
-    setupSubmitted || (setupPassBlurred && setupPassword.length > 0)
-      ? validatePasswordStrength(setupPassword)
-      : null;
+  const activeEmail = stored?.email || currentEmail || getDefaultAdminEmail();
 
-  // Change Email validation errors
   const newEmailErr =
     emailSubmitted || (newEmailBlurred && newEmail.length > 0)
       ? validateEmail(newEmail)
@@ -119,7 +112,6 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
         : null
       : null;
 
-  // Change Password validation errors
   const currentPassErr =
     passwordSubmitted || (currentPassBlurred && currentPassword.length > 0)
       ? !currentPassword
@@ -130,42 +122,6 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
     passwordSubmitted || (newPassBlurred && newPassword.length > 0)
       ? validatePasswordStrength(newPassword)
       : null;
-
-  const handleInitialSetup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSetupSubmitted(true);
-    setSetupFeedback(null);
-
-    const err1 = validateEmail(setupEmail);
-    if (err1) {
-      setupEmailRef.current?.focus();
-      return;
-    }
-    const err2 = validatePasswordStrength(setupPassword);
-    if (err2) {
-      setupPassRef.current?.focus();
-      return;
-    }
-
-    setSetupSaving(true);
-    try {
-      const res = await setupAdminCredentials(setupEmail, setupPassword);
-      if (!res.success || !res.email) {
-        setSetupFeedback({ type: 'error', message: res.error || 'Could not save credentials.' });
-        return;
-      }
-      refreshStored();
-      setSetupPassword('');
-      setSetupSubmitted(false);
-      onEmailUpdated?.(res.email);
-      setSetupFeedback({
-        type: 'success',
-        message: `Manager login secured for ${res.email}.`,
-      });
-    } finally {
-      setSetupSaving(false);
-    }
-  };
 
   const handleEmailUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,7 +163,7 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
       setEmailSubmitted(false);
       setEmailFeedback({
         type: 'success',
-        message: `Login email updated to ${res.email}. Use this email next time you sign in.`,
+        message: `Admin login email updated to ${res.email}. Use this email next time you sign in.`,
       });
     } finally {
       setEmailSaving(false);
@@ -253,7 +209,8 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
       setPasswordSubmitted(false);
       setPasswordFeedback({
         type: 'success',
-        message: 'Manager password updated and re-encrypted. Use your new password on your next sign-in.',
+        message:
+          'Admin password updated and re-encrypted. Use your new password on your next sign-in.',
       });
     } finally {
       setPasswordSaving(false);
@@ -295,21 +252,15 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-base font-bold text-slate-900 font-display">
-                  Manager Account &amp; Credentials
+                  Admin Account &amp; Credentials
                 </h2>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                    stored
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-amber-50 text-amber-800 border border-amber-200'
-                  }`}
-                >
-                  {stored ? 'Protected (PBKDF2-SHA256)' : 'Setup Required'}
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  PBKDF2-SHA256 Protected
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-1 break-all">
-                Active login email:{' '}
-                <strong className="text-slate-800">{activeEmail || 'Not configured'}</strong>
+                Active admin login email:{' '}
+                <strong className="text-slate-800">{activeEmail}</strong>
                 {stored && (
                   <span className="text-slate-400">
                     {' '}
@@ -332,253 +283,188 @@ export const AccountSecurityPanel: React.FC<AccountSecurityPanelProps> = ({
           )}
         </div>
 
+        {usingDefaults && (
+          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5 leading-relaxed">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <span>
+              You are currently signed in with the default admin credentials. Update your login
+              email and password below to personalize your access.
+            </span>
+          </div>
+        )}
+
         <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-600 flex items-start gap-2.5 leading-relaxed">
           <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" aria-hidden="true" />
           <span>
-            Credentials are salted and hashed locally in this browser&apos;s storage. Updating your
-            email or password here takes effect immediately for this browser; connecting a backend
-            auth service (e.g., Supabase Auth) is recommended if multiple devices share access.
+            Custom credentials are salted and hashed locally in this browser&apos;s storage.
+            Updating your email or password here takes effect immediately for this browser.
           </span>
         </div>
       </div>
 
-      {!stored ? (
-        /* Unconfigured Setup Card */
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Card 1: Update Login Email */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-5">
-          <div>
-            <h3 id={setupFormTitleId} className="text-base font-bold text-slate-900 font-display">
-              Set Up Manager Login Credentials
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Secure your dashboard with a dedicated login email and password.
-            </p>
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-cyan-50 text-[#004d6a] flex items-center justify-center shrink-0">
+              <Mail className="w-4 h-4" aria-hidden="true" />
+            </div>
+            <div>
+              <h3
+                id={emailFormTitleId}
+                className="text-base font-bold text-slate-900 font-display"
+              >
+                Change Login Email
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Requires your current password to verify the change.
+              </p>
+            </div>
           </div>
 
-          {renderFeedback(setupFeedback)}
+          {renderFeedback(emailFeedback)}
 
           <form
-            onSubmit={handleInitialSetup}
+            onSubmit={handleEmailUpdate}
             noValidate
-            aria-labelledby={setupFormTitleId}
-            className="nexor-auth-form space-y-4 max-w-lg"
+            aria-labelledby={emailFormTitleId}
+            className="nexor-auth-form space-y-4"
           >
             <EmailField
-              inputRef={setupEmailRef}
-              id="security-setup-email"
-              name="email"
-              label="Manager Login Email"
-              value={setupEmail}
+              inputRef={newEmailRef}
+              id="security-new-email"
+              name="new-email"
+              label="New Admin Email"
+              value={newEmail}
               onChange={(val) => {
-                setSetupEmail(val);
-                if (setupFeedback) setSetupFeedback(null);
+                setNewEmail(val);
+                if (emailFeedback) setEmailFeedback(null);
               }}
-              onBlur={() => setSetupEmailBlurred(true)}
-              autoComplete="username"
+              onBlur={() => setNewEmailBlurred(true)}
+              autoComplete="email"
               enterKeyHint="next"
-              hint="Format: name@example.com"
-              error={setupEmailErr}
+              hint={`Current: ${activeEmail}`}
+              error={newEmailErr}
             />
 
             <PasswordField
-              inputRef={setupPassRef}
-              id="security-setup-password"
-              name="new-password"
-              label="New Password"
-              value={setupPassword}
+              inputRef={emailConfirmPassRef}
+              id="security-email-current-password"
+              name="current-password"
+              label="Current Password"
+              value={emailConfirmPassword}
               onChange={(val) => {
-                setSetupPassword(val);
-                if (setupFeedback) setSetupFeedback(null);
+                setEmailConfirmPassword(val);
+                if (emailFeedback) setEmailFeedback(null);
               }}
-              onBlur={() => setSetupPassBlurred(true)}
-              autoComplete="new-password"
-              minLength={8}
+              onBlur={() => setEmailPassBlurred(true)}
+              autoComplete="current-password"
               enterKeyHint="done"
-              hintId={setupRulesId}
-              aboveHint={
-                <PasswordRequirementsList
-                  id={setupRulesId}
-                  password={setupPassword}
-                  hasError={Boolean(setupPassErr)}
-                />
-              }
-              error={setupPassErr}
+              error={emailConfirmPassErr}
             />
 
             <button
               type="submit"
-              disabled={setupSaving}
-              className="inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors cursor-pointer disabled:opacity-60"
+              disabled={emailSaving}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors cursor-pointer disabled:opacity-60"
             >
-              <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-              <span>{setupSaving ? 'Saving...' : 'Save Login Credentials'}</span>
+              <Mail className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{emailSaving ? 'Updating Email...' : 'Update Login Email'}</span>
             </button>
           </form>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          {/* Card 1: Update Login Email */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-5">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-cyan-50 text-[#004d6a] flex items-center justify-center shrink-0">
-                <Mail className="w-4 h-4" aria-hidden="true" />
-              </div>
-              <div>
-                <h3
-                  id={emailFormTitleId}
-                  className="text-base font-bold text-slate-900 font-display"
-                >
-                  Change Login Email
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Requires your current password to verify the change.
-                </p>
-              </div>
+
+        {/* Card 2: Change Password */}
+        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-5">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+              <KeyRound className="w-4 h-4" aria-hidden="true" />
             </div>
-
-            {renderFeedback(emailFeedback)}
-
-            <form
-              onSubmit={handleEmailUpdate}
-              noValidate
-              aria-labelledby={emailFormTitleId}
-              className="nexor-auth-form space-y-4"
-            >
-              <EmailField
-                inputRef={newEmailRef}
-                id="security-new-email"
-                name="new-email"
-                label="New Login Email"
-                value={newEmail}
-                onChange={(val) => {
-                  setNewEmail(val);
-                  if (emailFeedback) setEmailFeedback(null);
-                }}
-                onBlur={() => setNewEmailBlurred(true)}
-                autoComplete="email"
-                enterKeyHint="next"
-                hint={`Current: ${stored.email}`}
-                error={newEmailErr}
-              />
-
-              <PasswordField
-                inputRef={emailConfirmPassRef}
-                id="security-email-current-password"
-                name="current-password"
-                label="Current Password"
-                value={emailConfirmPassword}
-                onChange={(val) => {
-                  setEmailConfirmPassword(val);
-                  if (emailFeedback) setEmailFeedback(null);
-                }}
-                onBlur={() => setEmailPassBlurred(true)}
-                autoComplete="current-password"
-                enterKeyHint="done"
-                error={emailConfirmPassErr}
-              />
-
-              <button
-                type="submit"
-                disabled={emailSaving}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors cursor-pointer disabled:opacity-60"
+            <div>
+              <h3
+                id={passwordFormTitleId}
+                className="text-base font-bold text-slate-900 font-display"
               >
-                <Mail className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{emailSaving ? 'Updating Email...' : 'Update Login Email'}</span>
-              </button>
-            </form>
+                Change Password
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Re-encrypts your admin password with a fresh cryptographic salt.
+              </p>
+            </div>
           </div>
 
-          {/* Card 2: Change Password */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-5">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
-                <KeyRound className="w-4 h-4" aria-hidden="true" />
-              </div>
-              <div>
-                <h3
-                  id={passwordFormTitleId}
-                  className="text-base font-bold text-slate-900 font-display"
-                >
-                  Change Password
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Re-encrypts your credentials with a fresh cryptographic salt.
-                </p>
-              </div>
-            </div>
+          {renderFeedback(passwordFeedback)}
 
-            {renderFeedback(passwordFeedback)}
+          <form
+            onSubmit={handlePasswordUpdate}
+            noValidate
+            aria-labelledby={passwordFormTitleId}
+            className="nexor-auth-form space-y-4"
+          >
+            {/* Hidden username hint for browser password managers */}
+            <input
+              type="email"
+              name="username"
+              autoComplete="username"
+              value={activeEmail}
+              readOnly
+              tabIndex={-1}
+              aria-hidden="true"
+              className="visually-hidden"
+            />
 
-            <form
-              onSubmit={handlePasswordUpdate}
-              noValidate
-              aria-labelledby={passwordFormTitleId}
-              className="nexor-auth-form space-y-4"
+            <PasswordField
+              inputRef={currentPassRef}
+              id="security-current-password"
+              name="current-password"
+              label="Current Password"
+              value={currentPassword}
+              onChange={(val) => {
+                setCurrentPassword(val);
+                if (passwordFeedback) setPasswordFeedback(null);
+              }}
+              onBlur={() => setCurrentPassBlurred(true)}
+              autoComplete="current-password"
+              enterKeyHint="next"
+              error={currentPassErr}
+            />
+
+            <PasswordField
+              inputRef={newPassRef}
+              id="security-new-password"
+              name="new-password"
+              label="New Password"
+              value={newPassword}
+              onChange={(val) => {
+                setNewPassword(val);
+                if (passwordFeedback) setPasswordFeedback(null);
+              }}
+              onBlur={() => setNewPassBlurred(true)}
+              autoComplete="new-password"
+              minLength={8}
+              enterKeyHint="done"
+              hintId={passwordRulesId}
+              aboveHint={
+                <PasswordRequirementsList
+                  id={passwordRulesId}
+                  password={newPassword}
+                  hasError={Boolean(newPassErr)}
+                />
+              }
+              error={newPassErr}
+            />
+
+            <button
+              type="submit"
+              disabled={passwordSaving}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#004d6a] hover:bg-[#093c47] shadow-sm transition-colors cursor-pointer disabled:opacity-60"
             >
-              {/* Hidden username hint for browser password managers */}
-              <input
-                type="email"
-                name="username"
-                autoComplete="username"
-                value={activeEmail}
-                readOnly
-                tabIndex={-1}
-                aria-hidden="true"
-                className="visually-hidden"
-              />
-
-              <PasswordField
-                inputRef={currentPassRef}
-                id="security-current-password"
-                name="current-password"
-                label="Current Password"
-                value={currentPassword}
-                onChange={(val) => {
-                  setCurrentPassword(val);
-                  if (passwordFeedback) setPasswordFeedback(null);
-                }}
-                onBlur={() => setCurrentPassBlurred(true)}
-                autoComplete="current-password"
-                enterKeyHint="next"
-                error={currentPassErr}
-              />
-
-              <PasswordField
-                inputRef={newPassRef}
-                id="security-new-password"
-                name="new-password"
-                label="New Password"
-                value={newPassword}
-                onChange={(val) => {
-                  setNewPassword(val);
-                  if (passwordFeedback) setPasswordFeedback(null);
-                }}
-                onBlur={() => setNewPassBlurred(true)}
-                autoComplete="new-password"
-                minLength={8}
-                enterKeyHint="done"
-                hintId={passwordRulesId}
-                aboveHint={
-                  <PasswordRequirementsList
-                    id={passwordRulesId}
-                    password={newPassword}
-                    hasError={Boolean(newPassErr)}
-                  />
-                }
-                error={newPassErr}
-              />
-
-              <button
-                type="submit"
-                disabled={passwordSaving}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-11 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#004d6a] hover:bg-[#093c47] shadow-sm transition-colors cursor-pointer disabled:opacity-60"
-              >
-                <KeyRound className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{passwordSaving ? 'Updating Password...' : 'Update Password'}</span>
-              </button>
-            </form>
-          </div>
+              <KeyRound className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{passwordSaving ? 'Updating Password...' : 'Update Password'}</span>
+            </button>
+          </form>
         </div>
-      )}
+      </div>
     </div>
   );
 };
