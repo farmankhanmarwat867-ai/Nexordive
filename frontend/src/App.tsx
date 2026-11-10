@@ -13,6 +13,12 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ContactModal } from './components/ContactModal';
 import { AdminLoginModal } from './components/admin/AdminLoginModal';
+import {
+  clearAdminSession,
+  getActiveAdminEmail,
+  getAdminSession,
+  setAdminSession,
+} from './services/adminAuth';
 import { HomePage } from './pages/HomePage';
 import { AboutPage } from './pages/AboutPage';
 import { ServicesPage } from './pages/ServicesPage';
@@ -84,17 +90,17 @@ function MainAppContent() {
 
   // Admin authentication state (persisted in sessionStorage)
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('nexordive_admin_auth') === 'true';
-    }
-    return false;
+    return getAdminSession().authenticated;
+  });
+
+  const [adminEmail, setAdminEmail] = useState<string>(() => {
+    return getAdminSession().email || getActiveAdminEmail() || '';
   });
 
   const [isAdminView, setIsAdminView] = useState(() => {
     if (typeof window !== 'undefined') {
       const isHashAdmin = window.location.hash === '#admin' || window.location.pathname.startsWith('/admin');
-      const isAuth = sessionStorage.getItem('nexordive_admin_auth') === 'true';
-      return isHashAdmin && isAuth;
+      return isHashAdmin && getAdminSession().authenticated;
     }
     return false;
   });
@@ -123,9 +129,10 @@ function MainAppContent() {
     const handleLocationChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       if (hash === 'admin' || window.location.pathname.startsWith('/admin')) {
-        const isAuth = sessionStorage.getItem('nexordive_admin_auth') === 'true';
-        if (isAuth) {
+        const session = getAdminSession();
+        if (session.authenticated) {
           setIsAdminAuthenticated(true);
+          if (session.email) setAdminEmail(session.email);
           setIsAdminView(true);
         } else {
           setIsAdminView(false);
@@ -250,8 +257,7 @@ function MainAppContent() {
   // Check if initial hash is admin without auth
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash === '#admin') {
-      const isAuth = sessionStorage.getItem('nexordive_admin_auth') === 'true';
-      if (!isAuth) {
+      if (!getAdminSession().authenticated) {
         setIsAdminLoginOpen(true);
       }
     }
@@ -358,11 +364,9 @@ function MainAppContent() {
     }
   };
 
-  const handleLoginSuccess = (adminEmail: string) => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('nexordive_admin_auth', 'true');
-      sessionStorage.setItem('nexordive_admin_email', adminEmail);
-    }
+  const handleLoginSuccess = (loggedInEmail: string) => {
+    setAdminSession(loggedInEmail);
+    setAdminEmail(loggedInEmail);
     setIsAdminAuthenticated(true);
     setIsAdminLoginOpen(false);
     setIsAdminView(true);
@@ -370,10 +374,7 @@ function MainAppContent() {
   };
 
   const handleAdminLogout = () => {
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('nexordive_admin_auth');
-      sessionStorage.removeItem('nexordive_admin_email');
-    }
+    clearAdminSession();
     setIsAdminAuthenticated(false);
     setIsAdminView(false);
     window.location.hash = '';
@@ -385,6 +386,8 @@ function MainAppContent() {
     return (
       <DashboardLayout
         onBackToSite={handleAdminLogout}
+        adminEmail={adminEmail}
+        onAdminEmailChange={setAdminEmail}
       />
     );
   }

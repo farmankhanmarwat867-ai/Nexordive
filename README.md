@@ -1,24 +1,30 @@
-<<<<<<< HEAD
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# NexorDive
 
-# Run and deploy your AI Studio app
+Full-stack MERN monorepo for the NexorDive digital agency platform and website manager CMS.
 
-This contains everything you need to run your app locally.
+## Repository Structure
 
-View your app in AI Studio: https://ai.studio/apps/531e9c60-71dd-4593-8355-7b80562a7636
+```text
+Nexordive/
+├── frontend/     # React 19 + TypeScript + Vite + Tailwind CSS application
+└── backend/      # Express + TypeScript + MongoDB (Mongoose) REST API
+```
 
-## Run Locally
+## Running Locally
 
-**Prerequisites:**  Node.js
+### 1. Backend (`/backend`)
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run dev
+```
 
+### 2. Frontend (`/frontend`)
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-=======
-# Nexordive
->>>>>>> 62c8d5020e42ebf2880c086c55275bcc8ff99768
+> **Deployment Note (Vercel):** Set the project's **Root Directory** to `frontend` in Vercel so `frontend/vercel.json` and `frontend/dist` build cleanly.
