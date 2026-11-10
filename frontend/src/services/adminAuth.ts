@@ -1,9 +1,10 @@
 /**
  * NexorDive Admin Authentication & Credential Repository
  *
- * Stores salted PBKDF2-SHA256 password hashes in browser localStorage and manages
- * active manager session state in sessionStorage.
- * Designed with async interfaces so it can swap cleanly to a backend auth API later.
+ * Enforces single-admin credential verification (no public account creation).
+ * Stores salted PBKDF2-SHA256 password hashes in browser localStorage when
+ * customized from the Admin Dashboard, and manages active session state in
+ * sessionStorage.
  */
 
 export const ADMIN_CREDENTIALS_STORAGE_KEY = 'nexordive_admin_credentials_v1';
@@ -28,6 +29,7 @@ export interface StoredAdminCredentials {
   salt: string;
   iterations: number;
   algorithm: 'pbkdf2-sha256';
+  source: 'default' | 'custom';
   updatedAt: string;
 }
 
@@ -46,6 +48,24 @@ export interface PasswordStrengthInfo {
     hasNumber: boolean;
     hasUpperAndSymbol: boolean;
   };
+}
+
+function getEnvValue(key: string): string | undefined {
+  try {
+    const envObj = (import.meta as any)?.env;
+    const val = envObj?.[key];
+    return typeof val === 'string' && val.trim() ? val.trim() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function getDefaultAdminEmail(): string {
+  return normalizeEmail(getEnvValue('VITE_ADMIN_EMAIL') || 'manager@nexordive.com');
+}
+
+function getDefaultAdminPassword(): string {
+  return getEnvValue('VITE_ADMIN_PASSWORD') || 'NexorDive@2026';
 }
 
 function getLocalStorage(): Storage | null {
@@ -257,7 +277,7 @@ function hmacSha256(key: Uint8Array, message: Uint8Array): Uint8Array {
 function pbkdf2FallbackHex(passwordBytes: Uint8Array, saltBytes: Uint8Array, iterations: number): string {
   const blockInput = new Uint8Array(saltBytes.length + 4);
   blockInput.set(saltBytes);
-  blockInput[saltBytes.length + 3] = 1; // Big-endian block index 1 (32-byte key)
+  blockInput[saltBytes.length + 3] = 1;
 
   let u = hmacSha256(passwordBytes, blockInput);
   const dk = new Uint8Array(u);
@@ -326,7 +346,10 @@ export function getStoredCredentials(): StoredAdminCredentials | null {
       typeof parsed.iterations === 'number' &&
       parsed.iterations > 0
     ) {
-      return parsed as StoredAdminCredentials;
+      return {
+        ...parsed,
+        source: parsed.source === 'custom' ? 'custom' : 'default',
+      } as StoredAdminCredentials;
     }
   } catch {
     return null;
@@ -357,8 +380,47 @@ function saveStoredCredentials(credentials: StoredAdminCredentials): { success: 
   }
 }
 
-export function isAdminAccountConfigured(): boolean {
-  return getStoredCredentials() !== null;
+export async function ensureAdminCredentials(): Promise<StoredAdminCredentials | null> {
+  const existing = getStoredCredentials();
+  if (existing && existing.source === 'custom') {
+    return existing;
+  }
+
+  const defaultEmail = getDefaultAdminEmail();
+  const defaultPassword = getDefaultAdminPassword();
+
+  if (existing && existing.source === 'default' && existing.email === defaultEmail) {
+    const matchesCurrentDefault = constantTimeEqual(
+      await derivePasswordHash(defaultPassword, existing.salt, existing.iterations),
+      existing.passwordHash
+    );
+    if (matchesCurrentDefault) {
+      return existing;
+    }
+  }
+
+  const salt = generateRandomSaltHex();
+  const iterations = defaultIterationCount();
+  const passwordHash = await derivePasswordHash(defaultPassword, salt, iterations);
+
+  const initialized: StoredAdminCredentials = {
+    schemaVersion: 1,
+    email: defaultEmail,
+    passwordHash,
+    salt,
+    iterations,
+    algorithm: 'pbkdf2-sha256',
+    source: 'default',
+    updatedAt: new Date().toISOString(),
+  };
+
+  saveStoredCredentials(initialized);
+  return initialized;
+}
+
+export function isUsingDefaultCredentials(): boolean {
+  const stored = getStoredCredentials();
+  return !stored || stored.source !== 'custom';
 }
 
 export function getAdminSession(): { authenticated: boolean; email: string | null } {
@@ -384,51 +446,10 @@ export function clearAdminSession(): void {
   storage.removeItem(ADMIN_SESSION_EMAIL_KEY);
 }
 
-export function getActiveAdminEmail(): string | null {
+export function getActiveAdminEmail(): string {
   const stored = getStoredCredentials();
-  if (stored?.email) return stored.email;
-  return getAdminSession().email;
-}
-
-export async function setupAdminCredentials(
-  email: string,
-  password: string
-): Promise<AdminAuthResult> {
-  if (getStoredCredentials()) {
-    return {
-      success: false,
-      error: 'Manager account is already configured. Please sign in or update credentials from Settings.',
-    };
-  }
-
-  const emailError = validateEmail(email);
-  if (emailError) return { success: false, error: emailError };
-
-  const passwordError = validatePasswordStrength(password);
-  if (passwordError) return { success: false, error: passwordError };
-
-  const cleanEmail = normalizeEmail(email);
-  const salt = generateRandomSaltHex();
-  const iterations = defaultIterationCount();
-  const passwordHash = await derivePasswordHash(password, salt, iterations);
-
-  const credentials: StoredAdminCredentials = {
-    schemaVersion: 1,
-    email: cleanEmail,
-    passwordHash,
-    salt,
-    iterations,
-    algorithm: 'pbkdf2-sha256',
-    updatedAt: new Date().toISOString(),
-  };
-
-  const saved = saveStoredCredentials(credentials);
-  if (!saved.success) {
-    return { success: false, error: saved.error };
-  }
-
-  setAdminSession(cleanEmail);
-  return { success: true, email: cleanEmail };
+  if (stored?.source === 'custom' && stored.email) return stored.email;
+  return getAdminSession().email || stored?.email || getDefaultAdminEmail();
 }
 
 export async function verifyAdminLogin(
@@ -442,39 +463,49 @@ export async function verifyAdminLogin(
     return { success: false, error: 'Please enter your password.' };
   }
 
+  const cleanEmail = normalizeEmail(email);
   const stored = getStoredCredentials();
-  if (!stored) {
-    return {
-      success: false,
-      error: 'No manager account has been set up yet.',
-    };
+
+  if (stored && stored.source === 'custom') {
+    const candidateHash = await derivePasswordHash(password, stored.salt, stored.iterations);
+    const emailMatches = constantTimeEqual(cleanEmail, normalizeEmail(stored.email));
+    const passwordMatches = constantTimeEqual(candidateHash, stored.passwordHash);
+
+    if (!emailMatches || !passwordMatches) {
+      return {
+        success: false,
+        error: 'Invalid admin email or password.',
+      };
+    }
+
+    return { success: true, email: stored.email };
   }
 
-  const cleanEmail = normalizeEmail(email);
-  const candidateHash = await derivePasswordHash(password, stored.salt, stored.iterations);
-
-  const emailMatches = constantTimeEqual(cleanEmail, normalizeEmail(stored.email));
-  const passwordMatches = constantTimeEqual(candidateHash, stored.passwordHash);
+  const expectedEmail = getDefaultAdminEmail();
+  const expectedPassword = getDefaultAdminPassword();
+  const emailMatches = constantTimeEqual(cleanEmail, expectedEmail);
+  const passwordMatches = constantTimeEqual(password, expectedPassword);
 
   if (!emailMatches || !passwordMatches) {
     return {
       success: false,
-      error: 'Invalid email or password. Please check your credentials and try again.',
+      error: 'Invalid admin email or password.',
     };
   }
 
-  return { success: true, email: stored.email };
+  await ensureAdminCredentials();
+  return { success: true, email: expectedEmail };
 }
 
 export async function updateAdminEmail(
   newEmail: string,
   currentPassword: string
 ): Promise<AdminAuthResult> {
-  const stored = getStoredCredentials();
-  if (!stored) {
+  const active = await ensureAdminCredentials();
+  if (!active) {
     return {
       success: false,
-      error: 'Manager credentials must be initialized before changing your email.',
+      error: 'Unable to access browser storage for credential updates.',
     };
   }
 
@@ -486,18 +517,19 @@ export async function updateAdminEmail(
   }
 
   const cleanNewEmail = normalizeEmail(newEmail);
-  if (constantTimeEqual(cleanNewEmail, normalizeEmail(stored.email))) {
+  if (constantTimeEqual(cleanNewEmail, normalizeEmail(active.email))) {
     return { success: false, error: 'New login email matches your current login email.' };
   }
 
-  const currentHash = await derivePasswordHash(currentPassword, stored.salt, stored.iterations);
-  if (!constantTimeEqual(currentHash, stored.passwordHash)) {
+  const currentHash = await derivePasswordHash(currentPassword, active.salt, active.iterations);
+  if (!constantTimeEqual(currentHash, active.passwordHash)) {
     return { success: false, error: 'Current password is incorrect.' };
   }
 
   const updated: StoredAdminCredentials = {
-    ...stored,
+    ...active,
     email: cleanNewEmail,
+    source: 'custom',
     updatedAt: new Date().toISOString(),
   };
 
@@ -517,11 +549,11 @@ export async function updateAdminPassword(
   currentPassword: string,
   newPassword: string
 ): Promise<AdminAuthResult> {
-  const stored = getStoredCredentials();
-  if (!stored) {
+  const active = await ensureAdminCredentials();
+  if (!active) {
     return {
       success: false,
-      error: 'Manager credentials must be initialized before changing your password.',
+      error: 'Unable to access browser storage for credential updates.',
     };
   }
 
@@ -529,8 +561,8 @@ export async function updateAdminPassword(
     return { success: false, error: 'Please enter your current password.' };
   }
 
-  const currentHash = await derivePasswordHash(currentPassword, stored.salt, stored.iterations);
-  if (!constantTimeEqual(currentHash, stored.passwordHash)) {
+  const currentHash = await derivePasswordHash(currentPassword, active.salt, active.iterations);
+  if (!constantTimeEqual(currentHash, active.passwordHash)) {
     return { success: false, error: 'Current password is incorrect.' };
   }
 
@@ -549,10 +581,11 @@ export async function updateAdminPassword(
   const newHash = await derivePasswordHash(newPassword, newSalt, iterations);
 
   const updated: StoredAdminCredentials = {
-    ...stored,
+    ...active,
     passwordHash: newHash,
     salt: newSalt,
     iterations,
+    source: 'custom',
     updatedAt: new Date().toISOString(),
   };
 
@@ -561,5 +594,5 @@ export async function updateAdminPassword(
     return { success: false, error: saved.error };
   }
 
-  return { success: true, email: stored.email };
+  return { success: true, email: active.email };
 }

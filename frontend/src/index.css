@@ -199,14 +199,10 @@
   white-space: nowrap !important;
 }
 
-/* Non-intrusive post-interaction validation styles for manager auth forms */
-.nexor-auth-form input:is(:user-invalid, .user-invalid-fallback) {
+/* Validation feedback styles synced strictly with React error state */
+.nexor-auth-form input.user-invalid-fallback {
   border-color: #e11d48;
   background-color: #fff1f2;
-}
-
-.nexor-auth-form input:is(:user-valid, .user-valid-fallback) {
-  border-color: #10b981;
 }
 
 /* Reduced motion preference support */

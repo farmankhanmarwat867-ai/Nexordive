@@ -1,17 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useId } from 'react';
-import { X, AlertCircle, ShieldCheck, KeyRound, HelpCircle } from 'lucide-react';
+import { X, AlertCircle, KeyRound, HelpCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import {
-  isAdminAccountConfigured,
-  setupAdminCredentials,
   verifyAdminLogin,
   validateEmail,
-  validatePasswordStrength,
 } from '../../services/adminAuth';
 import { EmailField } from './common/EmailField';
-import { PasswordField, PasswordRequirementsList } from './common/PasswordField';
+import { PasswordField } from './common/PasswordField';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -24,7 +21,6 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   onClose,
   onLoginSuccess,
 }) => {
-  const [isConfigured, setIsConfigured] = useState<boolean>(() => isAdminAccountConfigured());
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailBlurred, setEmailBlurred] = useState(false);
@@ -39,12 +35,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const headingId = useId();
-  const setupRulesId = useId();
   const helpPanelId = useId();
 
   useEffect(() => {
     if (!isOpen) return;
-    setIsConfigured(isAdminAccountConfigured());
     setPassword('');
     setEmailBlurred(false);
     setPasswordBlurred(false);
@@ -77,13 +71,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   const showPasswordValidation = submitted || (passwordBlurred && password.length > 0);
 
   const emailError = showEmailValidation ? validateEmail(email) : null;
-  const passwordError = showPasswordValidation
-    ? isConfigured
-      ? !password
-        ? 'Please enter your password.'
-        : null
-      : validatePasswordStrength(password)
-    : null;
+  const passwordError =
+    showPasswordValidation && !password ? 'Please enter your password.' : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,11 +85,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     }
 
     const currentEmailErr = validateEmail(email);
-    const currentPasswordErr = isConfigured
-      ? !password
-        ? 'Please enter your password.'
-        : null
-      : validatePasswordStrength(password);
+    const currentPasswordErr = !password ? 'Please enter your password.' : null;
 
     if (currentEmailErr) {
       emailRef.current?.focus();
@@ -113,18 +98,16 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
 
     setIsLoading(true);
     try {
-      const result = isConfigured
-        ? await verifyAdminLogin(email, password)
-        : await setupAdminCredentials(email, password);
+      const result = await verifyAdminLogin(email, password);
 
       if (!result.success || !result.email) {
-        const nextFailed = isConfigured ? failedAttempts + 1 : 0;
+        const nextFailed = failedAttempts + 1;
         setFailedAttempts(nextFailed);
-        if (isConfigured && nextFailed >= 5) {
+        if (nextFailed >= 5) {
           setCooldownSeconds(5);
           setFormError('Too many failed sign-in attempts. Please wait 5 seconds and try again.');
         } else {
-          setFormError(result.error || 'Could not verify your credentials.');
+          setFormError(result.error || 'Invalid admin email or password.');
         }
         passwordRef.current?.focus();
         return;
@@ -176,12 +159,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           </div>
 
           <h2 id={headingId} className="text-2xl font-bold font-serif text-slate-900">
-            {isConfigured ? 'Manager Login' : 'Set Up Manager Account'}
+            Admin Login
           </h2>
           <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-            {isConfigured
-              ? 'Sign in with your manager email and password.'
-              : 'First-time setup: choose your login email and password to secure this dashboard.'}
+            Authorized access only. Sign in with your admin email and password.
           </p>
         </div>
 
@@ -200,9 +181,9 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
         <form onSubmit={handleSubmit} noValidate className="nexor-auth-form space-y-4">
           <EmailField
             inputRef={emailRef}
-            id={isConfigured ? 'admin-login-email' : 'admin-setup-email'}
+            id="admin-login-email"
             name="email"
-            label="Email Address"
+            label="Admin Email"
             value={email}
             onChange={(val) => {
               setEmail(val);
@@ -211,34 +192,22 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             onBlur={() => setEmailBlurred(true)}
             autoComplete="username"
             enterKeyHint="next"
-            hint={!isConfigured ? 'Format: name@example.com' : undefined}
             error={emailError}
           />
 
           <PasswordField
             inputRef={passwordRef}
-            id={isConfigured ? 'admin-login-password' : 'admin-setup-password'}
-            name={isConfigured ? 'password' : 'new-password'}
-            label={isConfigured ? 'Password' : 'Create Password'}
+            id="admin-login-password"
+            name="password"
+            label="Password"
             value={password}
             onChange={(val) => {
               setPassword(val);
               if (formError) setFormError(null);
             }}
             onBlur={() => setPasswordBlurred(true)}
-            autoComplete={isConfigured ? 'current-password' : 'new-password'}
-            minLength={isConfigured ? undefined : 8}
+            autoComplete="current-password"
             enterKeyHint="done"
-            hintId={!isConfigured ? setupRulesId : undefined}
-            aboveHint={
-              !isConfigured ? (
-                <PasswordRequirementsList
-                  id={setupRulesId}
-                  password={password}
-                  hasError={Boolean(passwordError)}
-                />
-              ) : undefined
-            }
             error={passwordError}
           />
 
@@ -247,52 +216,40 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             disabled={isLoading || cooldownSeconds > 0}
             className="w-full min-h-12 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-[#004d6a] hover:bg-[#093c47] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-60"
           >
-            {isConfigured ? (
-              <KeyRound className="w-4 h-4" aria-hidden="true" />
-            ) : (
-              <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-            )}
+            <KeyRound className="w-4 h-4" aria-hidden="true" />
             <span>
               {isLoading
-                ? isConfigured
-                  ? 'Verifying...'
-                  : 'Securing Account...'
+                ? 'Verifying...'
                 : cooldownSeconds > 0
                 ? `Wait ${cooldownSeconds}s`
-                : isConfigured
-                ? 'Sign In as Manager'
-                : 'Create Account & Sign In'}
+                : 'Login as Admin'}
             </span>
           </button>
         </form>
 
-        {isConfigured && (
-          <div className="mt-4 pt-3 border-t border-slate-100 text-center">
-            <button
-              type="button"
-              onClick={() => setShowHelp((prev) => !prev)}
-              aria-expanded={showHelp}
-              aria-controls={helpPanelId}
-              className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 hover:text-[#004d6a] transition-colors cursor-pointer"
-            >
-              <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Trouble signing in?</span>
-            </button>
+        <div className="mt-4 pt-3 border-t border-slate-100 text-center">
+          <button
+            type="button"
+            onClick={() => setShowHelp((prev) => !prev)}
+            aria-expanded={showHelp}
+            aria-controls={helpPanelId}
+            className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 hover:text-[#004d6a] transition-colors cursor-pointer"
+          >
+            <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Trouble signing in?</span>
+          </button>
 
-            {showHelp && (
-              <div
-                id={helpPanelId}
-                className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 text-left leading-relaxed"
-              >
-                Credentials are encrypted and saved in this browser. Once signed in, you can
-                update your login email or password under{' '}
-                <strong className="text-slate-800">Website Settings → Account &amp; Security</strong>.
-                If you forgot local credentials, clearing this site&apos;s browser storage resets
-                manager setup.
-              </div>
-            )}
-          </div>
-        )}
+          {showHelp && (
+            <div
+              id={helpPanelId}
+              className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 text-left leading-relaxed"
+            >
+              Only the configured NexorDive administrator can sign in here. Once signed in, you
+              can update your login email and password anytime under{' '}
+              <strong className="text-slate-800">Website Settings → Account &amp; Security</strong>.
+            </div>
+          )}
+        </div>
       </motion.div>
     </div>
   );
